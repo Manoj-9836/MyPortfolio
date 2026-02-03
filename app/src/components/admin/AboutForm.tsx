@@ -1,0 +1,201 @@
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Save, X } from 'lucide-react';
+import { API_ENDPOINTS } from '../../config/api';
+
+interface AboutData {
+  _id?: string;
+  title: string;
+  description: string;
+}
+
+interface AboutFormProps {
+  onSave: () => void;
+}
+
+export default function AboutForm({ onSave }: AboutFormProps) {
+  const [aboutData, setAboutData] = useState<AboutData>({
+    title: '',
+    description: '',
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    fetchAboutData();
+  }, []);
+
+  const fetchAboutData = async () => {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/about`);
+      const data = await response.json();
+      
+      if (data) {
+        setAboutData({
+          _id: data._id,
+          title: data.title || 'Professional Summary',
+          description: data.description || 'Computer Science undergraduate and Technical Head of the AI Club with strong experience in full-stack development and AI-powered applications. Actively involved in developer community building, technical workshops, and coding culture promotion. Passionate about mentoring peers, organizing programming initiatives to empower student developers.',
+        });
+      }
+    } catch {
+      setError('Failed to load about data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/about`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(aboutData),
+      });
+
+      if (response.ok) {
+        setSuccess('About section updated successfully!');
+        setTimeout(() => {
+          setSuccess('');
+          onSave();
+        }, 2000);
+      } else {
+        setError('Failed to update about section');
+      }
+    } catch {
+      setError('Failed to save changes');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2].map((i) => (
+          <div key={i} className="space-y-2">
+            <motion.div
+              className="h-4 w-24 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 rounded"
+              animate={{ backgroundPosition: ['200% 0', '-200% 0'] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              style={{ backgroundSize: '200% 100%' }}
+            />
+            <motion.div
+              className="h-20 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 rounded"
+              animate={{ backgroundPosition: ['200% 0', '-200% 0'] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              style={{ backgroundSize: '200% 100%' }}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Title Field */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Section Title
+        </label>
+        <input
+          type="text"
+          value={aboutData.title}
+          onChange={(e) => setAboutData({ ...aboutData, title: e.target.value })}
+          className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-white/30 rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none transition-all"
+          placeholder="e.g., Professional Summary"
+          required
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          The main heading for your about section
+        </p>
+      </div>
+
+      {/* Description Field */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Description
+        </label>
+        <textarea
+          value={aboutData.description}
+          onChange={(e) => setAboutData({ ...aboutData, description: e.target.value })}
+          className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-white/30 rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none transition-all min-h-[150px] resize-y"
+          placeholder="Write a professional summary about yourself..."
+          required
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          A comprehensive overview of your professional background and expertise
+        </p>
+      </div>
+
+      {/* Alert Messages */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-red-400 text-sm flex items-center gap-2"
+        >
+          <X className="w-4 h-4" />
+          {error}
+        </motion.div>
+      )}
+
+      {success && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-green-400 text-sm flex items-center gap-2"
+        >
+          <Save className="w-4 h-4" />
+          {success}
+        </motion.div>
+      )}
+
+      {/* Submit Button */}
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+        <button
+          type="button"
+          onClick={() => fetchAboutData()}
+          className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+          disabled={saving}
+        >
+          Reset
+        </button>
+        <motion.button
+          type="submit"
+          disabled={saving}
+          whileHover={{ scale: saving ? 1 : 1.02 }}
+          whileTap={{ scale: saving ? 1 : 0.98 }}
+          className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+        >
+          {saving ? (
+            <>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                className="w-4 h-4 border-2 border-gray-400 border-t-black rounded-full"
+              />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4" />
+              Save Changes
+            </>
+          )}
+        </motion.button>
+      </div>
+    </form>
+  );
+}
