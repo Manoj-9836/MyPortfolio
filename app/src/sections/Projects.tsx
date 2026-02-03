@@ -1,17 +1,10 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import {
-  Atom,
   Briefcase,
   CheckCircle2,
-  Database,
   ExternalLink,
-  Github,
-  Globe,
-  Leaf,
-  Server,
-  Sparkles,
-  Wrench
+  Github
 } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
 
