@@ -11,6 +11,7 @@ interface BlogPost {
   excerpt: string;
   content: string;
   image?: string;
+  leetcodeImage?: string;
   tags?: string[];
   readTime?: string;
   published?: boolean;
@@ -54,6 +55,12 @@ export default function Blog() {
       'Backend': 'bg-green-500/20 text-green-400',
     };
     return colors[category] || 'bg-white/10 text-white';
+  };
+
+  const isLeetCodePost = (post: BlogPost) => {
+    const category = post.category?.toLowerCase() || '';
+    const tags = post.tags?.map((tag) => tag.toLowerCase()) || [];
+    return category.includes('leetcode') || tags.includes('leetcode');
   };
 
   return (
@@ -116,7 +123,7 @@ export default function Blog() {
                     className="relative z-10 mb-4 h-32 rounded-2xl overflow-hidden group/image"
                   >
                     <img
-                      src={post.image}
+                      src={post.image || post.leetcodeImage}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover/image:scale-110 transition-transform duration-500"
                     />
@@ -203,13 +210,21 @@ export default function Blog() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-6 mt-4"
+                className="w-full rounded-2xl overflow-hidden mb-6 mt-4"
               >
-                <img
-                  src={selectedPost.image}
-                  alt={selectedPost.title}
-                  className="w-full h-full object-cover"
-                />
+                {isLeetCodePost(selectedPost) && selectedPost.image ? (
+                  <img
+                    src={selectedPost.image}
+                    alt={selectedPost.title}
+                    className="w-full h-64 md:h-80 object-cover rounded-2xl"
+                  />
+                ) : (
+                  <img
+                    src={selectedPost.image || selectedPost.leetcodeImage}
+                    alt={selectedPost.title}
+                    className="w-full h-64 md:h-80 object-cover"
+                  />
+                )}
               </motion.div>
 
               {/* Header */}
@@ -239,6 +254,17 @@ export default function Blog() {
                 >
                   {selectedPost.excerpt}
                 </motion.p>
+                {isLeetCodePost(selectedPost) && selectedPost.leetcodeImage && (
+                  <div className="mt-5 w-full">
+                    <div className="w-[100px] rounded-2xl overflow-hidden border border-white/10 bg-gray-900/50">
+                      <img
+                        src={selectedPost.leetcodeImage}
+                        alt={`${selectedPost.title} - LeetCode`}
+                        className="w-full h-auto object-contain"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Divider */}

@@ -9,6 +9,7 @@ interface BlogPost {
   excerpt: string;
   content: string;
   image?: string;
+  leetcodeImage?: string;
   date: string;
   category: string;
   tags: string[];
@@ -31,6 +32,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
     excerpt: '',
     content: '',
     image: '',
+    leetcodeImage: '',
     date: new Date().toISOString().split('T')[0],
     category: 'Technology',
     tags: [],
@@ -62,13 +64,22 @@ export default function BlogForm({ onSave }: BlogFormProps) {
   const handleOpenModal = (post?: BlogPost) => {
     if (post) {
       setEditingId(post._id || null);
-      setFormData(post);
+      const loadedData = {
+        ...post,
+        leetcodeImage: post.leetcodeImage || '',
+        image: post.image || '',
+      };
+      console.log('Loading post for editing:', loadedData);
+      console.log('Is LeetCode post?', isLeetCodePost(loadedData));
+      setFormData(loadedData);
     } else {
       setEditingId(null);
       setFormData({
         title: '',
         excerpt: '',
         content: '',
+        image: '',
+        leetcodeImage: '',
         date: new Date().toISOString().split('T')[0],
         category: 'Technology',
         tags: [],
@@ -77,6 +88,12 @@ export default function BlogForm({ onSave }: BlogFormProps) {
       });
     }
     setIsModalOpen(true);
+  };
+
+  const isLeetCodePost = (post: BlogPost) => {
+    const category = post.category?.toLowerCase() || '';
+    const tags = post.tags?.map((tag) => tag.toLowerCase()) || [];
+    return category.includes('leetcode') || tags.includes('leetcode');
   };
 
   const handleCloseModal = () => {
@@ -101,12 +118,18 @@ export default function BlogForm({ onSave }: BlogFormProps) {
     setSaving(true);
     setError('');
 
+    console.log('Submitting blog post:', formData);
+    console.log('LeetCode Image being sent:', formData.leetcodeImage);
+
     try {
       const token = localStorage.getItem('adminToken');
       const url = editingId
         ? `${API_ENDPOINTS.PORTFOLIO}/blogs/${editingId}`
         : `${API_ENDPOINTS.PORTFOLIO}/blogs`;
       const method = editingId ? 'PUT' : 'POST';
+
+      console.log('Request URL:', url);
+      console.log('Request method:', method);
 
       const response = await fetch(url, {
         method,
@@ -116,6 +139,13 @@ export default function BlogForm({ onSave }: BlogFormProps) {
         },
         body: JSON.stringify(formData),
       });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
+      const responseData = await response.json();
+      console.log('Response from server:', responseData);
+      console.log('Returned leetcodeImage:', responseData.leetcodeImage);
 
       if (response.ok) {
         setSuccess(editingId ? 'Post updated!' : 'Post created!');
@@ -128,7 +158,8 @@ export default function BlogForm({ onSave }: BlogFormProps) {
       } else {
         setError('Failed to save post');
       }
-    } catch {
+    } catch (err) {
+      console.error('Error saving post:', err);
       setError('Failed to save changes');
     } finally {
       setSaving(false);
@@ -303,6 +334,12 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                         </div>
                       </>
                     )}
+                    {post.leetcodeImage && (
+                      <>
+                        <span>•</span>
+                        <span className="text-green-400">📊 LeetCode Image</span>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -445,6 +482,37 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                       </motion.div>
                     )}
                   </div>
+
+                  {isLeetCodePost(formData) && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        LeetCode Image URL
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.leetcodeImage || ''}
+                        onChange={(e) => setFormData({ ...formData, leetcodeImage: e.target.value })}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        placeholder="https://..."
+                      />
+                      {formData.leetcodeImage && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-3 rounded-lg overflow-hidden border border-white/10 h-32"
+                        >
+                          <img
+                            src={formData.leetcodeImage}
+                            alt="LeetCode Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </motion.div>
+                      )}
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">

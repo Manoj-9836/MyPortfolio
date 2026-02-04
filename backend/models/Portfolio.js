@@ -38,6 +38,7 @@ const blogSchema = new mongoose.Schema({
   excerpt: { type: String, required: true },
   content: String,
   image: String,
+  leetcodeImage: String,
   date: String,
   readTime: String,
   category: String,
