@@ -21,7 +21,11 @@ import {
   FileText,
   Image as ImageIcon,
   Settings,
-  TrendingUp
+  TrendingUp,
+  Heart,
+  MessageCircle,
+  Eye,
+  Zap
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { SkeletonContent } from '../components/admin/SkeletonLoader';
@@ -38,6 +42,29 @@ import LeadershipForm from '../components/admin/LeadershipForm';
 import AchievementsForm from '../components/admin/AchievementsForm';
 import ContactForm from '../components/admin/ContactForm';
 
+interface BlogPost {
+  _id?: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  image?: string;
+  date: string;
+  category: string;
+  tags: string[];
+  views?: number;
+  likes?: number;
+  comments?: Comment[];
+}
+
+interface Comment {
+  _id?: string;
+  author: string;
+  email: string;
+  content: string;
+  createdAt: string;
+  approved?: boolean;
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
@@ -51,6 +78,14 @@ export default function AdminDashboard() {
     { title: 'Blog Posts', value: 0, icon: FileText, change: { value: 0, trend: 'up' as const } },
   ]);
   const [chartData, setChartData] = useState<{ name: string; value: number; color: string }[]>([]);
+  const [engagementStats, setEngagementStats] = useState({
+    totalViews: 0,
+    totalLikes: 0,
+    totalComments: 0,
+    totalEngagement: 0,
+  });
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [mostEngagedPosts, setMostEngagedPosts] = useState<(BlogPost & { engagement: number })[]>([]);
 
   useEffect(() => {
     if (!token) {
@@ -76,6 +111,40 @@ export default function AdminDashboard() {
             { name: 'Achievements', value: data.achievements || 0, color: '#f59e0b' },
             { name: 'Blog Posts', value: data.blogs || 0, color: '#ef4444' },
           ]);
+
+          // Fetch blog posts for engagement analytics
+          const blogsRes = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs`);
+          const blogs: BlogPost[] = await blogsRes.json();
+          setBlogPosts(blogs);
+
+          // Calculate engagement metrics
+          let totalViews = 0;
+          let totalLikes = 0;
+          let totalComments = 0;
+
+          blogs.forEach((blog: BlogPost) => {
+            totalViews += blog.views || 0;
+            totalLikes += blog.likes || 0;
+            totalComments += (blog.comments?.length || 0);
+          });
+
+          setEngagementStats({
+            totalViews,
+            totalLikes,
+            totalComments,
+            totalEngagement: totalViews + totalLikes + totalComments,
+          });
+
+          // Get top 5 most engaged posts
+          const engagedPosts = blogs
+            .map((blog: BlogPost) => ({
+              ...blog,
+              engagement: (blog.views || 0) + (blog.likes || 0) + (blog.comments?.length || 0),
+            }))
+            .sort((a: BlogPost & { engagement: number }, b: BlogPost & { engagement: number }) => b.engagement - a.engagement)
+            .slice(0, 5);
+
+          setMostEngagedPosts(engagedPosts);
         } catch (error) {
           console.error('Failed to fetch stats:', error);
         }
@@ -277,6 +346,138 @@ export default function AdminDashboard() {
                     />
                   ))}
                 </div>
+
+                {/* Engagement Analytics Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 rounded-xl p-6 hover:border-blue-500/40 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-blue-500/20 rounded-lg">
+                          <Eye className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <span className="text-gray-400 text-sm">Total Views</span>
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold">{engagementStats.totalViews.toLocaleString()}</h3>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {blogPosts.length > 0 ? `Avg ${(engagementStats.totalViews / blogPosts.length).toFixed(1)} per post` : 'No posts yet'}
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-gradient-to-br from-red-500/10 to-red-500/5 border border-red-500/20 rounded-xl p-6 hover:border-red-500/40 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-red-500/20 rounded-lg">
+                          <Heart className="w-5 h-5 text-red-400" />
+                        </div>
+                        <span className="text-gray-400 text-sm">Total Likes</span>
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold">{engagementStats.totalLikes.toLocaleString()}</h3>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {blogPosts.length > 0 ? `Avg ${(engagementStats.totalLikes / blogPosts.length).toFixed(1)} per post` : 'No posts yet'}
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20 rounded-xl p-6 hover:border-green-500/40 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-green-500/20 rounded-lg">
+                          <MessageCircle className="w-5 h-5 text-green-400" />
+                        </div>
+                        <span className="text-gray-400 text-sm">Total Comments</span>
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold">{engagementStats.totalComments.toLocaleString()}</h3>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {blogPosts.length > 0 ? `Avg ${(engagementStats.totalComments / blogPosts.length).toFixed(1)} per post` : 'No posts yet'}
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-purple-500/20 rounded-lg">
+                          <Zap className="w-5 h-5 text-purple-400" />
+                        </div>
+                        <span className="text-gray-400 text-sm">Total Engagement</span>
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold">{engagementStats.totalEngagement.toLocaleString()}</h3>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {blogPosts.length > 0 ? `Avg ${(engagementStats.totalEngagement / blogPosts.length).toFixed(1)} per post` : 'No posts yet'}
+                    </p>
+                  </motion.div>
+                </div>
+
+                {/* Most Engaged Posts */}
+                {mostEngagedPosts.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="bg-white/5 border border-white/10 rounded-xl p-6"
+                  >
+                    <div className="flex items-center gap-2 mb-6">
+                      <TrendingUp className="w-5 h-5 text-purple-400" />
+                      <h3 className="text-lg font-semibold">Top 5 Most Engaged Posts</h3>
+                    </div>
+                    <div className="space-y-3">
+                      {mostEngagedPosts.map((post, index) => (
+                        <motion.div
+                          key={post._id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/8 transition-all flex items-center justify-between"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-sm font-bold text-purple-400 bg-purple-500/20 w-8 h-8 rounded-full flex items-center justify-center">
+                                #{index + 1}
+                              </span>
+                              <h4 className="font-semibold truncate text-white">{post.title}</h4>
+                            </div>
+                            <div className="flex items-center gap-4 text-xs text-gray-400">
+                              <span className="flex items-center gap-1">
+                                <Eye className="w-3 h-3" />{post.views || 0} views
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Heart className="w-3 h-3" />{post.likes || 0} likes
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MessageCircle className="w-3 h-3" />{post.comments?.length || 0} comments
+                              </span>
+                            </div>
+                          </div>
+                          <div className="ml-4 text-right">
+                            <div className="text-lg font-bold text-purple-400">{post.engagement}</div>
+                            <div className="text-xs text-gray-500">engagement</div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
 
                 {/* Recent Activity & Quick Actions */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

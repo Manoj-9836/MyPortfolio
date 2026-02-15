@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit, Trash2, X, Save, BookOpen, Eye, EyeOff, Heart, MessageCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Save, BookOpen, Eye, EyeOff, Heart, MessageCircle, Calendar, User, Trash } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
 
 interface BlogPost {
@@ -31,6 +31,8 @@ export default function BlogForm({ onSave }: BlogFormProps) {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
+  const [selectedPostForComments, setSelectedPostForComments] = useState<BlogPost | null>(null);
   const [formData, setFormData] = useState<BlogPost>({
     title: '',
     excerpt: '',
@@ -194,6 +196,37 @@ export default function BlogForm({ onSave }: BlogFormProps) {
     } catch {
       setError('Failed to delete post');
     }
+  };
+
+  const handleDeleteComment = async (postId: string, commentId: string) => {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setSuccess('Comment deleted!');
+        if (selectedPostForComments?._id === postId) {
+          const updatedComments = selectedPostForComments.comments?.filter(c => c._id !== commentId) || [];
+          setSelectedPostForComments({ ...selectedPostForComments, comments: updatedComments });
+        }
+        await fetchPosts();
+        setTimeout(() => setSuccess(''), 1500);
+      }
+    } catch {
+      setError('Failed to delete comment');
+    }
+  };
+
+  const openCommentsModal = (post: BlogPost) => {
+    setSelectedPostForComments(post);
+    setIsCommentsModalOpen(true);
   };
 
   const filteredPosts = posts.filter(post => {
@@ -376,6 +409,13 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                     title="Edit"
                   >
                     <Edit className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => openCommentsModal(post)}
+                    className="p-2 hover:bg-blue-500/10 text-blue-400 rounded-lg transition-colors"
+                    title="View Comments"
+                  >
+                    <MessageCircle className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => post._id && handleDelete(post._id)}
@@ -680,6 +720,99 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                     </motion.button>
                   </div>
                 </form>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Comments Modal */}
+      <AnimatePresence>
+        {isCommentsModalOpen && selectedPostForComments && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCommentsModalOpen(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-xl font-bold">{selectedPostForComments.title}</h3>
+                    <p className="text-sm text-gray-400 mt-1">
+                      {selectedPostForComments.comments?.length || 0} Comments
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsCommentsModalOpen(false)}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Comments List */}
+                <div className="space-y-3">
+                  {selectedPostForComments.comments && selectedPostForComments.comments.length > 0 ? (
+                    [...selectedPostForComments.comments]
+                      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .map((comment: any) => (
+                        <motion.div
+                          key={comment._id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/8 transition-all group"
+                        >
+                          <div className="flex items-start justify-between gap-3 mb-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <User className="w-4 h-4 text-gray-400" />
+                                <span className="font-semibold text-white">{comment.author}</span>
+                                {!comment.approved && (
+                                  <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded-full">
+                                    Pending
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-gray-500">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(comment.createdAt).toLocaleString()}
+                              </div>
+                            </div>
+                            <button
+                              onClick={() =>
+                                selectedPostForComments._id &&
+                                handleDeleteComment(selectedPostForComments._id, comment._id)
+                              }
+                              className="p-2 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                              title="Delete Comment"
+                            >
+                              <Trash className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <p className="text-gray-300 text-sm">{comment.content}</p>
+                          {comment.email && (
+                            <p className="text-xs text-gray-500 mt-2">📧 {comment.email}</p>
+                          )}
+                        </motion.div>
+                      ))
+                  ) : (
+                    <div className="text-center py-12 text-gray-400">
+                      <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p>No comments yet</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           </>
