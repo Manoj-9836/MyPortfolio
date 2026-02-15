@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit, Trash2, X, Save, BookOpen, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Save, BookOpen, Eye, EyeOff, Heart, MessageCircle } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
 
 interface BlogPost {
@@ -15,7 +15,11 @@ interface BlogPost {
   tags: string[];
   readTime?: string;
   published?: boolean;
+  featured?: boolean;
   order?: number;
+  views?: number;
+  likes?: number;
+  comments?: any[];
 }
 
 interface BlogFormProps {
@@ -85,6 +89,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
         tags: [],
         readTime: '',
         published: true,
+        featured: false,
       });
     }
     setIsModalOpen(true);
@@ -302,8 +307,13 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="font-semibold text-lg">{post.title}</h3>
                     <div className="flex items-center gap-1.5">
-                      {!post.published && (
+                      {post.featured && (
                         <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded-full font-medium">
+                          ★ Featured
+                        </span>
+                      )}
+                      {!post.published && (
+                        <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-full font-medium">
                           Draft
                         </span>
                       )}
@@ -340,6 +350,22 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                         <span className="text-green-400">📊 LeetCode Image</span>
                       </>
                     )}
+                  </div>
+                  
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 text-xs text-gray-400 mt-2">
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      <span>{post.views || 0} views</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Heart className="w-3 h-3" />
+                      <span>{post.likes || 0} likes</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MessageCircle className="w-3 h-3" />
+                      <span>{post.comments?.length || 0} comments</span>
+                    </div>
                   </div>
                 </div>
 
@@ -561,6 +587,19 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                               <span className="text-sm font-medium text-gray-300">Draft</span>
                             </>
                           )}
+                        </div>
+                      </label>
+
+                      <label className="flex items-center gap-3 cursor-pointer group pt-4">
+                        <input
+                          type="checkbox"
+                          checked={formData.featured || false}
+                          onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                          className="w-5 h-5 bg-white/5 border border-white/10 rounded cursor-pointer accent-yellow-400"
+                        />
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">★</span>
+                          <span className="text-sm font-medium text-gray-300">Featured Post</span>
                         </div>
                       </label>
                     </div>

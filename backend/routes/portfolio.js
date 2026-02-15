@@ -315,6 +315,128 @@ router.delete('/blogs/:id', verifyToken, async (req, res) => {
   }
 });
 
+// Increment blog views
+router.post('/blogs/:id/view', async (req, res) => {
+  try {
+    const blog = await Blog.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+    res.json({ views: blog.views });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Toggle like on a blog post
+router.post('/blogs/:id/like', async (req, res) => {
+  try {
+    const { userId } = req.body; // This could be IP address or session ID
+    const blog = await Blog.findById(req.params.id);
+    
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+
+    const hasLiked = blog.likedBy.includes(userId);
+    
+    if (hasLiked) {
+      // Unlike
+      blog.likedBy = blog.likedBy.filter(id => id !== userId);
+      blog.likes = Math.max(0, blog.likes - 1);
+    } else {
+      // Like
+      blog.likedBy.push(userId);
+      blog.likes += 1;
+    }
+    
+    await blog.save();
+    res.json({ likes: blog.likes, hasLiked: !hasLiked });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Add comment to blog post
+router.post('/blogs/:id/comments', async (req, res) => {
+  try {
+    const { author, email, content } = req.body;
+    
+    if (!author || !content) {
+      return res.status(400).json({ message: 'Author and content are required' });
+    }
+
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+
+    const newComment = {
+      author,
+      email,
+      content,
+      createdAt: new Date(),
+      approved: true
+    };
+
+    blog.comments.push(newComment);
+    await blog.save();
+
+    res.status(201).json(blog.comments[blog.comments.length - 1]);
+  } catch (error) {
+    res.status(400).json({ message: 'Validation error', error: error.message });
+  }
+});
+
+// Delete comment from blog post (protected)
+router.delete('/blogs/:id/comments/:commentId', verifyToken, async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+
+    blog.comments = blog.comments.filter(
+      comment => comment._id.toString() !== req.params.commentId
+    );
+    
+    await blog.save();
+    res.json({ message: 'Comment deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get related posts
+router.get('/blogs/:id/related', async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+
+    // Find posts with similar tags or category
+    const relatedPosts = await Blog.find({
+      _id: { $ne: req.params.id },
+      published: true,
+      $or: [
+        { category: blog.category },
+        { tags: { $in: blog.tags } }
+      ]
+    })
+    .limit(3)
+    .sort({ date: -1 });
+
+    res.json(relatedPosts);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Projects with default data
 router.get('/projects', async (req, res) => {
   try {

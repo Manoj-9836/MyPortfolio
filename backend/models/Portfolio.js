@@ -33,6 +33,14 @@ const educationSchema = new mongoose.Schema({
   order: { type: Number, default: 0 }
 }, { timestamps: true });
 
+const commentSchema = new mongoose.Schema({
+  author: { type: String, required: true },
+  email: String,
+  content: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+  approved: { type: Boolean, default: true }
+});
+
 const blogSchema = new mongoose.Schema({
   title: { type: String, required: true },
   excerpt: { type: String, required: true },
@@ -44,7 +52,12 @@ const blogSchema = new mongoose.Schema({
   category: String,
   tags: [String],
   published: { type: Boolean, default: true },
-  order: { type: Number, default: 0 }
+  featured: { type: Boolean, default: false },
+  order: { type: Number, default: 0 },
+  views: { type: Number, default: 0 },
+  likes: { type: Number, default: 0 },
+  likedBy: [{ type: String }], // Store IP addresses or session IDs
+  comments: [commentSchema]
 }, { timestamps: true });
 
 const leadershipSchema = new mongoose.Schema({
