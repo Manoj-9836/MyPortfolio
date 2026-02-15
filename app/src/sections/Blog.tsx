@@ -32,7 +32,7 @@ interface BlogPost {
 }
 
 export default function Blog() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -54,6 +54,64 @@ export default function Blog() {
       localStorage.setItem('blogUserId', userId);
     }
     return userId;
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getCategoryColor = (category: string) => {
+    const colors: { [key: string]: string } = {
+      'React': 'bg-blue-500/20 text-blue-400',
+      'Web Design': 'bg-purple-500/20 text-purple-400',
+      'JavaScript': 'bg-yellow-500/20 text-yellow-400',
+      'CSS': 'bg-pink-500/20 text-pink-400',
+      'TypeScript': 'bg-cyan-500/20 text-cyan-400',
+      'Backend': 'bg-green-500/20 text-green-400',
+    };
+    return colors[category] || 'bg-white/10 text-white';
+  };
+
+  const isLeetCodePost = (post: BlogPost) => {
+    const category = post.category?.toLowerCase() || '';
+    const tags = post.tags?.map((tag) => tag.toLowerCase()) || [];
+    return category.includes('leetcode') || tags.includes('leetcode');
+  };
+
+  const incrementView = async (postId: string) => {
+    try {
+      await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/view`, {
+        method: 'POST',
+      });
+      // Update local state
+      setPosts(prev => prev.map(p => 
+        p._id === postId ? { ...p, views: (p.views || 0) + 1 } : p
+      ));
+    } catch (error) {
+      console.error('Failed to increment view:', error);
+    }
+  };
+
+  const fetchRelatedPosts = async (postId: string) => {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/related`);
+      const data = await response.json();
+      setRelatedPosts(data);
+    } catch (error) {
+      console.error('Failed to fetch related posts:', error);
+    }
+  };
+
+  const checkIfLiked = (postId: string) => {
+    const post = posts.find(p => p._id === postId);
+    if (post?.likedBy) {
+      const userId = getUserId();
+      setHasLiked(post.likedBy.includes(userId));
+    }
   };
 
   useEffect(() => {
@@ -129,47 +187,8 @@ export default function Blog() {
       setRelatedPosts([]);
       setShowShareMenu(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPost]);
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      'React': 'bg-blue-500/20 text-blue-400',
-      'Web Design': 'bg-purple-500/20 text-purple-400',
-      'JavaScript': 'bg-yellow-500/20 text-yellow-400',
-      'CSS': 'bg-pink-500/20 text-pink-400',
-      'TypeScript': 'bg-cyan-500/20 text-cyan-400',
-      'Backend': 'bg-green-500/20 text-green-400',
-    };
-    return colors[category] || 'bg-white/10 text-white';
-  };
-
-  const isLeetCodePost = (post: BlogPost) => {
-    const category = post.category?.toLowerCase() || '';
-    const tags = post.tags?.map((tag) => tag.toLowerCase()) || [];
-    return category.includes('leetcode') || tags.includes('leetcode');
-  };
-
-  const incrementView = async (postId: string) => {
-    try {
-      await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/view`, {
-        method: 'POST',
-      });
-      // Update local state
-      setPosts(prev => prev.map(p => 
-        p._id === postId ? { ...p, views: (p.views || 0) + 1 } : p
-      ));
-    } catch (error) {
-      console.error('Failed to increment view:', error);
-    }
-  };
 
   const handleLike = async (postId: string) => {
     try {
@@ -202,14 +221,6 @@ export default function Blog() {
       setHasLiked(data.hasLiked);
     } catch (error) {
       console.error('Failed to like post:', error);
-    }
-  };
-
-  const checkIfLiked = (postId: string) => {
-    const post = posts.find(p => p._id === postId);
-    if (post?.likedBy) {
-      const userId = getUserId();
-      setHasLiked(post.likedBy.includes(userId));
     }
   };
 
@@ -246,21 +257,10 @@ export default function Blog() {
     }
   };
 
-  const fetchRelatedPosts = async (postId: string) => {
-    try {
-      const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/related`);
-      const data = await response.json();
-      setRelatedPosts(data);
-    } catch (error) {
-      console.error('Failed to fetch related posts:', error);
-    }
-  };
-
   const sharePost = (platform: string) => {
     if (!selectedPost) return;
     const url = window.location.href;
     const title = selectedPost.title;
-    const text = selectedPost.excerpt;
 
     const shareUrls: { [key: string]: string } = {
       twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
