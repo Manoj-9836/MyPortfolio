@@ -30,6 +30,7 @@ const educationSchema = new mongoose.Schema({
   description: String,
   achievements: [String],
   current: { type: Boolean, default: false },
+  logoPath: String,
   order: { type: Number, default: 0 }
 }, { timestamps: true });
 

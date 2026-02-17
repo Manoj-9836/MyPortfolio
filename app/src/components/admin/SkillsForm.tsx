@@ -233,6 +233,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
 
       {/* Skills List */}
       <div className="space-y-3">
+        <h3 className="text-lg font-semibold">Skills Management</h3>
         {filteredSkills.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
             <Code2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
@@ -258,7 +259,6 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
                     <div className="flex-1 bg-white/10 rounded-full h-2 overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${skill.level}%` }}
                         transition={{ duration: 1, ease: 'easeOut' }}
                         className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
                       />

@@ -14,6 +14,7 @@ interface Education {
   achievements?: string[];
   current?: boolean;
   order?: number;
+  logoPath?: string;
 }
 
 interface EducationFormProps {
@@ -33,6 +34,7 @@ export default function EducationForm({ onSave }: EducationFormProps) {
     gpa: '',
     description: '',
     current: false,
+    logoPath: '',
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -84,6 +86,7 @@ export default function EducationForm({ onSave }: EducationFormProps) {
       gpa: '',
       description: '',
       current: false,
+      logoPath: '',
     });
   };
 
@@ -362,6 +365,20 @@ export default function EducationForm({ onSave }: EducationFormProps) {
                         placeholder="e.g., CGPA: 8.1 or 85%"
                         required
                       />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Logo Path (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.logoPath}
+                        onChange={(e) => setFormData({ ...formData, logoPath: e.target.value })}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        placeholder="e.g., /Images/Lendi.png or /Images/APT.png"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Available logos: Lendi.png, APT.png</p>
                     </div>
 
                     <div className="md:col-span-2">

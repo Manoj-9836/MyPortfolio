@@ -11,6 +11,7 @@ interface EducationData {
   location: string;
   period: string;
   current?: boolean;
+  logoPath?: string;
 }
 
 const defaultEducationData: EducationData[] = [
@@ -20,7 +21,8 @@ const defaultEducationData: EducationData[] = [
     gpa: 'CGPA: 8.1',
     location: 'Vizianagaram',
     period: '2024 – Present',
-    current: true
+    current: true,
+    logoPath: '/Images/Lendi.png'
   },
   {
     institution: 'Andhra Polytechnic, Kakinada',
@@ -28,7 +30,8 @@ const defaultEducationData: EducationData[] = [
     gpa: 'Percentage: 85%',
     location: 'Kakinada',
     period: '2021 – 2024',
-    current: false
+    current: false,
+    logoPath: '/Images/APT.png'
   }
 ];
 
@@ -37,13 +40,37 @@ export default function Education() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [educationData, setEducationData] = useState<EducationData[]>(defaultEducationData);
 
+  // Map institution names to logo paths
+  const getLogoPath = (institution: string, currentLogoPath?: string): string => {
+    // If logoPath is already set from backend, use it
+    if (currentLogoPath) return currentLogoPath;
+    
+    // Otherwise, try to match institution name to available logos
+    const lowerInstitution = institution.toLowerCase();
+    
+    if (lowerInstitution.includes('lendi')) {
+      return '/Images/Lendi.png';
+    }
+    if (lowerInstitution.includes('polytechnic') || lowerInstitution.includes('apt')) {
+      return '/Images/APT.png';
+    }
+    
+    // Return empty string if no match found
+    return '';
+  };
+
   useEffect(() => {
     const fetchEducation = async () => {
       try {
         const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/education`);
         const data = await response.json();
         if (data && data.length > 0) {
-          setEducationData(data);
+          // Add logoPath to each education item if not already present
+          const dataWithLogos = data.map((edu: EducationData) => ({
+            ...edu,
+            logoPath: getLogoPath(edu.institution, edu.logoPath)
+          }));
+          setEducationData(dataWithLogos);
         }
       } catch {
         // Use default data if fetch fails
@@ -96,8 +123,20 @@ export default function Education() {
                   <div className="flex flex-col gap-6">
                     {/* Top Content */}
                     <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                        <GraduationCap className="w-6 h-6 text-white" />
+                      <div className="w-14 h-14 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {edu.logoPath ? (
+                          <img 
+                            src={edu.logoPath} 
+                            alt={edu.institution}
+                            className="w-12 h-12 object-contain p-1"
+                            onError={(e) => {
+                              // Fallback to icon if image fails to load
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <GraduationCap className="w-6 h-6 text-white" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg md:text-xl font-semibold mb-1">{edu.institution}</h3>
