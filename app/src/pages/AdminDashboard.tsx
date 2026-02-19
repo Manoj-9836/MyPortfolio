@@ -227,7 +227,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex">
+    <div className="min-h-screen bg-black text-white flex overflow-x-hidden">
       {/* Mobile Sidebar Overlay */}
       {isMobileSidebarOpen && (
         <button
@@ -316,12 +316,12 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-300 ml-0 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
+      <div className={`flex-1 min-w-0 transition-all duration-300 ml-0 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
         {/* Header */}
         <header className="sticky top-0 z-30 bg-black/80 backdrop-blur-xl border-b border-white/10">
           <div className="px-4 md:px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start sm:items-center justify-between gap-3">
+              <div className="flex items-start sm:items-center gap-3 min-w-0">
                 <button
                   onClick={() => setIsMobileSidebarOpen(true)}
                   className="md:hidden p-2 hover:bg-white/5 rounded-lg transition-colors"
@@ -329,17 +329,17 @@ export default function AdminDashboard() {
                 >
                   <Menu className="w-5 h-5" />
                 </button>
-                <div>
-                <h1 className="text-xl md:text-2xl font-bold capitalize">{sections.find(s => s.id === activeTab)?.label}</h1>
-                <p className="text-sm text-gray-400 mt-1">
+                <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold capitalize truncate">{sections.find(s => s.id === activeTab)?.label}</h1>
+                <p className="text-xs sm:text-sm text-gray-400 mt-1 truncate">
                   Manage your portfolio content
                 </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <a
                   href="/"
-                  className="hidden sm:block px-3 md:px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                  className="hidden md:block px-3 md:px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
                 >
                   View Site
                 </a>
@@ -349,7 +349,7 @@ export default function AdminDashboard() {
                   className="flex items-center gap-2 px-3 md:px-4 py-2 text-sm bg-white/5 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
                 >
                   <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                  {!isLoading && <span className="hidden sm:inline">Refresh</span>}
+                  {!isLoading && <span className="hidden md:inline">Refresh</span>}
                 </button>
               </div>
             </div>
@@ -357,18 +357,19 @@ export default function AdminDashboard() {
         </header>
 
         {/* Content Area */}
-        <main className="p-4 md:p-6">
+        <main className="p-4 md:p-6 overflow-x-hidden">
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
+            className="min-w-0"
           >
             {activeTab === 'home' ? (
               // Dashboard Home
               <div className="space-y-6">
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                   {stats.map((stat) => (
                     <StatCard
                       key={stat.title}
@@ -382,11 +383,11 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Engagement Analytics Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 rounded-xl p-6 hover:border-blue-500/40 transition-all"
+                    className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 rounded-xl p-4 sm:p-6 hover:border-blue-500/40 transition-all"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -406,7 +407,7 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-gradient-to-br from-red-500/10 to-red-500/5 border border-red-500/20 rounded-xl p-6 hover:border-red-500/40 transition-all"
+                    className="bg-gradient-to-br from-red-500/10 to-red-500/5 border border-red-500/20 rounded-xl p-4 sm:p-6 hover:border-red-500/40 transition-all"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -426,7 +427,7 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20 rounded-xl p-6 hover:border-green-500/40 transition-all"
+                    className="bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20 rounded-xl p-4 sm:p-6 hover:border-green-500/40 transition-all"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -446,7 +447,7 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all"
+                    className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 rounded-xl p-4 sm:p-6 hover:border-purple-500/40 transition-all"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -469,7 +470,7 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="bg-white/5 border border-white/10 rounded-xl p-6"
+                    className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6"
                   >
                     <div className="flex items-center gap-2 mb-6">
                       <TrendingUp className="w-5 h-5 text-purple-400" />
@@ -479,32 +480,52 @@ export default function AdminDashboard() {
                       {mostEngagedPosts.map((post, index) => (
                         <motion.div
                           key={post._id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/8 transition-all flex items-center justify-between"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.25, delay: index * 0.06 }}
+                          className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 overflow-hidden"
                         >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-2">
-                              <span className="text-sm font-bold text-purple-400 bg-purple-500/20 w-8 h-8 rounded-full flex items-center justify-center">
-                                #{index + 1}
-                              </span>
-                              <h4 className="font-semibold truncate text-white">{post.title}</h4>
-                            </div>
-                            <div className="flex items-center gap-4 text-xs text-gray-400">
-                              <span className="flex items-center gap-1">
-                                <Eye className="w-3 h-3" />{post.views || 0} views
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Heart className="w-3 h-3" />{post.likes || 0} likes
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <MessageCircle className="w-3 h-3" />{post.comments?.length || 0} comments
-                              </span>
+                          {/* LEFT CONTENT */}
+                          <div className="flex items-start gap-3 w-full min-w-0">
+                            
+                            {/* Rank Badge */}
+                            <span className="text-sm font-bold text-purple-400 bg-purple-500/20 w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center">
+                              #{index + 1}
+                            </span>
+
+                            {/* Text Content */}
+                            <div className="flex flex-col gap-2 flex-1 min-w-0">
+
+                              {/* Title */}
+                              <h4 className="font-semibold text-white text-sm sm:text-base leading-snug line-clamp-2 break-words">
+                                {post.title}
+                              </h4>
+
+                              {/* Stats Row */}
+                              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                                <span className="flex items-center gap-1 whitespace-nowrap">
+                                  <Eye className="w-3 h-3" />
+                                  {post.views || 0} views
+                                </span>
+
+                                <span className="flex items-center gap-1 whitespace-nowrap">
+                                  <Heart className="w-3 h-3" />
+                                  {post.likes || 0} likes
+                                </span>
+
+                                <span className="flex items-center gap-1 whitespace-nowrap">
+                                  <MessageCircle className="w-3 h-3" />
+                                  {post.comments?.length || 0} comments
+                                </span>
+                              </div>
                             </div>
                           </div>
-                          <div className="ml-4 text-right">
-                            <div className="text-lg font-bold text-purple-400">{post.engagement}</div>
+
+                          {/* RIGHT SIDE ENGAGEMENT */}
+                          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto">
+                            <div className="text-lg font-bold text-purple-400">
+                              {post.engagement}
+                            </div>
                             <div className="text-xs text-gray-500">engagement</div>
                           </div>
                         </motion.div>
@@ -521,21 +542,21 @@ export default function AdminDashboard() {
 
                 {/* Overview Chart */}
                 {!isLoading && chartData.length > 0 && (
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6">
                     <div className="flex items-center gap-2 mb-6">
                       <TrendingUp className="w-5 h-5 text-gray-400" />
-                      <h3 className="text-lg font-semibold">Content Distribution</h3>
+                      <h3 className="text-lg sm:text-xl font-semibold">Content Distribution</h3>
                     </div>
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
+                    <div className="h-64 sm:h-80 w-full overflow-x-auto">
+                      <ResponsiveContainer width="100%" height="100%" minWidth={300}>
                         <PieChart>
                           <Pie
                             data={chartData}
-                            cx="50%"
+                            cx="45%"
                             cy="50%"
                             labelLine={false}
                             label={({ name, value }) => `${name}: ${value}`}
-                            outerRadius={100}
+                            outerRadius={70}
                             fill="#8884d8"
                             dataKey="value"
                           >
@@ -551,7 +572,7 @@ export default function AdminDashboard() {
                             }}
                             labelStyle={{ color: '#fff' }}
                           />
-                          <Legend />
+                          <Legend wrapperStyle={{ paddingTop: '20px' }} />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
@@ -560,23 +581,23 @@ export default function AdminDashboard() {
               </div>
             ) : (
               // Section Content
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
+              <div className="space-y-6 min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
                     <h2 className="text-xl font-semibold">Manage {sections.find(s => s.id === activeTab)?.label}</h2>
                     <p className="text-sm text-gray-400 mt-1">
                       Create, edit, and organize your content
                     </p>
                   </div>
-                  {activeTab !== 'hero' && activeTab !== 'about' && activeTab !== 'education' && activeTab !== 'skills' && activeTab !== 'projects' && activeTab !== 'blog' && !isLoading && (
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                  {activeTab !== 'hero' && activeTab !== 'about' && activeTab !== 'education' && activeTab !== 'skills' && activeTab !== 'projects' && activeTab !== 'blog' && activeTab !== 'leadership' && activeTab !== 'achievements' && activeTab !== 'contact' && !isLoading && (
+                    <button className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm sm:text-base">
                       <Plus className="w-4 h-4" />
                       Add New
                     </button>
                   )}
                 </div>
                 {/* Content Cards/Table */}
-                <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6 min-w-0 overflow-x-hidden">
                   {isLoading ? (
                     <SkeletonContent />
                   ) : activeTab === 'hero' ? (

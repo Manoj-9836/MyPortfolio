@@ -221,9 +221,9 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
       {/* Add Button */}
       <button
         onClick={() => handleOpenModal()}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium"
+        className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm sm:text-base"
       >
-        <Plus className="w-5 h-5" />
+        <Plus className="w-4 sm:w-5 h-4 sm:h-5" />
         Add Project
       </button>
 
@@ -240,18 +240,18 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
               key={project._id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/5 border border-white/10 rounded-lg p-5 hover:bg-white/8 transition-all group"
+              className="bg-white/5 border border-white/10 rounded-lg p-4 sm:p-5 hover:bg-white/8 transition-all group"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold text-lg">{project.title}</h3>
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+                <div className="flex-1 min-w-0 w-full">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <h3 className="font-semibold text-base sm:text-lg">{project.title}</h3>
                     {project.featured && (
-                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 flex-shrink-0" />
                     )}
                   </div>
-                  <p className="text-sm text-gray-400 mb-2">{project.subtitle}</p>
-                  <p className="text-sm text-gray-500 mb-3 line-clamp-2">{project.description}</p>
+                  <p className="text-xs sm:text-sm text-gray-400 mb-2">{project.subtitle}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mb-3 line-clamp-2">{project.description}</p>
                   
                   {/* Tech Stack */}
                   <div className="flex flex-wrap gap-2 mb-3">
@@ -263,11 +263,11 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                   </div>
 
                   {/* Links & Date */}
-                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <div className="flex items-center gap-2 sm:gap-3 text-xs text-gray-500 flex-wrap">
                     <span>{project.date}</span>
                     {project.liveUrl && (
                       <>
-                        <span>•</span>
+                        <span className="hidden sm:inline">•</span>
                         <a
                           href={project.liveUrl}
                           target="_blank"
@@ -281,7 +281,7 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                     )}
                     {project.githubUrl && (
                       <>
-                        <span>•</span>
+                        <span className="hidden sm:inline">•</span>
                         <a
                           href={project.githubUrl}
                           target="_blank"
@@ -296,7 +296,7 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2 opacity-0 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-start flex-shrink-0">
                   <button
                     onClick={() => handleOpenModal(project)}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -334,87 +334,87 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold">
+              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-4 sm:p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h3 className="text-lg sm:text-xl font-bold">
                     {editingId ? 'Edit Project' : 'Add Project'}
                   </h3>
                   <button
                     onClick={handleCloseModal}
-                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Project Title *
                       </label>
                       <input
                         type="text"
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., ApexResume"
                         required
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Subtitle *
                       </label>
                       <input
                         type="text"
                         value={formData.subtitle}
                         onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., AI Resume Analyzer"
                         required
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Description *
                       </label>
                       <textarea
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all min-h-[100px] resize-y"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[100px] resize-y"
                         placeholder="Detailed project description..."
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Date
                       </label>
                       <input
                         type="text"
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., Jun 2025"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Background Image URL
                       </label>
                       <input
                         type="url"
                         value={formData.bgImage}
                         onChange={(e) => setFormData({ ...formData, bgImage: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="https://..."
                       />
                       {formData.bgImage && (
@@ -436,34 +436,34 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Live URL
                       </label>
                       <input
                         type="url"
                         value={formData.liveUrl}
                         onChange={(e) => setFormData({ ...formData, liveUrl: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="https://..."
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         GitHub URL
                       </label>
                       <input
                         type="url"
                         value={formData.githubUrl}
                         onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="https://github.com/..."
                       />
                     </div>
 
                     {/* Tech Stack */}
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Tech Stack
                       </label>
                       <div className="flex gap-2 mb-2">
@@ -472,13 +472,13 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                           value={techInput}
                           onChange={(e) => setTechInput(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTech())}
-                          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                           placeholder="e.g., React.js"
                         />
                         <button
                           type="button"
                           onClick={handleAddTech}
-                          className="px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                          className="px-3 sm:px-4 py-2 sm:py-2.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -504,7 +504,7 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
 
                     {/* Highlights */}
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Key Highlights
                       </label>
                       <div className="flex gap-2 mb-2">
@@ -513,13 +513,13 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                           value={highlightInput}
                           onChange={(e) => setHighlightInput(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddHighlight())}
-                          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                           placeholder="e.g., 40% improved engagement"
                         />
                         <button
                           type="button"
                           onClick={handleAddHighlight}
-                          className="px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                          className="px-3 sm:px-4 py-2 sm:py-2.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -563,11 +563,11 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-white/10">
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-400 hover:text-white transition-colors"
                       disabled={saving}
                     >
                       Cancel
@@ -577,7 +577,7 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                       disabled={saving}
                       whileHover={{ scale: saving ? 1 : 1.02 }}
                       whileTap={{ scale: saving ? 1 : 0.98 }}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 font-medium"
+                      className="flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 font-medium text-xs sm:text-base"
                     >
                       {saving ? (
                         <>

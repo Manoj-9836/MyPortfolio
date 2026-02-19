@@ -199,9 +199,9 @@ export default function EducationForm({ onSave }: EducationFormProps) {
       {/* Add Button */}
       <button
         onClick={() => handleOpenModal()}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium"
+        className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm sm:text-base"
       >
-        <Plus className="w-5 h-5" />
+        <Plus className="w-4 sm:w-5 h-4 sm:h-5" />
         Add Education
       </button>
 
@@ -218,28 +218,28 @@ export default function EducationForm({ onSave }: EducationFormProps) {
               key={edu._id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/8 transition-all group"
+              className="bg-white/5 border border-white/10 rounded-lg p-4 sm:p-5 hover:bg-white/8 transition-all group"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-lg">{edu.institution}</h3>
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+                <div className="flex-1 min-w-0 w-full">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <h3 className="font-semibold text-base sm:text-lg">{edu.institution}</h3>
                     {edu.current && (
-                      <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full font-medium">
+                      <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full font-medium flex-shrink-0">
                         Current
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-400 mb-2">{edu.degree}</p>
-                  <div className="flex flex-wrap gap-3 text-xs text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-400 mb-2">{edu.degree}</p>
+                  <div className="flex flex-wrap gap-2 sm:gap-3 text-xs text-gray-500">
                     <span>{edu.period}</span>
-                    <span>•</span>
+                    <span className="hidden sm:inline">•</span>
                     <span>{edu.location}</span>
-                    <span>•</span>
+                    <span className="hidden sm:inline">•</span>
                     <span className="text-green-400">{edu.gpa}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2 opacity-0 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-start flex-shrink-0">
                   <button
                     onClick={() => handleOpenModal(edu)}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -279,130 +279,130 @@ export default function EducationForm({ onSave }: EducationFormProps) {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold">
+              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h3 className="text-lg sm:text-xl font-bold">
                     {editingId ? 'Edit Education' : 'Add Education'}
                   </h3>
                   <button
                     onClick={handleCloseModal}
-                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Institution *
                       </label>
                       <input
                         type="text"
                         value={formData.institution}
                         onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., Lendi Institute of Engineering & Technology"
                         required
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Degree *
                       </label>
                       <input
                         type="text"
                         value={formData.degree}
                         onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., B.Tech, Computer Science & Engineering"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Location *
                       </label>
                       <input
                         type="text"
                         value={formData.location}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., Vizianagaram"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Period *
                       </label>
                       <input
                         type="text"
                         value={formData.period}
                         onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., 2024 – Present"
                         required
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         GPA/Percentage *
                       </label>
                       <input
                         type="text"
                         value={formData.gpa}
                         onChange={(e) => setFormData({ ...formData, gpa: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., CGPA: 8.1 or 85%"
                         required
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Logo Path (Optional)
                       </label>
                       <input
                         type="text"
                         value={formData.logoPath}
                         onChange={(e) => setFormData({ ...formData, logoPath: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., /Images/Lendi.png or /Images/APT.png"
                       />
                       <p className="text-xs text-gray-500 mt-1">Available logos: Lendi.png, APT.png</p>
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Description (Optional)
                       </label>
                       <textarea
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all min-h-[80px] resize-y"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[80px] resize-y"
                         placeholder="Additional information or achievements..."
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="flex items-center gap-3 cursor-pointer group">
+                      <label className="flex items-start sm:items-center gap-3 cursor-pointer group">
                         <input
                           type="checkbox"
                           checked={formData.current || false}
                           onChange={(e) => setFormData({ ...formData, current: e.target.checked })}
-                          className="w-5 h-5 bg-white/5 border border-white/10 rounded cursor-pointer accent-white"
+                          className="w-5 h-5 bg-white/5 border border-white/10 rounded cursor-pointer accent-white flex-shrink-0 mt-0.5 sm:mt-0"
                         />
                         <div>
-                          <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
+                          <span className="text-xs sm:text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
                             Currently Enrolled
                           </span>
                           <p className="text-xs text-gray-500">
@@ -413,11 +413,11 @@ export default function EducationForm({ onSave }: EducationFormProps) {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-white/10">
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-400 hover:text-white transition-colors"
                       disabled={saving}
                     >
                       Cancel
@@ -427,7 +427,7 @@ export default function EducationForm({ onSave }: EducationFormProps) {
                       disabled={saving}
                       whileHover={{ scale: saving ? 1 : 1.02 }}
                       whileTap={{ scale: saving ? 1 : 0.98 }}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 font-medium"
+                      className="flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 font-medium text-xs sm:text-base"
                     >
                       {saving ? (
                         <>

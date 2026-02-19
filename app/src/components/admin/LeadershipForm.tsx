@@ -206,9 +206,9 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
       {/* Add Button */}
       <button
         onClick={() => handleOpenModal()}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium"
+        className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm sm:text-base"
       >
-        <Plus className="w-5 h-5" />
+        <Plus className="w-4 sm:w-5 h-4 sm:h-5" />
         Add Leadership Position
       </button>
 
@@ -219,28 +219,28 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
             key={leadership._id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="group relative bg-white/5 border border-white/10 rounded-lg p-4 hover:border-white/30 transition-all"
+            className="group relative bg-white/5 border border-white/10 rounded-lg p-4 sm:p-5 hover:border-white/30 transition-all"
           >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+              <div className="flex-1 min-w-0 w-full">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Users className="w-5 h-5 text-blue-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-semibold text-white mb-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-white mb-1 break-words">
                       {leadership.title}
                     </h3>
-                    <p className="text-sm text-gray-400 mb-1">{leadership.organization}</p>
-                    <p className="text-xs text-gray-500">{leadership.period}</p>
+                    <p className="text-xs sm:text-sm text-gray-400 mb-1">{leadership.organization}</p>
+                    <p className="text-xs text-gray-500 mb-2">{leadership.period}</p>
                     {leadership.description && (
-                      <p className="text-sm text-gray-400 mt-2 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-gray-400 mb-2 line-clamp-2">
                         {leadership.description}
                       </p>
                     )}
                     {leadership.achievements && leadership.achievements.length > 0 && (
-                      <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
-                        <Award className="w-3 h-3" />
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Award className="w-3 h-3 flex-shrink-0" />
                         <span>{leadership.achievements.length} achievement{leadership.achievements.length !== 1 ? 's' : ''}</span>
                       </div>
                     )}
@@ -248,7 +248,7 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-2 opacity-0 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-start flex-shrink-0">
                 <button
                   onClick={() => handleOpenModal(leadership)}
                   className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -295,76 +295,76 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold">
+              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h3 className="text-lg sm:text-xl font-bold">
                     {editingId ? 'Edit Leadership Position' : 'Add Leadership Position'}
                   </h3>
                   <button
                     onClick={handleCloseModal}
-                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Title/Role *
                     </label>
                     <input
                       type="text"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       placeholder="e.g., Technical Head"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Organization *
                     </label>
                     <input
                       type="text"
                       value={formData.organization}
                       onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       placeholder="e.g., AI Club | Lendi Institute"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Period *
                     </label>
                     <input
                       type="text"
                       value={formData.period}
                       onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       placeholder="e.g., 2023 - Present"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Description
                     </label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all min-h-[100px] resize-y"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[100px] resize-y"
                       placeholder="Brief description of your role and responsibilities..."
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Achievements
                     </label>
                     <div className="flex gap-2 mb-3">
@@ -373,15 +373,15 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
                         value={achievementInput}
                         onChange={(e) => setAchievementInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddAchievement())}
-                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="Add an achievement..."
                       />
                       <button
                         type="button"
                         onClick={handleAddAchievement}
-                        className="px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                        className="px-3 sm:px-4 py-2 sm:py-2.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
                       >
-                        <Plus className="w-5 h-5" />
+                        <Plus className="w-4 sm:w-5 h-4 sm:h-5" />
                       </button>
                     </div>
                     <div className="space-y-2">
@@ -406,23 +406,26 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
                     </div>
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-white/10">
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors font-medium"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-400 hover:text-white transition-colors"
+                      disabled={saving}
                     >
                       Cancel
                     </button>
-                    <button
+                    <motion.button
                       type="submit"
                       disabled={saving}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      whileHover={{ scale: saving ? 1 : 1.02 }}
+                      whileTap={{ scale: saving ? 1 : 0.98 }}
+                      className="flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 font-medium text-xs sm:text-base"
                     >
                       {saving ? (
                         <>
                           <motion.div
-                            className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full"
+                            className="w-4 h-4 border-2 border-gray-400 border-t-black rounded-full"
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                           />
@@ -430,11 +433,11 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
                         </>
                       ) : (
                         <>
-                          <Save className="w-5 h-5" />
+                          <Save className="w-4 h-4" />
                           {editingId ? 'Update' : 'Save'}
                         </>
                       )}
-                    </button>
+                    </motion.button>
                   </div>
                 </form>
               </div>

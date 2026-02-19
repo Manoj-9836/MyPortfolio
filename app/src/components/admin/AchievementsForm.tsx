@@ -193,9 +193,9 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
       {/* Add Button */}
       <button
         onClick={() => handleOpenModal()}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium"
+        className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium bg-white text-black rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <Plus className="w-5 h-5" />
+        <Plus className="w-4 sm:w-5 h-4 sm:h-5" />
         Add Achievement
       </button>
 
@@ -206,7 +206,7 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
             key={achievement._id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="group relative bg-white/5 border border-white/10 rounded-lg p-4 hover:border-white/30 transition-all"
+            className="group relative bg-white/5 border border-white/10 rounded-lg p-4 sm:p-5 hover:border-white/30 transition-all"
           >
             <div className="flex items-start justify-between gap-4 mb-3">
               <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -214,7 +214,7 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
                   <Trophy className="w-5 h-5 text-yellow-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-white line-clamp-1">
+                  <h3 className="text-base sm:text-lg font-semibold text-white line-clamp-1 break-words">
                     {achievement.title}
                   </h3>
                   <p className="text-xs text-gray-400 mt-1">{achievement.category}</p>
@@ -239,7 +239,7 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
               </div>
             </div>
 
-            <p className="text-sm text-gray-400 line-clamp-2">{achievement.description}</p>
+            <p className="text-xs sm:text-sm text-gray-400 line-clamp-2">{achievement.description}</p>
             <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
               <span>{achievement.date}</span>
             </div>
@@ -248,7 +248,7 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
 
         {achievements.length === 0 && (
           <div className="col-span-1 md:col-span-2 text-center py-12 text-gray-500">
-            <Trophy className="w-12 h-12 mx-auto mb-3 opacity-20" />
+            <Trophy className="w-10 sm:w-12 h-10 sm:h-12 mx-auto mb-3 opacity-20" />
             <p>No achievements yet. Add your first one!</p>
           </div>
         )}
@@ -273,7 +273,7 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold">
                     {editingId ? 'Edit Achievement' : 'Add Achievement'}
@@ -286,29 +286,29 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Title *
                     </label>
                     <input
                       type="text"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       placeholder="e.g., TCS CodeVita Achievement"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Category *
                     </label>
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       required
                     >
                       <option value="" disabled className="bg-gray-900 text-gray-400">
@@ -323,44 +323,44 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Date/Year *
                     </label>
                     <input
                       type="text"
                       value={formData.date}
                       onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       placeholder="e.g., 2024, Present, Ongoing"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Description *
                     </label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all min-h-[120px] resize-y"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[120px] resize-y"
                       placeholder="Detailed description of your achievement..."
                       required
                     />
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 pt-3 sm:pt-4">
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors font-medium"
+                      className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors font-medium text-xs sm:text-sm"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={saving}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {saving ? (
                         <>

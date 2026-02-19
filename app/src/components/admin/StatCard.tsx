@@ -15,7 +15,7 @@ interface StatCardProps {
 export default function StatCard({ title, value, icon: Icon, change, loading }: StatCardProps) {
   if (loading) {
     return (
-      <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+      <div className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6">
         <div className="space-y-3">
           <motion.div
             className="h-4 w-24 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 rounded"
@@ -40,14 +40,14 @@ export default function StatCard({ title, value, icon: Icon, change, loading }: 
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.2 }}
-      className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/8 hover:border-white/20 transition-all"
+      className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6 hover:bg-white/8 hover:border-white/20 transition-all"
     >
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
           <p className="text-sm text-gray-400 font-medium uppercase tracking-wide">{title}</p>
-          <h3 className="text-3xl font-bold mt-2 text-white">{value}</h3>
+          <h3 className="text-2xl sm:text-3xl font-bold mt-2 text-white">{value}</h3>
           {change && (
-            <div className="flex items-center gap-1 mt-3">
+            <div className="flex flex-wrap items-center gap-1 mt-3">
               <span
                 className={`text-sm font-medium ${
                   change.trend === 'up' ? 'text-green-400' : 'text-red-400'
@@ -59,8 +59,8 @@ export default function StatCard({ title, value, icon: Icon, change, loading }: 
             </div>
           )}
         </div>
-        <div className="p-3 bg-white/5 rounded-lg">
-          <Icon className="w-6 h-6 text-gray-400" />
+        <div className="p-2 sm:p-3 bg-white/5 rounded-lg flex-shrink-0">
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
         </div>
       </div>
     </motion.div>

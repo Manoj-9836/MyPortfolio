@@ -177,7 +177,7 @@ export default function AboutForm({ onSave }: AboutFormProps) {
           disabled={saving}
           whileHover={{ scale: saving ? 1 : 1.02 }}
           whileTap={{ scale: saving ? 1 : 0.98 }}
-          className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          className="flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm sm:text-base"
         >
           {saving ? (
             <>

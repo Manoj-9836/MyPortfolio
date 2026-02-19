@@ -151,13 +151,13 @@ export default function ContactForm({ onSave }: ContactFormProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="bg-white/5 border border-white/10 rounded-lg p-4"
+                className="bg-white/5 border border-white/10 rounded-lg p-3 sm:p-4"
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <item.icon className="w-5 h-5 text-gray-400" />
+                  <item.icon className="w-4 sm:w-5 h-4 sm:h-5 text-gray-400" />
                   <span className="text-xs text-gray-500 uppercase tracking-wider">{item.label}</span>
                 </div>
-                <p className="text-sm font-medium text-white">{item.value}</p>
+                <p className="text-xs sm:text-sm font-medium text-white break-words">{item.value}</p>
               </motion.div>
             ))}
           </div>
@@ -175,13 +175,13 @@ export default function ContactForm({ onSave }: ContactFormProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + idx * 0.05 }}
-                className="bg-white/5 border border-white/10 rounded-lg p-3"
+                className="bg-white/5 border border-white/10 rounded-lg p-3 sm:p-4"
               >
                 <div className="flex items-center gap-3">
-                  <item.icon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  <item.icon className="w-4 sm:w-5 h-4 sm:h-5 text-gray-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500 uppercase tracking-wider">{item.label}</p>
-                    <p className="text-sm text-white line-clamp-1">{item.value}</p>
+                    <p className="text-xs sm:text-sm text-white line-clamp-1 break-words">{item.value}</p>
                   </div>
                 </div>
               </motion.div>
@@ -194,17 +194,17 @@ export default function ContactForm({ onSave }: ContactFormProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="bg-white/5 border border-white/10 rounded-lg p-4"
+              className="bg-white/5 border border-white/10 rounded-lg p-3 sm:p-4"
             >
               <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Default Message</p>
-              <p className="text-sm text-gray-300">{contact.message}</p>
+              <p className="text-xs sm:text-sm text-gray-300">{contact.message}</p>
             </motion.div>
           )}
 
           {/* Edit Button */}
           <button
             onClick={() => setIsEditing(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium"
+            className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium bg-white text-black rounded-lg hover:bg-gray-200 transition-colors"
           >
             Edit Contact Information
           </button>
@@ -216,10 +216,10 @@ export default function ContactForm({ onSave }: ContactFormProps) {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-6 space-y-4"
+          className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4"
         >
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold">Edit Contact Information</h3>
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h3 className="text-lg sm:text-xl font-bold">Edit Contact Information</h3>
             <button
               onClick={() => {
                 setIsEditing(false);
@@ -240,26 +240,26 @@ export default function ContactForm({ onSave }: ContactFormProps) {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Email *</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Email *</label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                   placeholder="your.email@example.com"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Phone *</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Phone *</label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                   placeholder="+91-XXXXXXXXXX"
                   required
                 />
@@ -267,61 +267,61 @@ export default function ContactForm({ onSave }: ContactFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Location *</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Location *</label>
               <input
                 type="text"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                 placeholder="City, State"
                 required
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">LinkedIn *</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">LinkedIn *</label>
                 <input
                   type="url"
                   value={formData.linkedin}
                   onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                   placeholder="linkedin.com/in/your-profile"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">GitHub *</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">GitHub *</label>
                 <input
                   type="url"
                   value={formData.github}
                   onChange={(e) => setFormData({ ...formData, github: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                   placeholder="github.com/your-username"
                   required
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">LeetCode *</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">LeetCode *</label>
                 <input
                   type="url"
                   value={formData.leetcode}
                   onChange={(e) => setFormData({ ...formData, leetcode: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                   placeholder="leetcode.com/u/your-username"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Portfolio URL *</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Portfolio URL *</label>
                 <input
                   type="url"
                   value={formData.portfolio}
                   onChange={(e) => setFormData({ ...formData, portfolio: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                   placeholder="your-portfolio.com"
                   required
                 />
@@ -329,16 +329,16 @@ export default function ContactForm({ onSave }: ContactFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Default Message</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Default Message</label>
               <textarea
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all min-h-[100px] resize-y"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[100px] resize-y"
                 placeholder="Optional: A message to display on the contact section"
               />
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-white/10">
               <button
                 type="button"
                 onClick={() => {
@@ -354,19 +354,19 @@ export default function ContactForm({ onSave }: ContactFormProps) {
                     message: '',
                   });
                 }}
-                className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors font-medium"
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors font-medium text-xs sm:text-sm"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <>
                     <motion.div
-                      className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full"
+                      className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full"
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                     />
@@ -374,7 +374,7 @@ export default function ContactForm({ onSave }: ContactFormProps) {
                   </>
                 ) : (
                   <>
-                    <Save className="w-5 h-5" />
+                    <Save className="w-4 h-4" />
                     Save Changes
                   </>
                 )}

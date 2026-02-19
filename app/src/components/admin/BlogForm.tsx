@@ -313,7 +313,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium"
+          className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm sm:text-base"
         >
           <Plus className="w-4 h-4" />
           New Post
@@ -333,20 +333,21 @@ export default function BlogForm({ onSave }: BlogFormProps) {
               key={post._id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/8 transition-all group"
+              className="bg-white/5 border border-white/10 rounded-lg p-4 sm:p-5 hover:bg-white/8 transition-all group"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold text-lg">{post.title}</h3>
-                    <div className="flex items-center gap-1.5">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+                <div className="flex-1 min-w-0 w-full">
+                  {/* Title with badges */}
+                  <div className="mb-2">
+                    <h3 className="font-semibold text-base sm:text-lg mb-2 break-words">{post.title}</h3>
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       {post.featured && (
-                        <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded-full font-medium">
+                        <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded-full font-medium flex-shrink-0">
                           ★ Featured
                         </span>
                       )}
                       {!post.published && (
-                        <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-full font-medium">
+                        <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-full font-medium flex-shrink-0">
                           Draft
                         </span>
                       )}
@@ -355,38 +356,33 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-400 mb-2 line-clamp-2">{post.excerpt}</p>
+                  
+                  {/* Excerpt */}
+                  <p className="text-xs sm:text-sm text-gray-400 mb-3 line-clamp-2">{post.excerpt}</p>
                   
                   {/* Date & Read Time */}
-                  <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                  <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap mb-2">
                     <span>{new Date(post.date).toLocaleDateString()}</span>
                     {post.readTime && (
                       <>
-                        <span>•</span>
+                        <span className="hidden sm:inline">•</span>
                         <span>{post.readTime}</span>
-                      </>
-                    )}
-                    {post.tags.length > 0 && (
-                      <>
-                        <span>•</span>
-                        <div className="flex gap-1">
-                          {post.tags.slice(0, 2).map((tag, i) => (
-                            <span key={i} className="text-gray-600">#{tag}</span>
-                          ))}
-                          {post.tags.length > 2 && <span className="text-gray-600">+{post.tags.length - 2}</span>}
-                        </div>
-                      </>
-                    )}
-                    {post.leetcodeImage && (
-                      <>
-                        <span>•</span>
-                        <span className="text-green-400">📊 LeetCode Image</span>
                       </>
                     )}
                   </div>
                   
+                  {/* Tags */}
+                  {post.tags.length > 0 && (
+                    <div className="flex gap-1 mb-3 flex-wrap">
+                      {post.tags.slice(0, 2).map((tag, i) => (
+                        <span key={i} className="text-xs text-gray-600">#{tag}</span>
+                      ))}
+                      {post.tags.length > 2 && <span className="text-xs text-gray-600">+{post.tags.length - 2}</span>}
+                    </div>
+                  )}
+                  
                   {/* Stats */}
-                  <div className="flex items-center gap-4 text-xs text-gray-400 mt-2">
+                  <div className="flex items-center gap-3 sm:gap-4 text-xs text-gray-400">
                     <div className="flex items-center gap-1">
                       <Eye className="w-3 h-3" />
                       <span>{post.views || 0} views</span>
@@ -395,27 +391,26 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                       <Heart className="w-3 h-3" />
                       <span>{post.likes || 0} likes</span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div 
+                      className="flex items-center gap-1 cursor-pointer hover:text-gray-300 transition-colors flex-shrink-0"
+                      onClick={() => openCommentsModal(post)}
+                    >
                       <MessageCircle className="w-3 h-3" />
                       <span>{post.comments?.length || 0} comments</span>
                     </div>
+                    {post.leetcodeImage && (
+                      <span className="text-green-400 flex-shrink-0">📊</span>
+                    )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2 opacity-0 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-start flex-shrink-0">
                   <button
                     onClick={() => handleOpenModal(post)}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                     title="Edit"
                   >
                     <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => openCommentsModal(post)}
-                    className="p-2 hover:bg-blue-500/10 text-blue-400 rounded-lg transition-colors"
-                    title="View Comments"
-                  >
-                    <MessageCircle className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => post._id && handleDelete(post._id)}
@@ -447,10 +442,10 @@ export default function BlogForm({ onSave }: BlogFormProps) {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold">
                     {editingId ? 'Edit Post' : 'Create Post'}
@@ -463,72 +458,72 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Title *
                     </label>
                     <input
                       type="text"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       placeholder="Post title"
                       required
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Category *
                       </label>
                       <input
                         type="text"
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., Technology"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Date
                       </label>
                       <input
                         type="date"
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         required
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Excerpt *
                     </label>
                     <textarea
                       value={formData.excerpt}
                       onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all min-h-[80px] resize-y"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[80px] resize-y"
                       placeholder="Brief summary of the post"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Image URL
                     </label>
                     <input
                       type="url"
                       value={formData.image || ''}
                       onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       placeholder="https://..."
                     />
                     {formData.image && (
@@ -551,14 +546,14 @@ export default function BlogForm({ onSave }: BlogFormProps) {
 
                   {isLeetCodePost(formData) && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         LeetCode Image URL
                       </label>
                       <input
                         type="url"
                         value={formData.leetcodeImage || ''}
                         onChange={(e) => setFormData({ ...formData, leetcodeImage: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="https://..."
                       />
                       {formData.leetcodeImage && (
@@ -581,28 +576,28 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Content *
                     </label>
                     <textarea
                       value={formData.content}
                       onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all min-h-[200px] resize-y font-mono text-sm"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[200px] resize-y font-mono"
                       placeholder="Full post content..."
                       required
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Read Time (Optional)
                       </label>
                       <input
                         type="text"
                         value={formData.readTime}
                         onChange={(e) => setFormData({ ...formData, readTime: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="e.g., 5 min read"
                       />
                     </div>
@@ -647,7 +642,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
 
                   {/* Tags */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Tags
                     </label>
                     <div className="flex gap-2 mb-2">
@@ -656,7 +651,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                         value={tagInput}
                         onChange={(e) => setTagInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                         placeholder="Add a tag and press Enter"
                       />
                       <button
@@ -686,11 +681,11 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-white/10">
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-400 hover:text-white transition-colors"
                       disabled={saving}
                     >
                       Cancel
@@ -700,7 +695,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                       disabled={saving}
                       whileHover={{ scale: saving ? 1 : 1.02 }}
                       whileTap={{ scale: saving ? 1 : 0.98 }}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 font-medium"
+                      className="flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 font-medium text-xs sm:text-base"
                     >
                       {saving ? (
                         <>
@@ -745,7 +740,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-4 sm:p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h3 className="text-xl font-bold">{selectedPostForComments.title}</h3>

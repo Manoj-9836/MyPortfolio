@@ -227,11 +227,11 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
       </AnimatePresence>
 
       {/* Add Button & Filter */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 w-full sm:flex-1">
           <button
             onClick={() => setSelectedCategory('All')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
               selectedCategory === 'All'
                 ? 'bg-white text-black'
                 : 'bg-white/5 text-gray-400 hover:bg-white/10'
@@ -243,7 +243,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
                 selectedCategory === cat
                   ? 'bg-white text-black'
                   : 'bg-white/5 text-gray-400 hover:bg-white/10'
@@ -255,7 +255,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium whitespace-nowrap"
+          className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium whitespace-nowrap text-sm sm:text-base flex-shrink-0"
         >
           <Plus className="w-4 h-4" />
           Add Skill
@@ -267,7 +267,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
         <h3 className="text-lg font-semibold">Skills Management</h3>
         {filteredSkills.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
-            <Code2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <Code2 className="w-10 sm:w-12 h-10 sm:h-12 mx-auto mb-3 opacity-50" />
             <p>No skills in this category</p>
           </div>
         ) : (
@@ -280,12 +280,12 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
               key={skill._id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/8 transition-all group"
+              className="bg-white/5 border border-white/10 rounded-lg p-4 sm:p-5 hover:bg-white/8 transition-all group"
             >
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-semibold text-lg">{skill.name}</h3>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex-1 min-w-0 w-full">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-3 flex-wrap">
+                    <h3 className="font-semibold text-base sm:text-lg">{skill.name}</h3>
                     <span className="px-2 py-0.5 bg-white/10 text-xs rounded-full text-gray-400">
                       {skill.category}
                     </span>
@@ -300,12 +300,12 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
                         className={levelClasses.bar}
                       />
                     </div>
-                    <span className={`text-sm font-medium w-12 text-right ${levelClasses.text}`}>
+                    <span className={`text-xs sm:text-sm font-medium w-10 sm:w-12 text-right flex-shrink-0 ${levelClasses.text}`}>
                       {normalizedLevel}%
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2 opacity-0 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-auto flex-shrink-0">
                   <button
                     onClick={() => handleOpenModal(skill)}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -348,9 +348,9 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-6 w-full max-w-lg">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold">
+              <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-4 sm:p-6 w-full max-w-lg">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h3 className="text-lg sm:text-xl font-bold">
                     {editingId ? 'Edit Skill' : 'Add Skill'}
                   </h3>
                   <button
@@ -361,29 +361,29 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Skill Name *
                     </label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       placeholder="e.g., React.js"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Category *
                     </label>
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       required
                     >
                       {categories.map((cat) => (
@@ -395,7 +395,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Proficiency Level: {formData.level}%
                     </label>
                     <input
@@ -414,11 +414,11 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-white/10">
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-400 hover:text-white transition-colors"
                       disabled={saving}
                     >
                       Cancel
@@ -428,7 +428,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
                       disabled={saving}
                       whileHover={{ scale: saving ? 1 : 1.02 }}
                       whileTap={{ scale: saving ? 1 : 0.98 }}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 font-medium"
+                      className="flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-white text-black rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 font-medium text-xs sm:text-base"
                     >
                       {saving ? (
                         <>
