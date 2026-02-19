@@ -357,9 +357,9 @@ export default function Blog() {
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
                 onClick={() => setSelectedPost(post)}
-                className="h-96 cursor-pointer group"
+                className="h-auto sm:h-96 cursor-pointer group"
               >
-                <div className="relative h-full rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-white/30 transition-all duration-300 overflow-hidden hover:shadow-2xl hover:shadow-white/20 p-6 flex flex-col justify-between">
+                <div className="relative h-full rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-white/30 transition-all duration-300 overflow-hidden hover:shadow-2xl hover:shadow-white/20 p-4 sm:p-6 flex flex-col justify-between">
                   {/* Background animation */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/5 group-hover:to-purple-500/5 transition-all duration-300" />
 
@@ -382,19 +382,19 @@ export default function Blog() {
                   <div className="relative z-10 flex flex-col h-full justify-between flex-1">
                     {/* Top Section */}
                     <div>
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(post.category)}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                        <div className="flex flex-wrap items-center gap-2 pr-1">
+                          <span className={`px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-medium ${getCategoryColor(post.category)}`}>
                             {post.category}
                           </span>
                           {post.featured && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-400/30">
+                            <span className="px-2 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-400/30">
                               ★ Featured
                             </span>
                           )}
                         </div>
                         {/* Stats */}
-                        <div className="flex items-center gap-2 text-xs text-gray-400">
+                        <div className="flex items-center gap-2 text-xs text-gray-400 whitespace-nowrap self-start sm:self-auto shrink-0">
                           <div className="flex items-center gap-1">
                             <Eye className="w-3 h-3" />
                             <span>{post.views || 0}</span>
@@ -429,12 +429,12 @@ export default function Blog() {
                       <p className="text-gray-300 text-xs md:text-sm line-clamp-2">
                         {post.excerpt}
                       </p>
-                      <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-white/10">
                         <div className="flex items-center gap-2 text-xs text-gray-400">
                           <Calendar className="w-3 h-3" />
                           {formatDate(post.date)}
                         </div>
-                        <div className="px-3 py-1 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
+                        <div className="px-3 py-1 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors ml-auto">
                           <span className="text-xs font-medium text-gray-300 group-hover:text-white">Read</span>
                         </div>
                       </div>

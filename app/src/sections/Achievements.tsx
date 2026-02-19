@@ -93,29 +93,31 @@ export default function Achievements() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
-                  className="group relative p-5 md:p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300"
+                  className="group relative p-4 sm:p-5 md:p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300"
                 >
                   {/* Category Badge */}
-                  <div className="absolute top-3 md:top-4 right-3 md:right-4 px-2 md:px-3 py-1 bg-white/10 rounded-full text-[10px] md:text-xs font-medium">
+                  <div className="inline-flex mb-3 px-2 md:px-3 py-1 bg-white/10 rounded-full text-[10px] md:text-xs font-medium max-w-full truncate whitespace-nowrap">
                     {achievement.category}
                   </div>
 
-                  <div className="flex items-start gap-3 md:gap-4">
-                    {/* Icon */}
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                      <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 md:gap-4">
+                      {/* Icon */}
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                      </div>
+
+                      {/* Title */}
+                      <div className="flex-1 min-w-0 pt-0.5">
+                        <h3 className="text-lg font-semibold leading-tight break-words">{achievement.title}</h3>
+                      </div>
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 min-w-0 pt-0.5">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-lg font-semibold">{achievement.title}</h3>
-                      </div>
-                      <p className="text-sm text-gray-400 mb-3 leading-relaxed">
-                        {achievement.description}
-                      </p>
-                      <span className="text-xs text-gray-500">{achievement.date}</span>
-                    </div>
+                    <p className="text-sm text-gray-400 leading-relaxed">
+                      {achievement.description}
+                    </p>
+                    <span className="text-xs text-gray-500">{achievement.date}</span>
                   </div>
 
                   {/* Decorative corner */}
