@@ -153,6 +153,18 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
     return acc;
   }, {} as Record<string, Skill[]>);
 
+  const getLevelGradientClass = (level: number) => {
+    if (level >= 80) return 'from-emerald-500 to-green-400';
+    if (level >= 50) return 'from-amber-500 to-yellow-400';
+    return 'from-rose-500 to-orange-400';
+  };
+
+  const getLevelTextClass = (level: number) => {
+    if (level >= 80) return 'text-emerald-400';
+    if (level >= 50) return 'text-amber-400';
+    return 'text-rose-400';
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -240,7 +252,12 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
             <p>No skills in this category</p>
           </div>
         ) : (
-          filteredSkills.map((skill) => (
+          filteredSkills.map((skill) => {
+            const normalizedLevel = Math.min(100, Math.max(0, Number(skill.level) || 0));
+            const levelGradientClass = getLevelGradientClass(normalizedLevel);
+            const levelTextClass = getLevelTextClass(normalizedLevel);
+
+            return (
             <motion.div
               key={skill._id}
               initial={{ opacity: 0, y: 10 }}
@@ -259,12 +276,13 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
                     <div className="flex-1 bg-white/10 rounded-full h-2 overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
+                        animate={{ width: `${normalizedLevel}%` }}
                         transition={{ duration: 1, ease: 'easeOut' }}
-                        className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
+                        className={`h-full bg-gradient-to-r ${levelGradientClass}`}
                       />
                     </div>
-                    <span className="text-sm font-medium text-gray-400 w-12 text-right">
-                      {skill.level}%
+                    <span className={`text-sm font-medium w-12 text-right ${levelTextClass}`}>
+                      {normalizedLevel}%
                     </span>
                   </div>
                 </div>
@@ -286,7 +304,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
                 </div>
               </div>
             </motion.div>
-          ))
+          )})
         )}
       </div>
 
