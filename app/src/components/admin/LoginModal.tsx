@@ -94,37 +94,38 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-gradient-to-br from-black via-gray-950 to-black border border-white/10 rounded-2xl p-8 w-full max-w-md relative overflow-hidden shadow-2xl">
+            <div className="box-border bg-gradient-to-br from-black via-gray-950 to-black border-0 sm:border border-white/10 rounded-none sm:rounded-2xl p-4 sm:p-8 w-full max-w-full sm:max-w-md h-[100dvh] sm:h-auto max-h-none sm:max-h-[90vh] overflow-hidden sm:overflow-y-auto relative shadow-none sm:shadow-2xl">
               {/* Subtle corner accents */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -ml-16 -mb-16" />
               
               {/* Relative z-index for content */}
               <div className="relative z-10">
-                {/* Close button */}
-                <button
-                  onClick={onClose}
-                  className="absolute -top-4 -right-4 text-gray-500 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-lg"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-
                 {/* Header */}
-                <div className="mb-8">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-white/5 border border-white/10 rounded-lg">
-                      <Shield className="w-6 h-6 text-white" />
+                <div className="mb-5 sm:mb-8">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="p-2 bg-white/5 border border-white/10 rounded-lg flex-shrink-0">
+                        <Shield className="w-6 h-6 text-white" />
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight">Admin Access</h2>
                     </div>
-                    <h2 className="text-3xl font-bold text-white">Admin Access</h2>
+                    <button
+                      onClick={onClose}
+                      className="text-gray-500 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-lg flex-shrink-0"
+                      aria-label="Close login modal"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
                   </div>
                   <p className="text-gray-400 text-sm">Sign in to manage your portfolio content</p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-5">
                   {/* Email */}
                   <div>
                     <label className="block text-sm font-medium mb-2 text-gray-300">Email Address</label>
@@ -134,7 +135,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-white/30 rounded-lg pl-12 pr-4 py-3 focus:outline-none transition-all focus:bg-white/10 text-white placeholder:text-gray-600"
+                        className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-white/30 rounded-lg pl-12 pr-4 py-2.5 sm:py-3 focus:outline-none transition-all focus:bg-white/10 text-white placeholder:text-gray-600"
                         placeholder="your@email.com"
                         required
                         disabled={loading}
@@ -151,7 +152,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-white/30 rounded-lg pl-12 pr-4 py-3 focus:outline-none transition-all focus:bg-white/10 text-white placeholder:text-gray-600"
+                        className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-white/30 rounded-lg pl-12 pr-4 py-2.5 sm:py-3 focus:outline-none transition-all focus:bg-white/10 text-white placeholder:text-gray-600"
                         placeholder="Enter your password"
                         required
                         disabled={loading}
@@ -177,7 +178,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     disabled={loading}
                     whileHover={{ scale: loading ? 1 : 1.02 }}
                     whileTap={{ scale: loading ? 1 : 0.98 }}
-                    className="w-full bg-white text-black rounded-lg py-3.5 font-semibold hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group shadow-lg shadow-white/5"
+                    className="w-full bg-white text-black rounded-lg py-3 sm:py-3.5 font-semibold hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group shadow-lg shadow-white/5"
                   >
                     <span className="relative flex items-center justify-center gap-2">
                       {loading ? (
@@ -197,7 +198,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                 </form>
 
                 {/* Footer */}
-                <div className="mt-6 pt-6 border-t border-white/10">
+                <div className="mt-4 pt-4 sm:mt-6 sm:pt-6 border-t border-white/10">
                   <p className="text-center text-xs text-gray-500">
                     Protected dashboard • Secure authentication
                   </p>

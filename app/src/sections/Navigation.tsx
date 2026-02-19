@@ -210,6 +210,20 @@ export default function Navigation() {
                   </motion.a>
                 );
               })}
+
+              <motion.button
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, delay: navItems.length * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsLoginOpen(true);
+                }}
+                className="mt-3 w-full text-left text-base text-gray-400 hover:text-white transition-colors py-3 px-2 rounded-lg hover:bg-white/5 border-t border-white/10"
+              >
+                ©2026
+              </motion.button>
             </motion.div>
           </motion.div>
         )}

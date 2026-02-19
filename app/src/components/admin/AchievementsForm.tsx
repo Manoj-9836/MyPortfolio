@@ -311,11 +311,11 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-white/30 transition-all"
                       required
                     >
-                      <option value="" disabled>
+                      <option value="" disabled className="bg-gray-900 text-gray-400">
                         Select a category
                       </option>
                       {categories.map((cat) => (
-                        <option key={cat} value={cat}>
+                        <option key={cat} value={cat} className="bg-gray-900 text-white">
                           {cat}
                         </option>
                       ))}
