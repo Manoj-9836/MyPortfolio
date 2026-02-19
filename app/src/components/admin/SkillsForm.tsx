@@ -6,7 +6,7 @@ import { API_ENDPOINTS } from '../../config/api';
 interface Skill {
   _id?: string;
   name: string;
-  level: number;
+  level: number | string;
   category: string;
   order?: number;
 }
@@ -153,16 +153,35 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
     return acc;
   }, {} as Record<string, Skill[]>);
 
-  const getLevelGradientClass = (level: number) => {
-    if (level >= 80) return 'from-emerald-500 to-green-400';
-    if (level >= 50) return 'from-amber-500 to-yellow-400';
-    return 'from-rose-500 to-orange-400';
+  const parseSkillLevel = (value: number | string) => {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return Math.min(100, Math.max(0, value));
+    }
+
+    const parsed = Number(String(value).replace(/[^\d.-]/g, ''));
+    if (!Number.isFinite(parsed)) return 0;
+    return Math.min(100, Math.max(0, parsed));
   };
 
-  const getLevelTextClass = (level: number) => {
-    if (level >= 80) return 'text-emerald-400';
-    if (level >= 50) return 'text-amber-400';
-    return 'text-rose-400';
+  const getLevelClasses = (level: number) => {
+    if (level >= 80) {
+      return {
+        bar: 'h-full bg-gradient-to-r from-emerald-500 to-green-400',
+        text: 'text-emerald-400',
+      };
+    }
+
+    if (level >= 50) {
+      return {
+        bar: 'h-full bg-gradient-to-r from-amber-500 to-yellow-400',
+        text: 'text-amber-400',
+      };
+    }
+
+    return {
+      bar: 'h-full bg-gradient-to-r from-rose-500 to-orange-400',
+      text: 'text-rose-400',
+    };
   };
 
   if (loading) {
@@ -253,9 +272,8 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
           </div>
         ) : (
           filteredSkills.map((skill) => {
-            const normalizedLevel = Math.min(100, Math.max(0, Number(skill.level) || 0));
-            const levelGradientClass = getLevelGradientClass(normalizedLevel);
-            const levelTextClass = getLevelTextClass(normalizedLevel);
+            const normalizedLevel = parseSkillLevel(skill.level);
+            const levelClasses = getLevelClasses(normalizedLevel);
 
             return (
             <motion.div
@@ -277,11 +295,12 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${normalizedLevel}%` }}
+                        style={{ width: `${normalizedLevel}%` }}
                         transition={{ duration: 1, ease: 'easeOut' }}
-                        className={`h-full bg-gradient-to-r ${levelGradientClass}`}
+                        className={levelClasses.bar}
                       />
                     </div>
-                    <span className={`text-sm font-medium w-12 text-right ${levelTextClass}`}>
+                    <span className={`text-sm font-medium w-12 text-right ${levelClasses.text}`}>
                       {normalizedLevel}%
                     </span>
                   </div>
