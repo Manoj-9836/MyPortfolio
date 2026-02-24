@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, X, Save, Users, Award } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
+import { toast } from 'sonner';
 
 interface Leadership {
   _id?: string;
@@ -45,6 +46,7 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
       setLeaderships(data);
     } catch {
       setError('Failed to load leadership data');
+      toast.error('Failed to load leadership data.');
     } finally {
       setLoading(false);
     }
@@ -120,6 +122,7 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
 
       if (response.ok) {
         setSuccess(editingId ? 'Leadership updated!' : 'Leadership added!');
+        toast.success(editingId ? 'Leadership updated.' : 'Leadership added.');
         await fetchLeaderships();
         setTimeout(() => {
           setSuccess('');
@@ -128,9 +131,11 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
         }, 1500);
       } else {
         setError('Failed to save leadership');
+        toast.error('Failed to save leadership.');
       }
     } catch {
       setError('Failed to save changes');
+      toast.error('Failed to save changes.');
     } finally {
       setSaving(false);
     }
@@ -150,6 +155,7 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
 
       if (response.ok) {
         setSuccess('Leadership deleted!');
+        toast.success('Leadership deleted.');
         await fetchLeaderships();
         setTimeout(() => {
           setSuccess('');
@@ -158,6 +164,7 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
       }
     } catch {
       setError('Failed to delete leadership');
+      toast.error('Failed to delete leadership.');
     }
   };
 

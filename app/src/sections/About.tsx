@@ -61,7 +61,7 @@ export default function About() {
   }, []);
 
   return (
-    <section id="about" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
+    <section id="about" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-x-clip">
       <div className="max-w-7xl mx-auto">
         <motion.div
           ref={ref}
@@ -91,7 +91,7 @@ export default function About() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-lg text-gray-400 max-w-3xl leading-relaxed"
+              className="text-base sm:text-lg text-gray-400 max-w-3xl leading-relaxed"
             >
               {aboutData.description}
             </motion.p>
@@ -114,6 +114,50 @@ export default function About() {
                 <p className="text-sm text-gray-400">{item.description}</p>
               </motion.div>
             ))}
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p className="text-xs uppercase tracking-wider text-gray-500 mb-3">Impact Snapshot</p>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-xl bg-black/30 border border-white/10 p-3 text-center">
+                  <p className="text-xl font-semibold">100+</p>
+                  <p className="text-xs text-gray-400 mt-1">Students Mentored</p>
+                </div>
+                <div className="rounded-xl bg-black/30 border border-white/10 p-3 text-center">
+                  <p className="text-xl font-semibold">10+</p>
+                  <p className="text-xs text-gray-400 mt-1">Projects Built</p>
+                </div>
+                <div className="rounded-xl bg-black/30 border border-white/10 p-3 text-center">
+                  <p className="text-xl font-semibold">5+</p>
+                  <p className="text-xs text-gray-400 mt-1">Workshops Led</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p className="text-xs uppercase tracking-wider text-gray-500 mb-3">Live Profiles</p>
+              <div className="flex flex-col gap-3">
+                <img
+                  src="https://img.shields.io/badge/GitHub-Profile-111?logo=github"
+                  alt="GitHub profile badge"
+                  className="h-7 w-fit"
+                  loading="lazy"
+                />
+                <img
+                  src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?logo=linkedin&logoColor=white"
+                  alt="LinkedIn profile badge"
+                  className="h-7 w-fit"
+                  loading="lazy"
+                />
+                <img
+                  src="https://img.shields.io/badge/LeetCode-Active%20Coder-f89f1b?logo=leetcode&logoColor=white"
+                  alt="LeetCode profile badge"
+                  className="h-7 w-fit"
+                  loading="lazy"
+                />
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>

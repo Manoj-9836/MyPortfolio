@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MapPin, Linkedin, Github, Code2, Globe, Save, X } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
+import { toast } from 'sonner';
 
 interface Contact {
   _id?: string;
@@ -49,6 +50,7 @@ export default function ContactForm({ onSave }: ContactFormProps) {
       setFormData(data);
     } catch {
       setError('Failed to load contact information');
+      toast.error('Failed to load contact information.');
     } finally {
       setLoading(false);
     }
@@ -79,6 +81,7 @@ export default function ContactForm({ onSave }: ContactFormProps) {
         const updatedData = await response.json();
         setContact(updatedData);
         setSuccess('Contact information updated!');
+        toast.success('Contact information updated.');
         setTimeout(() => {
           setSuccess('');
           setIsEditing(false);
@@ -86,9 +89,11 @@ export default function ContactForm({ onSave }: ContactFormProps) {
         }, 1500);
       } else {
         setError('Failed to save contact information');
+        toast.error('Failed to save contact information.');
       }
     } catch {
       setError('Failed to save changes');
+      toast.error('Failed to save changes.');
     } finally {
       setSaving(false);
     }

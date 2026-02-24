@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, X, Save, Trophy } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
+import { toast } from 'sonner';
 
 interface Achievement {
   _id?: string;
@@ -52,6 +53,7 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
       setAchievements(data);
     } catch {
       setError('Failed to load achievements');
+      toast.error('Failed to load achievements.');
     } finally {
       setLoading(false);
     }
@@ -107,6 +109,7 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
 
       if (response.ok) {
         setSuccess(editingId ? 'Achievement updated!' : 'Achievement added!');
+        toast.success(editingId ? 'Achievement updated.' : 'Achievement added.');
         await fetchAchievements();
         setTimeout(() => {
           setSuccess('');
@@ -115,9 +118,11 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
         }, 1500);
       } else {
         setError('Failed to save achievement');
+        toast.error('Failed to save achievement.');
       }
     } catch {
       setError('Failed to save changes');
+      toast.error('Failed to save changes.');
     } finally {
       setSaving(false);
     }
@@ -137,6 +142,7 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
 
       if (response.ok) {
         setSuccess('Achievement deleted!');
+        toast.success('Achievement deleted.');
         await fetchAchievements();
         setTimeout(() => {
           setSuccess('');
@@ -145,6 +151,7 @@ export default function AchievementsForm({ onSave }: AchievementsFormProps) {
       }
     } catch {
       setError('Failed to delete achievement');
+      toast.error('Failed to delete achievement.');
     }
   };
 

@@ -2,12 +2,18 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, X, Save, Briefcase, ExternalLink, Github, Star } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
+import { toast } from 'sonner';
 
 interface Project {
   _id?: string;
   title: string;
   subtitle: string;
   description: string;
+  caseStudy?: {
+    problem: string;
+    approach: string;
+    impact: string;
+  };
   tech: string[];
   date: string;
   liveUrl?: string;
@@ -31,6 +37,11 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
     title: '',
     subtitle: '',
     description: '',
+    caseStudy: {
+      problem: '',
+      approach: '',
+      impact: '',
+    },
     tech: [],
     date: '',
     liveUrl: '',
@@ -53,24 +64,68 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
     try {
       const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/projects`);
       const data = await response.json();
-      setProjects(data);
+      const normalizedProjects = (Array.isArray(data) ? data : []).map((project: Project & {
+        caseStudy?: { problem?: string; approach?: string; impact?: string };
+        casestudy?: { problem?: string; approach?: string; impact?: string };
+        problem?: string;
+        approach?: string;
+        impact?: string;
+      }) => ({
+        ...project,
+        caseStudy: {
+          problem: project.caseStudy?.problem || project.casestudy?.problem || project.problem || '',
+          approach: project.caseStudy?.approach || project.casestudy?.approach || project.approach || '',
+          impact: project.caseStudy?.impact || project.casestudy?.impact || project.impact || '',
+        },
+      }));
+
+      setProjects(normalizedProjects);
     } catch {
       setError('Failed to load projects');
+      toast.error('Failed to load projects.');
     } finally {
       setLoading(false);
     }
   };
 
+  const normalizeCaseStudy = (project?: Project) => ({
+    problem: project?.caseStudy?.problem || '',
+    approach: project?.caseStudy?.approach || '',
+    impact: project?.caseStudy?.impact || '',
+  });
+
   const handleOpenModal = (project?: Project) => {
     if (project) {
       setEditingId(project._id || null);
-      setFormData(project);
+      setFormData({
+        ...project,
+        caseStudy: normalizeCaseStudy(project),
+      });
+      if (project._id) {
+        fetch(`${API_ENDPOINTS.PORTFOLIO}/projects/${project._id}`)
+          .then((response) => response.json())
+          .then((data) => {
+            if (!data || !data._id) return;
+            setFormData({
+              ...data,
+              caseStudy: normalizeCaseStudy(data),
+            });
+          })
+          .catch(() => {
+            // Keep existing data if fetch fails
+          });
+      }
     } else {
       setEditingId(null);
       setFormData({
         title: '',
         subtitle: '',
         description: '',
+        caseStudy: {
+          problem: '',
+          approach: '',
+          impact: '',
+        },
         tech: [],
         date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         liveUrl: '',
@@ -123,6 +178,10 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
         ? `${API_ENDPOINTS.PORTFOLIO}/projects/${editingId}`
         : `${API_ENDPOINTS.PORTFOLIO}/projects`;
       const method = editingId ? 'PUT' : 'POST';
+      const payload = {
+        ...formData,
+        caseStudy: normalizeCaseStudy(formData),
+      };
 
       const response = await fetch(url, {
         method,
@@ -130,11 +189,12 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
         setSuccess(editingId ? 'Project updated!' : 'Project added!');
+        toast.success(editingId ? 'Project updated.' : 'Project added.');
         await fetchProjects();
         setTimeout(() => {
           setSuccess('');
@@ -143,9 +203,11 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
         }, 1500);
       } else {
         setError('Failed to save project');
+        toast.error('Failed to save project.');
       }
     } catch {
       setError('Failed to save changes');
+      toast.error('Failed to save changes.');
     } finally {
       setSaving(false);
     }
@@ -165,6 +227,7 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
 
       if (response.ok) {
         setSuccess('Project deleted!');
+        toast.success('Project deleted.');
         await fetchProjects();
         setTimeout(() => {
           setSuccess('');
@@ -173,6 +236,7 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
       }
     } catch {
       setError('Failed to delete project');
+      toast.error('Failed to delete project.');
     }
   };
 
@@ -391,6 +455,64 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                         placeholder="Detailed project description..."
                         required
                       />
+                    </div>
+
+                    <div className="md:col-span-2 rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4 space-y-3">
+                      <h4 className="text-sm sm:text-base font-semibold text-white">Case Study Details</h4>
+
+                      <div>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                          Problem
+                        </label>
+                        <textarea
+                          value={formData.caseStudy?.problem || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            caseStudy: {
+                              ...normalizeCaseStudy(formData),
+                              problem: e.target.value,
+                            },
+                          })}
+                          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[85px] resize-y"
+                          placeholder="What challenge did this project solve?"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                          Approach
+                        </label>
+                        <textarea
+                          value={formData.caseStudy?.approach || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            caseStudy: {
+                              ...normalizeCaseStudy(formData),
+                              approach: e.target.value,
+                            },
+                          })}
+                          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[85px] resize-y"
+                          placeholder="How did you design and implement the solution?"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                          Impact
+                        </label>
+                        <textarea
+                          value={formData.caseStudy?.impact || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            caseStudy: {
+                              ...normalizeCaseStudy(formData),
+                              impact: e.target.value,
+                            },
+                          })}
+                          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[85px] resize-y"
+                          placeholder="What measurable result or outcome did you achieve?"
+                        />
+                      </div>
                     </div>
 
                     <div>

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { ThemeProvider } from 'next-themes';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
@@ -12,6 +13,7 @@ import Leadership from './sections/Leadership';
 import Achievements from './sections/Achievements';
 import Contact from './sections/Contact';
 import AdminDashboard from './pages/AdminDashboard.tsx';
+import { Toaster } from './components/ui/sonner';
 import './App.css';
 
 function App() {
@@ -27,40 +29,43 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/" element={
-          <div className="min-h-screen bg-black text-white overflow-x-hidden">
-            <AnimatePresence mode="wait">
-              {isLoading ? (
-                <IntroAnimation key="intro" />
-              ) : (
-                <motion.div
-                  key="main"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Navigation />
-                  <main>
-                    <Hero />
-                    <About />
-                    <Education />
-                    <Skills />
-                    <Projects />
-                    <Blog />
-                    <Leadership />
-                    <Achievements />
-                    <Contact />
-                  </main>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        } />
-      </Routes>
-    </Router>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <Router>
+        <Routes>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/" element={
+            <div className="min-h-screen bg-black text-white overflow-x-hidden">
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <IntroAnimation key="intro" />
+                ) : (
+                  <motion.div
+                    key="main"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Navigation />
+                    <main>
+                      <Hero />
+                      <About />
+                      <Education />
+                      <Skills />
+                      <Projects />
+                      <Blog />
+                      <Leadership />
+                      <Achievements />
+                      <Contact />
+                    </main>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          } />
+        </Routes>
+      </Router>
+      <Toaster richColors />
+    </ThemeProvider>
   );
 }
 

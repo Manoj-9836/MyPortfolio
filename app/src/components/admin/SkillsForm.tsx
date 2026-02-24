@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, X, Save, Code2 } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
+import { toast } from 'sonner';
 
 interface Skill {
   _id?: string;
@@ -50,6 +51,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
       setSkills(data);
     } catch {
       setError('Failed to load skills');
+      toast.error('Failed to load skills.');
     } finally {
       setLoading(false);
     }
@@ -103,6 +105,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
 
       if (response.ok) {
         setSuccess(editingId ? 'Skill updated!' : 'Skill added!');
+        toast.success(editingId ? 'Skill updated.' : 'Skill added.');
         await fetchSkills();
         setTimeout(() => {
           setSuccess('');
@@ -111,9 +114,11 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
         }, 1500);
       } else {
         setError('Failed to save skill');
+        toast.error('Failed to save skill.');
       }
     } catch {
       setError('Failed to save changes');
+      toast.error('Failed to save changes.');
     } finally {
       setSaving(false);
     }
@@ -133,6 +138,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
 
       if (response.ok) {
         setSuccess('Skill deleted!');
+        toast.success('Skill deleted.');
         await fetchSkills();
         setTimeout(() => {
           setSuccess('');
@@ -141,6 +147,7 @@ export default function SkillsForm({ onSave }: SkillsFormProps) {
       }
     } catch {
       setError('Failed to delete skill');
+      toast.error('Failed to delete skill.');
     }
   };
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, X, Save, GraduationCap } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
+import { toast } from 'sonner';
 
 interface Education {
   _id?: string;
@@ -51,6 +52,7 @@ export default function EducationForm({ onSave }: EducationFormProps) {
       setEducations(data);
     } catch {
       setError('Failed to load education data');
+      toast.error('Failed to load education data');
     } finally {
       setLoading(false);
     }
@@ -113,6 +115,7 @@ export default function EducationForm({ onSave }: EducationFormProps) {
 
       if (response.ok) {
         setSuccess(editingId ? 'Education updated!' : 'Education added!');
+        toast.success(editingId ? 'Education updated.' : 'Education added.');
         await fetchEducations();
         setTimeout(() => {
           setSuccess('');
@@ -121,9 +124,11 @@ export default function EducationForm({ onSave }: EducationFormProps) {
         }, 1500);
       } else {
         setError('Failed to save education');
+        toast.error('Failed to save education.');
       }
     } catch {
       setError('Failed to save changes');
+      toast.error('Failed to save changes.');
     } finally {
       setSaving(false);
     }
@@ -143,6 +148,7 @@ export default function EducationForm({ onSave }: EducationFormProps) {
 
       if (response.ok) {
         setSuccess('Education deleted!');
+        toast.success('Education deleted.');
         await fetchEducations();
         setTimeout(() => {
           setSuccess('');
@@ -151,6 +157,7 @@ export default function EducationForm({ onSave }: EducationFormProps) {
       }
     } catch {
       setError('Failed to delete education');
+      toast.error('Failed to delete education.');
     }
   };
 

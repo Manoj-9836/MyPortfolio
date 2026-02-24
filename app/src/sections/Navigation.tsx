@@ -16,6 +16,7 @@ export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const handleLoginSuccess = () => {
     window.location.href = '/admin';
@@ -39,6 +40,9 @@ export default function Navigation() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      const progress = maxScroll > 0 ? (window.scrollY / maxScroll) * 100 : 0;
+      setScrollProgress(Math.max(0, Math.min(100, progress)));
       
       // Track active section
       const sections = navItems.map(item => item.href.replace('#', ''));
@@ -104,7 +108,7 @@ export default function Navigation() {
           </motion.a>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-5 lg:space-x-8">
             {navItems.map((item) => {
               const isActive = activeSection === item.href.replace('#', '');
               return (
@@ -126,7 +130,7 @@ export default function Navigation() {
           {/* Year Badge - Click to login */}
           <motion.button
             onClick={() => setIsLoginOpen(true)}
-            className="hidden md:block text-sm text-gray-500 hover:text-white transition-colors cursor-pointer"
+            className="hidden lg:block text-sm text-gray-500 hover:text-white transition-colors cursor-pointer"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             title="Click to login"
@@ -168,6 +172,14 @@ export default function Navigation() {
             </div>
           </button>
         </div>
+      </div>
+
+      <div className="h-[2px] bg-white/5">
+        <motion.div
+          className="h-full bg-white"
+          animate={{ width: `${scrollProgress}%` }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+        />
       </div>
 
       {/* Mobile Menu */}

@@ -28,6 +28,7 @@ export default function Skills() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [skillCategories, setSkillCategories] = useState<SkillCategory[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -54,6 +55,8 @@ export default function Skills() {
         setSkillCategories(categoriesArray);
       } catch {
         // Use default empty state if fetch fails
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -61,7 +64,7 @@ export default function Skills() {
   }, []);
 
   return (
-    <section id="skills" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
+    <section id="skills" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-x-clip">
       <div className="max-w-7xl mx-auto">
         <motion.div
           ref={ref}
@@ -91,7 +94,7 @@ export default function Skills() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-lg text-gray-400 mt-4 max-w-2xl"
+              className="text-base sm:text-lg text-gray-400 mt-4 max-w-2xl"
             >
               A comprehensive toolkit for building modern, scalable applications
             </motion.p>
@@ -99,13 +102,25 @@ export default function Skills() {
 
           {/* Skills Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loading &&
+              [1, 2, 3].map((i) => (
+                <div key={i} className="p-6 rounded-2xl bg-white/5 border border-white/10 animate-pulse">
+                  <div className="h-5 w-32 bg-white/10 rounded mb-4" />
+                  <div className="space-y-3">
+                    <div className="h-4 w-full bg-white/10 rounded" />
+                    <div className="h-4 w-5/6 bg-white/10 rounded" />
+                    <div className="h-4 w-4/6 bg-white/10 rounded" />
+                  </div>
+                </div>
+              ))}
+
             {skillCategories.map((category, index) => (
               <motion.div
                 key={category.title}
                 initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
-                className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 overflow-hidden hover:border-white/20 transition-all duration-300"
+                className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300"
               >
                 {/* Gradient background */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
@@ -114,12 +129,14 @@ export default function Skills() {
                 <div className="relative z-10">
                   <h3 className="text-lg font-semibold mb-4">{category.title}</h3>
                   <div className="space-y-3">
-                    {category.skills.map((skill) => (
+                    {category.skills.map((skill) => {
+                      return (
                       <div key={skill._id} className="space-y-1.5">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-white/90">{skill.name}</span>
                           <span className="text-white/60">{skill.level}%</span>
                         </div>
+
                         <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
@@ -129,7 +146,7 @@ export default function Skills() {
                           />
                         </div>
                       </div>
-                    ))}
+                    );})}
                   </div>
                 </div>
               </motion.div>

@@ -47,7 +47,7 @@ export default function Achievements() {
   }, []);
 
   return (
-    <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
+    <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-x-clip">
       <div className="max-w-7xl mx-auto">
         <motion.div
           ref={ref}
@@ -77,7 +77,7 @@ export default function Achievements() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-lg text-gray-400 mt-4 max-w-2xl"
+              className="text-base sm:text-lg text-gray-400 mt-4 max-w-2xl"
             >
               Key accomplishments that mark my journey in tech
             </motion.p>

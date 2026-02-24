@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Save, X } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
+import { toast } from 'sonner';
 
 interface AboutData {
   _id?: string;
@@ -41,6 +42,7 @@ export default function AboutForm({ onSave }: AboutFormProps) {
       }
     } catch {
       setError('Failed to load about data');
+      toast.error('Failed to load about data');
     } finally {
       setLoading(false);
     }
@@ -65,15 +67,18 @@ export default function AboutForm({ onSave }: AboutFormProps) {
 
       if (response.ok) {
         setSuccess('About section updated successfully!');
+        toast.success('About section updated successfully.');
         setTimeout(() => {
           setSuccess('');
           onSave();
         }, 2000);
       } else {
         setError('Failed to update about section');
+        toast.error('Failed to update about section.');
       }
     } catch {
       setError('Failed to save changes');
+      toast.error('Failed to save changes.');
     } finally {
       setSaving(false);
     }

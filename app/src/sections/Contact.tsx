@@ -30,6 +30,10 @@ export default function Contact() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [contact, setContact] = useState<ContactData>(DEFAULT_CONTACT);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formErrors, setFormErrors] = useState({ name: '', email: '', message: '' });
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchContact = async () => {
@@ -42,6 +46,8 @@ export default function Contact() {
       } catch (error) {
         console.error('Failed to fetch contact:', error);
         // Keep default contact
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -100,8 +106,38 @@ export default function Contact() {
     }
   ];
 
+  const validateForm = () => {
+    const errors = { name: '', email: '', message: '' };
+    if (!formData.name.trim()) errors.name = 'Name is required';
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Enter a valid email';
+    }
+    if (!formData.message.trim()) errors.message = 'Message is required';
+
+    setFormErrors(errors);
+    return !errors.name && !errors.email && !errors.message;
+  };
+
+  const handleQuickSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(false);
+
+    if (!validateForm()) return;
+
+    const subject = encodeURIComponent(`Portfolio inquiry from ${formData.name}`);
+    const body = encodeURIComponent(
+      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+    );
+
+    window.location.href = `mailto:${contact.email}?subject=${subject}&body=${body}`;
+    setSubmitted(true);
+    setFormData({ name: '', email: '', message: '' });
+  };
+
   return (
-    <section id="contact" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900/10 to-black">
+    <section id="contact" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900/10 to-black overflow-x-clip">
       <div className="max-w-7xl mx-auto">
         <motion.div
           ref={ref}
@@ -131,13 +167,20 @@ export default function Contact() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-lg text-gray-400 mt-4 max-w-2xl mx-auto"
+              className="text-base sm:text-lg text-gray-400 mt-4 max-w-2xl mx-auto"
             >
               {contact.message}
             </motion.p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+            {loading && (
+              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 animate-pulse">
+                <div className="h-28 rounded-xl bg-white/5 border border-white/10" />
+                <div className="h-28 rounded-xl bg-white/5 border border-white/10" />
+              </div>
+            )}
+
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -207,6 +250,67 @@ export default function Contact() {
               </div>
             </motion.div>
           </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.9 }}
+            className="mt-10 md:mt-12 p-5 md:p-6 rounded-2xl border border-white/10 bg-white/5"
+          >
+            <h3 className="text-lg md:text-xl font-semibold mb-1">Quick Message</h3>
+            <p className="text-sm text-gray-400 mb-5">Share your requirement and I’ll get back quickly.</p>
+
+            <form onSubmit={handleQuickSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full bg-black/30 border border-white/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-white/40"
+                />
+                {formErrors.name && <p className="text-xs text-red-400 mt-1">{formErrors.name}</p>}
+              </div>
+
+              <div>
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full bg-black/30 border border-white/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-white/40"
+                />
+                {formErrors.email && <p className="text-xs text-red-400 mt-1">{formErrors.email}</p>}
+              </div>
+
+              <div className="md:col-span-2">
+                <textarea
+                  placeholder="Tell me about your project or role"
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  rows={4}
+                  className="w-full bg-black/30 border border-white/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-white/40"
+                />
+                {formErrors.message && <p className="text-xs text-red-400 mt-1">{formErrors.message}</p>}
+              </div>
+
+              <div className="md:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="text-xs text-gray-500">
+                  Prefer direct contact? Use email or LinkedIn above.
+                </div>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                  Send Message
+                </button>
+              </div>
+
+              {submitted && (
+                <p className="md:col-span-2 text-sm text-green-400">Thanks! Your mail app opened with the drafted message.</p>
+              )}
+            </form>
+          </motion.div>
 
           {/* Footer */}
           <motion.div

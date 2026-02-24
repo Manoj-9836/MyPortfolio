@@ -33,7 +33,7 @@ export default function Leadership() {
   }, []);
 
   return (
-    <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900/10">
+    <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900/10 overflow-x-clip">
       <div className="max-w-7xl mx-auto">
         <motion.div
           ref={ref}
@@ -63,7 +63,7 @@ export default function Leadership() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-lg text-gray-400 mt-4 max-w-2xl"
+              className="text-base sm:text-lg text-gray-400 mt-4 max-w-2xl"
             >
               Building developer communities and empowering student programmers
             </motion.p>
@@ -145,7 +145,7 @@ export default function Leadership() {
                 key={stat.label}
                 className="p-6 rounded-2xl bg-white/5 border border-white/10 text-center"
               >
-                <div className="text-3xl font-bold mb-1">{stat.value}</div>
+                <div className="text-2xl sm:text-3xl font-bold mb-1">{stat.value}</div>
                 <div className="text-sm text-gray-400">{stat.label}</div>
               </div>
             ))}

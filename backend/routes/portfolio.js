@@ -1,4 +1,8 @@
 import express from 'express';
+import mongoose from 'mongoose';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import jwt from 'jsonwebtoken';
 import {
   Project,
@@ -13,6 +17,10 @@ import {
 } from '../models/Portfolio.js';
 
 const router = express.Router();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const RESUME_PATH = path.join(__dirname, '..', '..', 'app', 'public', 'resume.pdf');
 
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
@@ -447,6 +455,11 @@ router.get('/projects', async (req, res) => {
           title: 'ApexResume',
           subtitle: 'AI Resume Analyzer',
           description: 'An AI-powered resume analysis platform providing ATS score, skill recommendations, and job role suggestions using NLP and Gemini API. Features real-time leaderboard, company-specific resume generation, and skill roadmap visualization.',
+          caseStudy: {
+            problem: 'Job seekers often submit resumes that fail ATS screening due to weak structure and missing skill alignment.',
+            approach: 'Built an AI-driven analysis pipeline with Gemini API to score resumes, suggest improvements, and generate role-focused optimization guidance.',
+            impact: 'Improved engagement by 40% through actionable feedback loops and personalized recommendations.'
+          },
           tech: ['React.js', 'Node.js', 'MongoDB', 'Gemini API'],
           date: 'Jun 2025',
           liveUrl: 'https://apexresume.netlify.app',
@@ -460,6 +473,11 @@ router.get('/projects', async (req, res) => {
           title: 'NutroTrack',
           subtitle: 'Nutrition Tracker',
           description: 'A nutrition tracking dashboard with real-time calorie analytics and interactive visualizations. Optimized component rendering for faster data load performance.',
+          caseStudy: {
+            problem: 'Users needed a simple nutrition dashboard that loads quickly and provides understandable daily insights.',
+            approach: 'Designed reusable React UI blocks with API-based nutrition metrics and optimized render cycles for key dashboard widgets.',
+            impact: 'Achieved 30% faster load time and improved usability for regular tracking behavior.'
+          },
           tech: ['React.js', 'REST APIs'],
           date: 'Oct 2024',
           liveUrl: 'https://manoj-9836.github.io/NutroTrack',
@@ -471,15 +489,80 @@ router.get('/projects', async (req, res) => {
         }
       ]);
     }
-    res.json(projects);
+    const normalizedProjects = projects.map((project) => {
+      const projectObject = typeof project.toObject === 'function' ? project.toObject() : project;
+      const safeCaseStudy = projectObject.caseStudy || {};
+
+      return {
+        ...projectObject,
+        caseStudy: {
+          problem: safeCaseStudy.problem || projectObject.problem || '',
+          approach: safeCaseStudy.approach || projectObject.approach || '',
+          impact: safeCaseStudy.impact || projectObject.impact || '',
+        },
+      };
+    });
+
+    res.json(normalizedProjects);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
+router.get('/projects/:id', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid project id' });
+    }
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const projectObject = project.toObject();
+    const safeCaseStudy = projectObject.caseStudy || {};
+
+    res.json({
+      ...projectObject,
+      caseStudy: {
+        problem: safeCaseStudy.problem || projectObject.problem || '',
+        approach: safeCaseStudy.approach || projectObject.approach || '',
+        impact: safeCaseStudy.impact || projectObject.impact || '',
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+const normalizeProjectPayload = (payload = {}) => {
+  const safeCaseStudy = payload.caseStudy || payload.casestudy || {};
+
+  return {
+    ...payload,
+    caseStudy: {
+      problem: typeof safeCaseStudy.problem === 'string'
+        ? safeCaseStudy.problem.trim()
+        : typeof payload.problem === 'string'
+          ? payload.problem.trim()
+          : '',
+      approach: typeof safeCaseStudy.approach === 'string'
+        ? safeCaseStudy.approach.trim()
+        : typeof payload.approach === 'string'
+          ? payload.approach.trim()
+          : '',
+      impact: typeof safeCaseStudy.impact === 'string'
+        ? safeCaseStudy.impact.trim()
+        : typeof payload.impact === 'string'
+          ? payload.impact.trim()
+          : '',
+    },
+  };
+};
+
 router.post('/projects', verifyToken, async (req, res) => {
   try {
-    const project = await Project.create(req.body);
+    const project = await Project.create(normalizeProjectPayload(req.body));
     res.status(201).json(project);
   } catch (error) {
     res.status(400).json({ message: 'Validation error', error: error.message });
@@ -488,7 +571,11 @@ router.post('/projects', verifyToken, async (req, res) => {
 
 router.put('/projects/:id', verifyToken, async (req, res) => {
   try {
-    const project = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const project = await Project.findByIdAndUpdate(
+      req.params.id,
+      normalizeProjectPayload(req.body),
+      { new: true, runValidators: true }
+    );
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
     }
@@ -755,6 +842,36 @@ router.put('/contact/:id', verifyToken, async (req, res) => {
     res.json(contact);
   } catch (error) {
     res.status(400).json({ message: 'Validation error', error: error.message });
+  }
+});
+
+router.post('/resume', verifyToken, async (req, res) => {
+  try {
+    const { fileName, contentBase64 } = req.body;
+
+    if (!contentBase64) {
+      return res.status(400).json({ message: 'Missing resume content' });
+    }
+
+    if (fileName && !String(fileName).toLowerCase().endsWith('.pdf')) {
+      return res.status(400).json({ message: 'Resume must be a PDF' });
+    }
+
+    const base64 = String(contentBase64).includes('base64,')
+      ? String(contentBase64).split('base64,')[1]
+      : String(contentBase64);
+
+    const buffer = Buffer.from(base64, 'base64');
+
+    if (!buffer.length) {
+      return res.status(400).json({ message: 'Invalid resume content' });
+    }
+
+    await fs.writeFile(RESUME_PATH, buffer);
+
+    res.json({ message: 'Resume updated' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

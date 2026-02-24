@@ -4,6 +4,11 @@ const projectSchema = new mongoose.Schema({
   title: { type: String, required: true },
   subtitle: { type: String, required: true },
   description: { type: String, required: true },
+  caseStudy: {
+    problem: { type: String, default: '' },
+    approach: { type: String, default: '' },
+    impact: { type: String, default: '' }
+  },
   tech: [String],
   date: String,
   liveUrl: String,

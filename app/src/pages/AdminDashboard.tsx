@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { API_ENDPOINTS } from '../config/api';
+import { toast } from 'sonner';
 import {
   LogOut,
   Home,
@@ -19,7 +20,6 @@ import {
   RefreshCw,
   BarChart3,
   FileText,
-  Image as ImageIcon,
   Settings,
   TrendingUp,
   Heart,
@@ -199,12 +199,45 @@ export default function AdminDashboard() {
     { id: '3', action: 'All sections available', section: 'Status', timestamp: '10 minutes ago', type: 'create' as const },
   ];
 
-  const handleMediaUpload = (files: FileList | null) => {
-    if (files && files.length > 0) {
-      const file = files[0];
-      console.log('File selected:', file.name);
-      alert(`Media upload ready: ${file.name}\n\nNote: Full media upload feature coming soon.`);
-      // In a real implementation, this would upload to a server or storage service
+  const handleResumeUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      toast.error('Please upload a PDF resume.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const reader = new FileReader();
+
+      reader.onload = async () => {
+        const contentBase64 = String(reader.result || '');
+
+        const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/resume`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            fileName: file.name,
+            contentBase64,
+          }),
+        });
+
+        if (response.ok) {
+          toast.success('Resume updated successfully.');
+        } else {
+          toast.error('Failed to update resume.');
+        }
+      };
+
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Resume upload failed:', error);
+      toast.error('Failed to update resume.');
     }
   };
 
@@ -212,11 +245,11 @@ export default function AdminDashboard() {
     { label: 'New Project', description: 'Add a portfolio project', icon: Plus, onClick: () => setActiveTab('projects'), color: 'hover:bg-green-500/5' },
     { label: 'Edit Hero', description: 'Update main section', icon: Edit, onClick: () => setActiveTab('hero'), color: 'hover:bg-blue-500/5' },
     { label: 'Manage Skills', description: 'Add or update skills', icon: Code, onClick: () => setActiveTab('skills'), color: 'hover:bg-purple-500/5' },
-    { label: 'Upload Media', description: 'Add images/files', icon: ImageIcon, onClick: () => {
+    { label: 'Change Resume', description: 'Upload a new resume', icon: FileText, onClick: () => {
       const input = document.createElement('input');
       input.type = 'file';
-      input.accept = 'image/*';
-      input.onchange = (e) => handleMediaUpload((e.target as HTMLInputElement).files);
+      input.accept = '.pdf';
+      input.onchange = (e) => handleResumeUpload((e.target as HTMLInputElement).files);
       input.click();
     }, color: 'hover:bg-amber-500/5' },
   ];

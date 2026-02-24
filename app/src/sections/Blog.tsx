@@ -190,6 +190,17 @@ export default function Blog() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPost]);
 
+  useEffect(() => {
+    if (!selectedPost) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [selectedPost]);
+
   const handleLike = async (postId: string) => {
     try {
       const userId = getUserId();
@@ -288,7 +299,7 @@ export default function Blog() {
   };
 
   return (
-    <section id="blog" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
+    <section id="blog" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-x-clip">
       <div className="max-w-7xl mx-auto">
         <motion.div
           ref={ref}
@@ -318,7 +329,7 @@ export default function Blog() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-lg text-gray-400 mt-4"
+              className="text-base sm:text-lg text-gray-400 mt-4"
             >
               Sharing insights, experiences, and thoughts on web development and technology
             </motion.p>
@@ -340,7 +351,7 @@ export default function Blog() {
                   className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 text-white placeholder-gray-400 transition-all"
                 />
                 {searchQuery && (
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                  <div className="hidden sm:block absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400">
                     {filteredPosts.length} result{filteredPosts.length !== 1 ? 's' : ''}
                   </div>
                 )}
@@ -495,7 +506,7 @@ export default function Blog() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedPost(null)}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
           >
             {/* Reading Progress Bar */}
             <div className="fixed top-0 left-0 right-0 h-1 bg-white/10 z-[60]">
@@ -515,14 +526,14 @@ export default function Blog() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8"
+              className="relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl sm:rounded-3xl max-w-3xl w-full h-[92dvh] sm:h-auto max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6 md:p-8"
             >
               {/* Close Button */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setSelectedPost(null)}
-                className="absolute top-4 right-4 md:top-6 md:right-6 p-2 hover:bg-white/10 rounded-full transition-colors z-10"
+                className="absolute top-3 right-3 md:top-6 md:right-6 p-2 hover:bg-white/10 rounded-full transition-colors z-10"
               >
                 <X className="w-6 h-6" />
               </motion.button>
@@ -532,30 +543,30 @@ export default function Blog() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="w-full rounded-2xl overflow-hidden mb-6 mt-4"
+                className="w-full rounded-2xl overflow-hidden mb-6 mt-8 sm:mt-4"
               >
                 {isLeetCodePost(selectedPost) && selectedPost.image ? (
                   <img
                     src={selectedPost.image}
                     alt={selectedPost.title}
-                    className="w-full h-64 md:h-80 object-cover rounded-2xl"
+                    className="w-full h-52 sm:h-64 md:h-80 object-cover rounded-2xl"
                   />
                 ) : (
                   <img
                     src={selectedPost.image || selectedPost.leetcodeImage}
                     alt={selectedPost.title}
-                    className="w-full h-64 md:h-80 object-cover"
+                    className="w-full h-52 sm:h-64 md:h-80 object-cover"
                   />
                 )}
               </motion.div>
 
               {/* Header */}
               <div className="mb-6">
-                <div className="flex items-center justify-between gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                   <span className={`px-4 py-2 rounded-full text-sm font-medium ${getCategoryColor(selectedPost.category)}`}>
                     {selectedPost.category}
                   </span>
-                  <div className="flex items-center gap-4 text-sm text-gray-400">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400">
                     <div className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
                       <span>{selectedPost.views || 0}</span>
@@ -574,7 +585,7 @@ export default function Blog() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-2xl md:text-4xl font-bold mb-4"
+                  className="text-xl sm:text-2xl md:text-4xl font-bold mb-4 pr-10 sm:pr-0"
                 >
                   {selectedPost.title}
                 </motion.h2>
@@ -582,7 +593,7 @@ export default function Blog() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-lg text-gray-300 italic"
+                  className="text-base sm:text-lg text-gray-300 italic"
                 >
                   {selectedPost.excerpt}
                 </motion.p>
@@ -631,7 +642,7 @@ export default function Blog() {
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="absolute top-full mt-2 left-0 bg-gray-900 border border-white/20 rounded-lg p-2 shadow-xl z-10"
+                      className="absolute top-full mt-2 right-0 sm:left-0 sm:right-auto bg-gray-900 border border-white/20 rounded-lg p-2 shadow-xl z-20 min-w-[150px]"
                     >
                       <button
                         onClick={() => sharePost('twitter')}

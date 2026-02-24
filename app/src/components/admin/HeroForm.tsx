@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Save, X } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
+import { toast } from 'sonner';
 
 interface HeroData {
   _id?: string;
@@ -41,6 +42,7 @@ export default function HeroForm({ onSave }: HeroFormProps) {
       }
     } catch {
       setError('Failed to load hero data');
+      toast.error('Failed to load hero data');
     } finally {
       setLoading(false);
     }
@@ -65,15 +67,18 @@ export default function HeroForm({ onSave }: HeroFormProps) {
 
       if (response.ok) {
         setSuccess('Hero section updated successfully!');
+        toast.success('Hero section updated successfully.');
         setTimeout(() => {
           setSuccess('');
           onSave();
         }, 2000);
       } else {
         setError('Failed to update hero section');
+        toast.error('Failed to update hero section.');
       }
     } catch {
       setError('Failed to save changes');
+      toast.error('Failed to save changes.');
     } finally {
       setSaving(false);
     }

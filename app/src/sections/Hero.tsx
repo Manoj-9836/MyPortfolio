@@ -34,18 +34,18 @@ export default function Hero() {
   }, []);
 
   return (
-    <section id="home" className="min-h-screen flex flex-col items-center justify-center relative px-4 pt-16 md:pt-20">
+    <section id="home" className="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 pt-20 md:pt-24 overflow-x-clip">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-gray-900/20 pointer-events-none" />
       
       {/* Content */}
-      <div className="relative z-10 text-center max-w-5xl mx-auto">
+      <div className="relative z-10 text-center max-w-5xl mx-auto w-full">
         {/* Main Name */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight mb-6"
+          className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight leading-tight mb-6 break-words"
           style={{ fontFamily: '"Montserrat", sans-serif' }}
         >
           <span className="block">BAVISETTI</span>
@@ -84,23 +84,26 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.1 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full max-w-md sm:max-w-none mx-auto"
         >
           <motion.a
             href="#projects"
-            className="px-8 py-3 bg-white text-black font-medium rounded-full hover:bg-gray-200 transition-colors"
+            className="px-7 sm:px-8 py-3 bg-white text-black font-medium rounded-full hover:bg-gray-200 transition-colors w-full sm:w-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             View Projects
           </motion.a>
           <motion.a
-            href="#contact"
-            className="px-8 py-3 border border-white/20 rounded-full hover:bg-white/5 transition-colors"
+            href="/resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+            className="px-7 sm:px-8 py-3 border border-white/20 rounded-full hover:bg-white/5 transition-colors w-full sm:w-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Get in Touch
+            My Resume
           </motion.a>
         </motion.div>
       </div>

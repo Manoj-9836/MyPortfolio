@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, X, Save, BookOpen, Eye, EyeOff, Heart, MessageCircle, Calendar, User, Trash } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
+import { toast } from 'sonner';
 
 interface BlogPost {
   _id?: string;
@@ -62,6 +63,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
       setPosts(data);
     } catch {
       setError('Failed to load blog posts');
+      toast.error('Failed to load blog posts.');
     } finally {
       setLoading(false);
     }
@@ -156,6 +158,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
 
       if (response.ok) {
         setSuccess(editingId ? 'Post updated!' : 'Post created!');
+        toast.success(editingId ? 'Post updated.' : 'Post created.');
         await fetchPosts();
         setTimeout(() => {
           setSuccess('');
@@ -164,10 +167,12 @@ export default function BlogForm({ onSave }: BlogFormProps) {
         }, 1500);
       } else {
         setError('Failed to save post');
+        toast.error('Failed to save post.');
       }
     } catch (err) {
       console.error('Error saving post:', err);
       setError('Failed to save changes');
+      toast.error('Failed to save changes.');
     } finally {
       setSaving(false);
     }
@@ -187,6 +192,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
 
       if (response.ok) {
         setSuccess('Post deleted!');
+        toast.success('Post deleted.');
         await fetchPosts();
         setTimeout(() => {
           setSuccess('');
@@ -195,6 +201,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
       }
     } catch {
       setError('Failed to delete post');
+      toast.error('Failed to delete post.');
     }
   };
 
@@ -212,6 +219,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
 
       if (response.ok) {
         setSuccess('Comment deleted!');
+        toast.success('Comment deleted.');
         if (selectedPostForComments?._id === postId) {
           const updatedComments = selectedPostForComments.comments?.filter(c => c._id !== commentId) || [];
           setSelectedPostForComments({ ...selectedPostForComments, comments: updatedComments });
@@ -221,6 +229,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
       }
     } catch {
       setError('Failed to delete comment');
+      toast.error('Failed to delete comment.');
     }
   };
 
