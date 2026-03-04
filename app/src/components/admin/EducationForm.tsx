@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, X, Save, GraduationCap } from 'lucide-react';
 import { API_ENDPOINTS } from '../../config/api';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 interface Education {
   _id?: string;

@@ -10,10 +10,12 @@ import Skills from './sections/Skills';
 import Projects from './sections/Projects';
 import Blog from './sections/Blog';
 import Leadership from './sections/Leadership';
+import Certifications from './sections/Certifications';
 import Achievements from './sections/Achievements';
 import Contact from './sections/Contact';
 import AdminDashboard from './pages/AdminDashboard.tsx';
-import { Toaster } from './components/ui/sonner';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
 function App() {
@@ -54,6 +56,7 @@ function App() {
                       <Projects />
                       <Blog />
                       <Leadership />
+                      <Certifications />
                       <Achievements />
                       <Contact />
                     </main>
@@ -64,7 +67,17 @@ function App() {
           } />
         </Routes>
       </Router>
-      <Toaster richColors />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </ThemeProvider>
   );
 }

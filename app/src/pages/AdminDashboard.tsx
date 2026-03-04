@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { API_ENDPOINTS } from '../config/api';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import {
   LogOut,
   Home,
@@ -13,6 +13,7 @@ import {
   BookOpen,
   Users,
   Trophy,
+  Award,
   Mail,
   Plus,
   Edit,
@@ -42,6 +43,7 @@ import ProjectsForm from '../components/admin/ProjectsForm';
 import BlogForm from '../components/admin/BlogForm';
 import LeadershipForm from '../components/admin/LeadershipForm';
 import AchievementsForm from '../components/admin/AchievementsForm';
+import CertificationsForm from '../components/admin/CertificationsForm';
 import ContactForm from '../components/admin/ContactForm';
 
 interface BlogPost {
@@ -186,6 +188,7 @@ export default function AdminDashboard() {
     { id: 'projects', label: 'Projects', icon: Briefcase },
     { id: 'blog', label: 'Blog', icon: BookOpen },
     { id: 'leadership', label: 'Leadership', icon: Users },
+    { id: 'certifications', label: 'Certificates', icon: Award },
     { id: 'achievements', label: 'Achievements', icon: Trophy },
     { id: 'contact', label: 'Contact', icon: Mail },
   ];
@@ -622,7 +625,7 @@ export default function AdminDashboard() {
                       Create, edit, and organize your content
                     </p>
                   </div>
-                  {activeTab !== 'hero' && activeTab !== 'about' && activeTab !== 'education' && activeTab !== 'skills' && activeTab !== 'projects' && activeTab !== 'blog' && activeTab !== 'leadership' && activeTab !== 'achievements' && activeTab !== 'contact' && !isLoading && (
+                  {activeTab !== 'hero' && activeTab !== 'about' && activeTab !== 'education' && activeTab !== 'skills' && activeTab !== 'projects' && activeTab !== 'blog' && activeTab !== 'leadership' && activeTab !== 'certifications' && activeTab !== 'achievements' && activeTab !== 'contact' && !isLoading && (
                     <button className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm sm:text-base">
                       <Plus className="w-4 h-4" />
                       Add New
@@ -727,6 +730,20 @@ export default function AdminDashboard() {
                         </p>
                       </div>
                       <LeadershipForm onSave={() => {
+                        setIsLoading(true);
+                        setTimeout(() => setIsLoading(false), 1500);
+                      }} />
+                    </div>
+                  ) : activeTab === 'certifications' ? (
+                    // Certifications Management
+                    <div>
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold mb-2">Manage Certifications</h3>
+                        <p className="text-sm text-gray-400">
+                          Add and manage your certificates with image, title, and short description
+                        </p>
+                      </div>
+                      <CertificationsForm onSave={() => {
                         setIsLoading(true);
                         setTimeout(() => setIsLoading(false), 1500);
                       }} />

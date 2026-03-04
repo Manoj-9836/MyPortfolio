@@ -11,6 +11,7 @@ import {
   Blog,
   Leadership,
   Achievement,
+  Certification,
   Hero,
   About,
   Contact
@@ -176,6 +177,95 @@ router.delete('/achievements/:id', verifyToken, async (req, res) => {
       return res.status(404).json({ message: 'Achievement not found' });
     }
     res.json({ message: 'Achievement deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+const normalizeCertificationPayload = (payload = {}) => {
+  const normalized = {
+    title: typeof payload.title === 'string' ? payload.title.trim() : '',
+    description: typeof payload.description === 'string' ? payload.description.trim() : '',
+    image: typeof payload.image === 'string' ? payload.image.trim() : '',
+    issuer: typeof payload.issuer === 'string' ? payload.issuer.trim() : '',
+    issueDate: typeof payload.issueDate === 'string' ? payload.issueDate.trim() : '',
+    credentialUrl: typeof payload.credentialUrl === 'string' ? payload.credentialUrl.trim() : '',
+  };
+
+  return Object.fromEntries(
+    Object.entries(normalized).filter(([key, value]) => {
+      if (key === 'title' || key === 'description') {
+        return true;
+      }
+      return value !== '';
+    })
+  );
+};
+
+// Certifications with default data
+router.get('/certifications', async (req, res) => {
+  try {
+    let certifications = await Certification.find().sort({ order: 1, createdAt: -1 });
+    if (certifications.length === 0) {
+      certifications = await Certification.insertMany([
+        {
+          title: 'Meta Front-End Developer Certificate',
+          description: 'Completed core frontend development training including React, responsive design, and production-ready UI workflows.',
+          image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&h=600&fit=crop',
+          issuer: 'Meta',
+          issueDate: '2025',
+          credentialUrl: '',
+          order: 1
+        },
+        {
+          title: 'AWS Cloud Practitioner',
+          description: 'Validated foundational cloud knowledge covering AWS services, architecture, security, and cost management basics.',
+          image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900&h=600&fit=crop',
+          issuer: 'Amazon Web Services',
+          issueDate: '2025',
+          credentialUrl: '',
+          order: 2
+        }
+      ]);
+    }
+    res.json(certifications);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.post('/certifications', verifyToken, async (req, res) => {
+  try {
+    const certification = await Certification.create(normalizeCertificationPayload(req.body));
+    res.status(201).json(certification);
+  } catch (error) {
+    res.status(400).json({ message: 'Validation error', error: error.message });
+  }
+});
+
+router.put('/certifications/:id', verifyToken, async (req, res) => {
+  try {
+    const certification = await Certification.findByIdAndUpdate(
+      req.params.id,
+      normalizeCertificationPayload(req.body),
+      { new: true, runValidators: true }
+    );
+    if (!certification) {
+      return res.status(404).json({ message: 'Certification not found' });
+    }
+    res.json(certification);
+  } catch (error) {
+    res.status(400).json({ message: 'Validation error', error: error.message });
+  }
+});
+
+router.delete('/certifications/:id', verifyToken, async (req, res) => {
+  try {
+    const certification = await Certification.findByIdAndDelete(req.params.id);
+    if (!certification) {
+      return res.status(404).json({ message: 'Certification not found' });
+    }
+    res.json({ message: 'Certification deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -882,6 +972,7 @@ router.get('/stats', async (req, res) => {
       projects: await Project.countDocuments(),
       skills: await Skill.countDocuments(),
       achievements: await Achievement.countDocuments(),
+      certifications: await Certification.countDocuments(),
       blogs: await Blog.countDocuments(),
       education: await Education.countDocuments(),
       leadership: await Leadership.countDocuments(),

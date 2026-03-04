@@ -47,7 +47,7 @@ export default function Achievements() {
   }, []);
 
   return (
-    <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-x-clip">
+    <section id="achievements" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-x-clip">
       <div className="max-w-7xl mx-auto">
         <motion.div
           ref={ref}

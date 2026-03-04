@@ -83,6 +83,16 @@ const achievementSchema = new mongoose.Schema({
   order: { type: Number, default: 0 }
 }, { timestamps: true });
 
+const certificationSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  image: String,
+  issuer: String,
+  issueDate: String,
+  credentialUrl: String,
+  order: { type: Number, default: 0 }
+}, { timestamps: true });
+
 const heroSchema = new mongoose.Schema({
   name: String,
   title: String,
@@ -114,6 +124,7 @@ export const Education = mongoose.model('Education', educationSchema);
 export const Blog = mongoose.model('Blog', blogSchema);
 export const Leadership = mongoose.model('Leadership', leadershipSchema);
 export const Achievement = mongoose.model('Achievement', achievementSchema);
+export const Certification = mongoose.model('Certification', certificationSchema);
 export const Hero = mongoose.model('Hero', heroSchema);
 export const About = mongoose.model('About', aboutSchema);
 export const Contact = mongoose.model('Contact', contactSchema);
