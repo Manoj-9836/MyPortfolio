@@ -1,6 +1,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, Linkedin, Github, ExternalLink, Code2, Globe } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Github, ExternalLink, Code2, Globe, Send } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { API_ENDPOINTS } from '../config/api';
 
 interface ContactData {
@@ -32,8 +33,9 @@ export default function Contact() {
   const [contact, setContact] = useState<ContactData>(DEFAULT_CONTACT);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [formErrors, setFormErrors] = useState({ name: '', email: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const messageLength = formData.message.length;
 
   useEffect(() => {
     const fetchContact = async () => {
@@ -120,20 +122,46 @@ export default function Contact() {
     return !errors.name && !errors.email && !errors.message;
   };
 
-  const handleQuickSubmit = (e: React.FormEvent) => {
+  const handleQuickSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(false);
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error('Please fix the highlighted form errors.');
+      return;
+    }
 
-    const subject = encodeURIComponent(`Portfolio inquiry from ${formData.name}`);
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
-    );
+    setIsSubmitting(true);
 
-    window.location.href = `mailto:${contact.email}?subject=${subject}&body=${body}`;
-    setSubmitted(true);
-    setFormData({ name: '', email: '', message: '' });
+    try {
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim(),
+        submittedAt: new Date().toISOString(),
+        source: 'portfolio-contact-form'
+      };
+
+      const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/contact/message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Contact request failed with status ${response.status}`);
+      }
+
+      toast.success('Message sent successfully! I will get back to you soon.');
+      setFormData({ name: '', email: '', message: '' });
+      setFormErrors({ name: '', email: '', message: '' });
+    } catch (error) {
+      console.error('Failed to submit contact form:', error);
+      toast.error('Failed to send message. Please try again in a moment.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -255,41 +283,51 @@ export default function Contact() {
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.9 }}
-            className="mt-10 md:mt-12 p-5 md:p-6 rounded-2xl border border-white/10 bg-white/5"
+            className="mt-10 md:mt-12 p-5 md:p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.03] backdrop-blur-sm shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
           >
             <h3 className="text-lg md:text-xl font-semibold mb-1">Quick Message</h3>
-            <p className="text-sm text-gray-400 mb-5">Share your requirement and I’ll get back quickly.</p>
+            <p className="text-sm text-gray-400 mb-5">Share your requirement and I will get back quickly.</p>
 
             <form onSubmit={handleQuickSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
+                <label htmlFor="contact-name" className="mb-1.5 block text-xs font-medium text-gray-300">Name</label>
                 <input
+                  id="contact-name"
                   type="text"
                   placeholder="Your name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-black/30 border border-white/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-white/40"
+                  className="w-full bg-black/35 border border-white/15 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-300/70 transition-all"
                 />
                 {formErrors.name && <p className="text-xs text-red-400 mt-1">{formErrors.name}</p>}
               </div>
 
               <div>
+                <label htmlFor="contact-email" className="mb-1.5 block text-xs font-medium text-gray-300">Email</label>
                 <input
+                  id="contact-email"
                   type="email"
                   placeholder="Your email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-black/30 border border-white/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-white/40"
+                  className="w-full bg-black/35 border border-white/15 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-300/70 transition-all"
                 />
                 {formErrors.email && <p className="text-xs text-red-400 mt-1">{formErrors.email}</p>}
               </div>
 
               <div className="md:col-span-2">
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label htmlFor="contact-message" className="block text-xs font-medium text-gray-300">Message</label>
+                  <span className="text-[11px] text-gray-500">{messageLength}/1000</span>
+                </div>
                 <textarea
+                  id="contact-message"
                   placeholder="Tell me about your project or role"
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  maxLength={1000}
                   rows={4}
-                  className="w-full bg-black/30 border border-white/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-white/40"
+                  className="w-full bg-black/35 border border-white/15 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-300/70 transition-all"
                 />
                 {formErrors.message && <p className="text-xs text-red-400 mt-1">{formErrors.message}</p>}
               </div>
@@ -300,15 +338,13 @@ export default function Contact() {
                 </div>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-medium hover:bg-gray-200 transition-colors"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black text-sm font-semibold hover:bg-gray-200 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-[0_8px_24px_rgba(255,255,255,0.12)]"
                 >
-                  Send Message
+                  <Send className="w-4 h-4" />
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
               </div>
-
-              {submitted && (
-                <p className="md:col-span-2 text-sm text-green-400">Thanks! Your mail app opened with the drafted message.</p>
-              )}
             </form>
           </motion.div>
 

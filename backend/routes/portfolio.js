@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 import {
   Project,
   Skill,
@@ -22,6 +23,52 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const RESUME_PATH = path.join(__dirname, '..', '..', 'app', 'public', 'resume.pdf');
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const buildTransportConfig = () => {
+  const port = Number(process.env.SMTP_PORT || 587);
+  const rejectUnauthorized = String(process.env.SMTP_TLS_REJECT_UNAUTHORIZED || 'true').toLowerCase() !== 'false';
+  const smtpPass = String(process.env.SMTP_PASS || '').replace(/\s+/g, '');
+
+  if (!rejectUnauthorized) {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  }
+
+  return {
+    host: process.env.SMTP_HOST,
+    port,
+    secure: port === 465,
+    requireTLS: true,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: smtpPass
+    },
+    tls: {
+      rejectUnauthorized,
+      minVersion: 'TLSv1.2'
+    }
+  };
+};
+
+const canSendMail = () => {
+  return Boolean(
+    process.env.SMTP_HOST &&
+    process.env.SMTP_PORT &&
+    process.env.SMTP_USER &&
+    process.env.SMTP_PASS &&
+    process.env.EMAIL_FROM
+  );
+};
+
+const escapeHtml = (value = '') => {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
 
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
@@ -932,6 +979,120 @@ router.put('/contact/:id', verifyToken, async (req, res) => {
     res.json(contact);
   } catch (error) {
     res.status(400).json({ message: 'Validation error', error: error.message });
+  }
+});
+
+router.post('/contact/message', async (req, res) => {
+  try {
+    const name = String(req.body?.name || '').trim();
+    const email = String(req.body?.email || '').trim().toLowerCase();
+    const message = String(req.body?.message || '').trim();
+
+    if (!name || !email || !message) {
+      return res.status(400).json({ message: 'Name, email, and message are required.' });
+    }
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email address.' });
+    }
+
+    if (!canSendMail()) {
+      console.error('Contact email configuration missing SMTP or sender environment variables.');
+      return res.status(500).json({ message: 'Email service is not configured.' });
+    }
+
+    const transporter = nodemailer.createTransport(buildTransportConfig());
+    const safeName = escapeHtml(name);
+    const safeMessage = escapeHtml(message).replace(/\n/g, '<br/>');
+    const emailHtml = `
+      <div style="margin:0;padding:24px 12px;background:#edf2f7;font-family:Arial,sans-serif;">
+        <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+          <tr>
+            <td style="padding:0;background:#0f172a;">
+              <img src="https://raw.githubusercontent.com/Manoj-9836/images/refs/heads/main/hello%40reallygreatsite.com.png" alt="Manoj Kumar" style="width:100%;display:block;border:0;" />
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:26px 24px 10px 24px;">
+              <h2 style="margin:0;text-align:center;color:#1f2937;font-size:30px;line-height:1.2;font-weight:800;">Thanks for reaching out</h2>
+              <p style="margin:14px 0 0 0;color:#334155;font-size:15px;line-height:1.75;">Hi <strong>${safeName}</strong>,</p>
+              <p style="margin:10px 0 0 0;color:#334155;font-size:15px;line-height:1.75;">I received your message through my portfolio. I appreciate your time and I will get back to you soon.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:14px 24px 0 24px;">
+              <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;">
+                <tr>
+                  <td style="padding:14px 16px;">
+                    <p style="margin:0;color:#0f172a;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Your Message</p>
+                    <p style="margin:8px 0 0 0;color:#334155;font-size:14px;line-height:1.75;">${safeMessage}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:18px 24px 0 24px;">
+              <p style="margin:0;color:#475569;font-size:14px;">You can also explore my work here:</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:12px 18px 4px 18px;">
+              <table width="100%" cellspacing="8" cellpadding="0" role="presentation" style="table-layout:fixed;">
+                <tr>
+                  <td align="center" valign="middle" style="background:#16a34a;border-radius:10px;">
+                    <a href="https://manoj-9836.github.io/Portfolio" style="display:block;padding:11px 6px;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;line-height:1.2;white-space:nowrap;">
+                      <img src="https://img.icons8.com/ios-filled/50/FFFFFF/domain.png" alt="Portfolio" width="15" height="15" style="vertical-align:-2px;border:0;"/> Portfolio
+                    </a>
+                  </td>
+                  <td align="center" valign="middle" style="background:#111827;border-radius:10px;">
+                    <a href="https://github.com/Manoj-9836" style="display:block;padding:11px 6px;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;line-height:1.2;white-space:nowrap;">
+                      <img src="https://img.icons8.com/ios-glyphs/30/FFFFFF/github.png" alt="GitHub" width="15" height="15" style="vertical-align:-2px;border:0;"/> GitHub
+                    </a>
+                  </td>
+                  <td align="center" valign="middle" style="background:#0a66c2;border-radius:10px;">
+                    <a href="https://linkedin.com/in/mkmanoj-dev" style="display:block;padding:11px 6px;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;line-height:1.2;white-space:nowrap;">
+                      <img src="https://img.icons8.com/ios-filled/50/FFFFFF/linkedin.png" alt="LinkedIn" width="15" height="15" style="vertical-align:-2px;border:0;"/> LinkedIn
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:16px 24px 0 24px;">
+              <p style="margin:0;color:#334155;font-size:14px;line-height:1.8;">Best regards,<br/><strong>Bavisetti Manoj Kumar</strong><br/>AI Web Developer</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:18px 24px 24px 24px;">
+              <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 12px 0;" />
+              <p style="margin:0;text-align:center;color:#64748b;font-size:12px;line-height:1.6;">This is an automated response from my portfolio contact form.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: email,
+      replyTo: process.env.ADMIN_EMAIL || process.env.EMAIL_FROM,
+      subject: 'Thanks for contacting Manoj',
+      text: `Hi ${name},\n\nThanks for reaching out through my portfolio website. I received your message and will respond soon.\n\nYour message:\n${message}\n\nExplore my work:\nPortfolio: https://manoj-9836.github.io/Portfolio\nGitHub: https://github.com/Manoj-9836\nLinkedIn: https://linkedin.com/in/mkmanoj-dev\n\nBest regards,\nBavisetti Manoj Kumar\nAI Web Developer`,
+      html: emailHtml
+    });
+
+    res.json({ message: 'Message received and acknowledgement email sent.' });
+  } catch (error) {
+    console.error('Failed to process contact message:', error);
+    res.status(500).json({ message: 'Failed to send acknowledgement email.' });
   }
 });
 
