@@ -11,6 +11,7 @@ interface Leadership {
   period: string;
   description?: string;
   achievements?: string[];
+  logo?: string;
   order?: number;
 }
 
@@ -29,6 +30,7 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
     period: '',
     description: '',
     achievements: [],
+    logo: '',
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -55,7 +57,10 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
   const handleOpenModal = (leadership?: Leadership) => {
     if (leadership) {
       setEditingId(leadership._id || null);
-      setFormData(leadership);
+      setFormData({
+        ...leadership,
+        logo: leadership.logo || '',
+      });
     } else {
       setEditingId(null);
       setFormData({
@@ -64,6 +69,7 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
         period: '',
         description: '',
         achievements: [],
+        logo: '',
       });
     }
     setIsModalOpen(true);
@@ -78,6 +84,7 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
       period: '',
       description: '',
       achievements: [],
+      logo: '',
     });
     setAchievementInput('');
   };
@@ -231,9 +238,17 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
               <div className="flex-1 min-w-0 w-full">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Users className="w-5 h-5 text-blue-400" />
-                  </div>
+                  {leadership.logo ? (
+                    <img
+                      src={leadership.logo}
+                      alt={leadership.organization}
+                      className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Users className="w-5 h-5 text-blue-400" />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <h3 className="text-base sm:text-lg font-semibold text-white mb-1 break-words">
                       {leadership.title}
@@ -317,6 +332,9 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
 
                 <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                   <div>
+                                       <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                                         Achievements
+                                       </label>
                     <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Title/Role *
                     </label>
@@ -372,8 +390,34 @@ export default function LeadershipForm({ onSave }: LeadershipFormProps) {
 
                   <div>
                     <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
-                      Achievements
+                      Organization Logo URL
                     </label>
+                    <input
+                      type="url"
+                      value={formData.logo || ''}
+                      onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
+                      placeholder="https://..."
+                    />
+                    {formData.logo && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-3 rounded-full overflow-hidden border-2 border-white/20 w-32 h-32 flex items-center justify-center bg-white/5"
+                      >
+                        <img
+                          src={formData.logo}
+                          alt="Logo preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </motion.div>
+                    )}
+                  </div>
+
+                  <div>
                     <div className="flex gap-2 mb-3">
                       <input
                         type="text"

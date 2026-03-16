@@ -72,6 +72,7 @@ const leadershipSchema = new mongoose.Schema({
   period: String,
   description: String,
   achievements: [String],
+  logo: String,
   order: { type: Number, default: 0 }
 }, { timestamps: true });
 

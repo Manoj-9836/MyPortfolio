@@ -10,6 +10,7 @@ interface LeadershipItem {
   period: string;
   description: string;
   achievements: string[];
+  logo?: string;
   order?: number;
 }
 
@@ -85,9 +86,17 @@ export default function Leadership() {
                   <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                     {/* Left - Role Info */}
                     <div className="lg:w-1/3">
-                      <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-4 md:mb-6">
-                        <Users className="w-7 h-7 md:w-8 md:h-8 text-white" />
-                      </div>
+                      {exp.logo ? (
+                        <img
+                          src={exp.logo}
+                          alt={exp.organization}
+                          className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-2 border-white/20 mb-4 md:mb-6"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-4 md:mb-6">
+                          <Users className="w-7 h-7 md:w-8 md:h-8 text-white" />
+                        </div>
+                      )}
                       <h3 className="text-xl md:text-2xl font-bold mb-2">{exp.title}</h3>
                       <p className="text-sm md:text-base text-gray-400 mb-4">{exp.organization}</p>
                       <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
