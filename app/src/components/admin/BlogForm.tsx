@@ -10,6 +10,7 @@ interface BlogPost {
   excerpt: string;
   content: string;
   image?: string;
+  images?: string[];
   leetcodeImage?: string;
   date: string;
   category: string;
@@ -39,6 +40,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
     excerpt: '',
     content: '',
     image: '',
+    images: [],
     leetcodeImage: '',
     date: new Date().toISOString().split('T')[0],
     category: 'Technology',
@@ -76,6 +78,9 @@ export default function BlogForm({ onSave }: BlogFormProps) {
         ...post,
         leetcodeImage: post.leetcodeImage || '',
         image: post.image || '',
+        images: post.images && post.images.length > 0
+          ? post.images
+          : (post.image ? [post.image] : []),
       };
       console.log('Loading post for editing:', loadedData);
       console.log('Is LeetCode post?', isLeetCodePost(loadedData));
@@ -87,6 +92,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
         excerpt: '',
         content: '',
         image: '',
+        images: [],
         leetcodeImage: '',
         date: new Date().toISOString().split('T')[0],
         category: 'Technology',
@@ -122,13 +128,37 @@ export default function BlogForm({ onSave }: BlogFormProps) {
     setFormData({ ...formData, tags: formData.tags.filter((_, i) => i !== index) });
   };
 
+  const handleAddImage = () => {
+    setFormData({ ...formData, images: [...(formData.images || []), ''] });
+  };
+
+  const handleImageChange = (index: number, value: string) => {
+    const nextImages = [...(formData.images || [])];
+    nextImages[index] = value;
+    setFormData({ ...formData, images: nextImages });
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const nextImages = (formData.images || []).filter((_, i) => i !== index);
+    setFormData({ ...formData, images: nextImages });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError('');
 
-    console.log('Submitting blog post:', formData);
-    console.log('LeetCode Image being sent:', formData.leetcodeImage);
+    const normalizedImages = (formData.images || []).map((url) => url.trim()).filter(Boolean);
+    const payload: BlogPost = {
+      ...formData,
+      image: (formData.image || '').trim() || normalizedImages[0] || '',
+      images: normalizedImages.length > 0
+        ? normalizedImages
+        : ((formData.image || '').trim() ? [(formData.image || '').trim()] : []),
+    };
+
+    console.log('Submitting blog post:', payload);
+    console.log('LeetCode Image being sent:', payload.leetcodeImage);
 
     try {
       const token = localStorage.getItem('adminToken');
@@ -146,7 +176,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       console.log('Response status:', response.status);
@@ -526,7 +556,7 @@ export default function BlogForm({ onSave }: BlogFormProps) {
 
                   <div>
                     <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
-                      Image URL
+                      Card Image URL
                     </label>
                     <input
                       type="url"
@@ -535,6 +565,9 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
                       placeholder="https://..."
                     />
+                    <p className="mt-2 text-xs text-gray-500">
+                      Used on the blog card preview. If left empty, the first gallery image is used.
+                    </p>
                     {formData.image && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -550,6 +583,69 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                           }}
                         />
                       </motion.div>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2 gap-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300">
+                        Modal Gallery Images
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleAddImage}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Add Image
+                      </button>
+                    </div>
+
+                    {(formData.images || []).length === 0 && (
+                      <p className="text-xs text-gray-500 mb-2">No gallery image added yet.</p>
+                    )}
+
+                    <div className="space-y-2">
+                      {(formData.images || []).map((imageUrl, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <input
+                            type="url"
+                            value={imageUrl}
+                            onChange={(e) => handleImageChange(index, e.target.value)}
+                            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all"
+                            placeholder={`https://... (image ${index + 1})`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(index)}
+                            className="p-2 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors"
+                            title="Remove image"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {(formData.images || []).some(Boolean) && (
+                      <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {(formData.images || [])
+                          .map((url) => url.trim())
+                          .filter(Boolean)
+                          .slice(0, 6)
+                          .map((url, index) => (
+                            <div key={index} className="rounded-lg overflow-hidden border border-white/10 h-20">
+                              <img
+                                src={url}
+                                alt={`Gallery preview ${index + 1}`}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          ))}
+                      </div>
                     )}
                   </div>
 

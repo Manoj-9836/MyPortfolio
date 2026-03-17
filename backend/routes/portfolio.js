@@ -378,6 +378,20 @@ router.delete('/leadership/:id', verifyToken, async (req, res) => {
 });
 
 // Blog with default data
+const normalizeBlogPayload = (payload = {}) => {
+  const normalizedImages = Array.isArray(payload.images)
+    ? payload.images.filter((url) => typeof url === 'string' && url.trim())
+    : [];
+
+  const normalizedImage = typeof payload.image === 'string' ? payload.image.trim() : '';
+
+  return {
+    ...payload,
+    image: normalizedImage || normalizedImages[0] || '',
+    images: normalizedImages.length > 0 ? normalizedImages : (normalizedImage ? [normalizedImage] : []),
+  };
+};
+
 router.get('/blogs', async (req, res) => {
   try {
     let blogs = await Blog.find().sort({ date: -1, order: 1 });
@@ -390,6 +404,7 @@ router.get('/blogs', async (req, res) => {
           excerpt: 'Learn how to use React Hooks to manage state and side effects in functional components.',
           content: 'React Hooks have revolutionized the way we write React components. In this post, we explore the basics of useState, useEffect, and custom hooks. Hooks allow you to use state and other React features without writing a class component. They make it easier to reuse logic between components and organize your code based on what it does rather than the lifecycle method you use.',
           image: 'https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=500&h=300&fit=crop',
+          images: ['https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=500&h=300&fit=crop'],
           readTime: '5 min read',
           tags: ['react', 'hooks', 'javascript'],
           published: true,
@@ -402,6 +417,7 @@ router.get('/blogs', async (req, res) => {
           excerpt: 'Master the art of creating responsive websites that work on all devices.',
           content: 'Responsive design is no longer optional. Learn the principles and techniques to build websites that adapt to any screen size. With mobile-first approach, CSS media queries, and flexible layouts, you can create websites that look great on any device. We\'ll explore best practices for typography, images, and layout patterns that work across different screen sizes.',
           image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500&h=300&fit=crop',
+          images: ['https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500&h=300&fit=crop'],
           readTime: '7 min read',
           tags: ['responsive', 'css', 'web-design'],
           published: true,
@@ -414,6 +430,7 @@ router.get('/blogs', async (req, res) => {
           excerpt: 'Discover the most important ES6 features that will improve your coding productivity.',
           content: 'ES6 introduced many powerful features like arrow functions, destructuring, template literals, and more. Let\'s dive deep into each one. Arrow functions provide a concise syntax and lexical this binding. Destructuring allows you to unpack values from arrays and objects. Template literals make string interpolation easier. Promises and async/await revolutionized asynchronous programming in JavaScript.',
           image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&h=300&fit=crop',
+          images: ['https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&h=300&fit=crop'],
           readTime: '8 min read',
           tags: ['javascript', 'es6', 'programming'],
           published: true,
@@ -429,7 +446,7 @@ router.get('/blogs', async (req, res) => {
 
 router.post('/blogs', verifyToken, async (req, res) => {
   try {
-    const blog = await Blog.create(req.body);
+    const blog = await Blog.create(normalizeBlogPayload(req.body));
     res.status(201).json(blog);
   } catch (error) {
     res.status(400).json({ message: 'Validation error', error: error.message });
@@ -438,7 +455,7 @@ router.post('/blogs', verifyToken, async (req, res) => {
 
 router.put('/blogs/:id', verifyToken, async (req, res) => {
   try {
-    const blog = await Blog.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const blog = await Blog.findByIdAndUpdate(req.params.id, normalizeBlogPayload(req.body), { new: true, runValidators: true });
     if (!blog) {
       return res.status(404).json({ message: 'Blog not found' });
     }

@@ -52,6 +52,7 @@ const blogSchema = new mongoose.Schema({
   excerpt: { type: String, required: true },
   content: String,
   image: String,
+  images: { type: [String], default: [] },
   leetcodeImage: String,
   date: String,
   readTime: String,

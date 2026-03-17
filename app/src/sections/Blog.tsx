@@ -20,6 +20,7 @@ interface BlogPost {
   excerpt: string;
   content: string;
   image?: string;
+  images?: string[];
   leetcodeImage?: string;
   tags?: string[];
   readTime?: string;
@@ -45,6 +46,7 @@ export default function Blog() {
   const [hasLiked, setHasLiked] = useState(false);
   const [commentForm, setCommentForm] = useState({ author: '', email: '', content: '' });
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [currentModalImageIndex, setCurrentModalImageIndex] = useState(0);
   const postsPerPage = 6;
 
   const getUserId = () => {
@@ -87,6 +89,24 @@ export default function Blog() {
     const category = post.category?.toLowerCase() || '';
     const tags = post.tags?.map((tag) => tag.toLowerCase()) || [];
     return category.includes('leetcode') || tags.includes('leetcode');
+  };
+
+  const getPostImages = (post: BlogPost | null) => {
+    if (!post) return [];
+
+    const normalized = Array.from(
+      new Set(
+        [
+          ...(post.images || []),
+          post.image || '',
+          post.leetcodeImage || '',
+        ]
+          .map((url) => url.trim())
+          .filter(Boolean)
+      )
+    );
+
+    return normalized;
   };
 
   const incrementView = async (postId: string) => {
@@ -189,12 +209,27 @@ export default function Blog() {
       incrementView(selectedPost._id);
       fetchRelatedPosts(selectedPost._id);
       checkIfLiked(selectedPost._id);
+      setCurrentModalImageIndex(0);
     } else {
       setReadingProgress(0);
       setRelatedPosts([]);
       setShowShareMenu(false);
+      setCurrentModalImageIndex(0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPost]);
+
+  useEffect(() => {
+    if (!selectedPost) return;
+
+    const modalImages = getPostImages(selectedPost);
+    if (modalImages.length <= 1) return;
+
+    const timer = window.setInterval(() => {
+      setCurrentModalImageIndex((prev) => (prev + 1) % modalImages.length);
+    }, 3500);
+
+    return () => window.clearInterval(timer);
   }, [selectedPost]);
 
   useEffect(() => {
@@ -389,7 +424,7 @@ export default function Blog() {
                     className="relative z-10 mb-4 h-32 rounded-2xl overflow-hidden group/image"
                   >
                     <img
-                      src={post.image || post.leetcodeImage}
+                      src={post.image || post.images?.[0] || post.leetcodeImage}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover/image:scale-110 transition-transform duration-500"
                     />
@@ -508,6 +543,12 @@ export default function Blog() {
       {/* Expanded Post Modal */}
       <AnimatePresence>
         {selectedPost && (
+          (() => {
+            const modalImages = getPostImages(selectedPost);
+            const hasMultipleImages = modalImages.length > 1;
+            const activeImage = modalImages[currentModalImageIndex] || selectedPost.image || selectedPost.leetcodeImage;
+
+            return (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -552,18 +593,58 @@ export default function Blog() {
                 transition={{ delay: 0.1 }}
                 className="w-full rounded-2xl overflow-hidden mb-6 mt-8 sm:mt-4"
               >
-                {isLeetCodePost(selectedPost) && selectedPost.image ? (
-                  <img
-                    src={selectedPost.image}
-                    alt={selectedPost.title}
-                    className="w-full h-52 sm:h-64 md:h-80 object-cover rounded-2xl"
-                  />
-                ) : (
-                  <img
-                    src={selectedPost.image || selectedPost.leetcodeImage}
-                    alt={selectedPost.title}
-                    className="w-full h-52 sm:h-64 md:h-80 object-cover"
-                  />
+                <div className="relative h-52 sm:h-64 md:h-80 rounded-2xl overflow-hidden bg-black/20">
+                  <AnimatePresence mode="wait">
+                    <motion.img
+                      key={`${selectedPost._id}-${currentModalImageIndex}`}
+                      src={activeImage}
+                      alt={`${selectedPost.title} image ${currentModalImageIndex + 1}`}
+                      initial={{ opacity: 0, x: 24 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -24 }}
+                      transition={{ duration: 0.55, ease: 'easeInOut' }}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </AnimatePresence>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
+
+                  {hasMultipleImages && (
+                    <>
+                      <button
+                        onClick={() =>
+                          setCurrentModalImageIndex((prev) => (prev - 1 + modalImages.length) % modalImages.length)
+                        }
+                        className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/45 border border-white/20 hover:bg-black/60 transition-colors"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          setCurrentModalImageIndex((prev) => (prev + 1) % modalImages.length)
+                        }
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/45 border border-white/20 hover:bg-black/60 transition-colors"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {hasMultipleImages && (
+                  <div className="mt-3 flex items-center justify-center gap-2">
+                    {modalImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentModalImageIndex(index)}
+                        className={`h-2 rounded-full transition-all ${
+                          index === currentModalImageIndex ? 'w-6 bg-white' : 'w-2 bg-white/40 hover:bg-white/60'
+                        }`}
+                        aria-label={`Go to image ${index + 1}`}
+                      />
+                    ))}
+                  </div>
                 )}
               </motion.div>
 
@@ -743,7 +824,7 @@ export default function Blog() {
                         className="cursor-pointer group p-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
                       >
                         <img
-                          src={post.image || post.leetcodeImage}
+                          src={post.image || post.images?.[0] || post.leetcodeImage}
                           alt={post.title}
                           className="w-full h-32 object-cover rounded-lg mb-3"
                         />
@@ -845,6 +926,8 @@ export default function Blog() {
               </motion.div>
             </motion.div>
           </motion.div>
+            );
+          })()
         )}
       </AnimatePresence>
     </section>
