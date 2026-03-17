@@ -64,6 +64,13 @@ export default function Blog() {
     });
   };
 
+  const formatCompactNumber = (value: number) => {
+    return new Intl.NumberFormat('en', {
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    }).format(value);
+  };
+
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
       'React': 'bg-blue-500/20 text-blue-400',
@@ -408,11 +415,11 @@ export default function Blog() {
                         <div className="flex items-center gap-2 text-xs text-gray-400 whitespace-nowrap self-start sm:self-auto shrink-0">
                           <div className="flex items-center gap-1">
                             <Eye className="w-3 h-3" />
-                            <span>{post.views || 0}</span>
+                            <span>{formatCompactNumber(post.views || 0)}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Heart className="w-3 h-3" />
-                            <span>{post.likes || 0}</span>
+                            <span>{formatCompactNumber(post.likes || 0)}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <MessageCircle className="w-3 h-3" />
@@ -569,11 +576,11 @@ export default function Blog() {
                   <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400">
                     <div className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
-                      <span>{selectedPost.views || 0}</span>
+                      <span>{formatCompactNumber(selectedPost.views || 0)}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Heart className="w-4 h-4" />
-                      <span>{selectedPost.likes || 0}</span>
+                      <span>{formatCompactNumber(selectedPost.likes || 0)}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
