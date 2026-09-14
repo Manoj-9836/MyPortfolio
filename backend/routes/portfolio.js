@@ -43,6 +43,9 @@ const buildTransportConfig = () => {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port,
     secure: port === 465,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     tls: {
       rejectUnauthorized
     },

@@ -141,13 +141,17 @@ export default function Contact() {
         source: 'portfolio-contact-form'
       };
 
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 20000);
       const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/contact/message`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
+      window.clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`Contact request failed with status ${response.status}`);
