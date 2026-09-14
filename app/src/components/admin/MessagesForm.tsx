@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { API_ENDPOINTS } from '../../config/api';
-import { Mail, Trash2, Reply, X, Check, Clock, AlertCircle, Send } from 'lucide-react';
+import { Mail, Trash2, X, Check, Clock, AlertCircle, Send } from 'lucide-react';
 
 interface Message {
   _id: string;

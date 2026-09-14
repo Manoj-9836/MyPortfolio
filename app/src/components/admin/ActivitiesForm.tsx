@@ -48,7 +48,7 @@ export default function ActivitiesForm() {
         setActivities(data);
 
         // Extract unique sections
-        const uniqueSections = [...new Set(data.map((a: Activity) => a.section))];
+        const uniqueSections: string[] = [...new Set<string>(data.map((a: Activity) => a.section))];
         setSections(uniqueSections);
       }
     } catch (error) {
