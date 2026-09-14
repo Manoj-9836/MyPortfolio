@@ -28,7 +28,8 @@ import {
   Eye,
   Zap,
   Menu,
-  X
+  X,
+  Send
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { SkeletonContent } from '../components/admin/SkeletonLoader';
@@ -45,6 +46,8 @@ import LeadershipForm from '../components/admin/LeadershipForm';
 import AchievementsForm from '../components/admin/AchievementsForm';
 import CertificationsForm from '../components/admin/CertificationsForm';
 import ContactForm from '../components/admin/ContactForm';
+import MessagesForm from '../components/admin/MessagesForm';
+import ActivitiesForm from '../components/admin/ActivitiesForm';
 
 interface BlogPost {
   _id?: string;
@@ -191,15 +194,8 @@ export default function AdminDashboard() {
     { id: 'certifications', label: 'Certificates', icon: Award },
     { id: 'achievements', label: 'Achievements', icon: Trophy },
     { id: 'contact', label: 'Contact', icon: Mail },
-  ];
-
-  // Mock data for dashboard
-
-
-  const activities = [
-    { id: '1', action: 'Admin dashboard loaded', section: 'Dashboard', timestamp: 'just now', type: 'update' as const },
-    { id: '2', action: 'Portfolio content synced', section: 'System', timestamp: '5 minutes ago', type: 'create' as const },
-    { id: '3', action: 'All sections available', section: 'Status', timestamp: '10 minutes ago', type: 'create' as const },
+    { id: 'messages', label: 'Messages', icon: Send },
+    { id: 'activities', label: 'Activity Log', icon: TrendingUp },
   ];
 
   const handleResumeUpload = async (files: FileList | null) => {
@@ -572,7 +568,7 @@ export default function AdminDashboard() {
 
                 {/* Recent Activity & Quick Actions */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <ActivityTimeline activities={activities} loading={isLoading} />
+                  <ActivityTimeline loading={isLoading} />
                   <QuickActions actions={quickActions} />
                 </div>
 
@@ -775,6 +771,28 @@ export default function AdminDashboard() {
                         setIsLoading(true);
                         setTimeout(() => setIsLoading(false), 1500);
                       }} />
+                    </div>
+                  ) : activeTab === 'messages' ? (
+                    // Messages Management
+                    <div>
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold mb-2">Messages from Visitors</h3>
+                        <p className="text-sm text-gray-400">
+                          View and respond to messages received through your contact form
+                        </p>
+                      </div>
+                      <MessagesForm />
+                    </div>
+                  ) : activeTab === 'activities' ? (
+                    // Activities Log
+                    <div>
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold mb-2">Activity Log</h3>
+                        <p className="text-sm text-gray-400">
+                          Track all admin actions and changes to your portfolio
+                        </p>
+                      </div>
+                      <ActivitiesForm />
                     </div>
                   ) : (
                     <>

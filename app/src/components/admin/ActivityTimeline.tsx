@@ -1,26 +1,59 @@
 import { motion } from 'framer-motion';
-import { Clock } from 'lucide-react';
+import { Clock, Plus, Edit3, Trash2, Eye, LogIn, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface Activity {
-  id: string;
+  _id?: string;
   action: string;
   section: string;
   timestamp: string;
-  type: 'create' | 'update' | 'delete';
+  type: 'create' | 'update' | 'delete' | 'view' | 'login';
+  details?: Record<string, any>;
 }
 
 interface ActivityTimelineProps {
-  activities: Activity[];
+  activities?: Activity[];
   loading?: boolean;
 }
 
-export default function ActivityTimeline({ activities, loading }: ActivityTimelineProps) {
+export default function ActivityTimeline({ activities: initialActivities, loading: initialLoading }: ActivityTimelineProps) {
+  const [activities, setActivities] = useState<Activity[]>(initialActivities || []);
+  const [loading, setLoading] = useState(initialLoading ?? true);
+  const token = localStorage.getItem('adminToken');
+
+  useEffect(() => {
+    if (!initialActivities) {
+      fetchActivities();
+    }
+  }, [initialActivities, token]);
+
+  const fetchActivities = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/activities`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setActivities(data.slice(0, 10)); // Show last 10 activities
+      }
+    } catch (error) {
+      console.error('Failed to fetch activities:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-        <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+        <div className="flex items-center gap-2 mb-6">
+          <Clock className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-semibold">Recent Activity</h3>
+        </div>
         <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="flex gap-4">
               <motion.div
                 className="w-8 h-8 rounded-full bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800"
@@ -49,6 +82,23 @@ export default function ActivityTimeline({ activities, loading }: ActivityTimeli
     );
   }
 
+  const getActionIcon = (type: Activity['type']) => {
+    switch (type) {
+      case 'create':
+        return Plus;
+      case 'update':
+        return Edit3;
+      case 'delete':
+        return Trash2;
+      case 'view':
+        return Eye;
+      case 'login':
+        return LogIn;
+      default:
+        return TrendingUp;
+    }
+  };
+
   const getActionColor = (type: Activity['type']) => {
     switch (type) {
       case 'create':
@@ -57,7 +107,29 @@ export default function ActivityTimeline({ activities, loading }: ActivityTimeli
         return 'bg-blue-500/20 text-blue-400';
       case 'delete':
         return 'bg-red-500/20 text-red-400';
+      case 'view':
+        return 'bg-purple-500/20 text-purple-400';
+      case 'login':
+        return 'bg-yellow-500/20 text-yellow-400';
+      default:
+        return 'bg-gray-500/20 text-gray-400';
     }
+  };
+
+  const formatRelativeTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
   return (
@@ -74,29 +146,55 @@ export default function ActivityTimeline({ activities, loading }: ActivityTimeli
         </div>
       ) : (
         <div className="space-y-4">
-          {activities.map((activity, index) => (
-            <motion.div
-              key={activity.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="flex gap-4 pb-4 border-b border-white/5 last:border-0"
-            >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getActionColor(activity.type)}`}>
-                {activity.type === 'create' && '+'}
-                {activity.type === 'update' && '✓'}
-                {activity.type === 'delete' && '×'}
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-white font-medium">{activity.action}</p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {activity.section} • {activity.timestamp}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+          {activities.map((activity, index) => {
+            const IconComponent = getActionIcon(activity.type);
+            return (
+              <motion.div
+                key={activity._id || index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="flex gap-4 pb-4 border-b border-white/5 last:border-0 last:pb-0 group hover:bg-white/5 -mx-2 px-2 py-2 rounded transition-colors"
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${getActionColor(activity.type)}`}>
+                  <IconComponent className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white font-medium truncate">{activity.action}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="inline-block px-2 py-0.5 bg-white/10 text-gray-300 text-xs rounded">
+                      {activity.section}
+                    </span>
+                    <p className="text-xs text-gray-500">
+                      {formatRelativeTime(activity.timestamp)}
+                    </p>
+                  </div>
+                  {activity.details && Object.keys(activity.details).length > 0 && (
+                    <p className="text-xs text-gray-600 mt-1 line-clamp-1">
+                      {Object.entries(activity.details)
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join(', ')}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
+      )}
+
+      {activities.length > 0 && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          onClick={fetchActivities}
+          className="w-full mt-4 px-3 py-2 text-xs text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors"
+        >
+          Refresh Activity
+        </motion.button>
       )}
     </div>
   );
 }
+

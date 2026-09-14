@@ -148,16 +148,34 @@ export default function Blog() {
         const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs`);
         const data = await response.json();
         const publishedPosts = data.filter((post: BlogPost) => post.published !== false);
-        
+
         // Sort: featured first, then by date (newest first)
         const sortedPosts = publishedPosts.sort((a: BlogPost, b: BlogPost) => {
           if (a.featured && !b.featured) return -1;
           if (!a.featured && b.featured) return 1;
           return new Date(b.date).getTime() - new Date(a.date).getTime();
         });
-        
+
         setPosts(sortedPosts);
         setFilteredPosts(sortedPosts);
+
+        // Check if there's a blog ID in the URL query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const blogId = urlParams.get('blog');
+        if (blogId) {
+          const post = sortedPosts.find((p: BlogPost) => p._id === blogId);
+          if (post) {
+            setSelectedPost(post);
+
+            // Scroll to blog section after a short delay to ensure the DOM is ready
+            setTimeout(() => {
+              const blogSection = document.getElementById('blog');
+              if (blogSection) {
+                blogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }, 500);
+          }
+        }
       } catch {
         // Use empty state if fetch fails
       }
@@ -313,18 +331,21 @@ export default function Blog() {
 
   const sharePost = (platform: string) => {
     if (!selectedPost) return;
-    const url = window.location.href;
+
+    // Create a URL that includes the blog post ID for direct navigation
+    const baseUrl = window.location.origin;
+    const postUrl = `${baseUrl}?blog=${selectedPost._id}`;
     const title = selectedPost.title;
 
     const shareUrls: { [key: string]: string } = {
-      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(postUrl)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`,
     };
 
     if (platform === 'copy') {
-      navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
+      navigator.clipboard.writeText(postUrl);
+      alert('Post link copied to clipboard!');
     } else if (shareUrls[platform]) {
       window.open(shareUrls[platform], '_blank', 'width=600,height=400');
     }

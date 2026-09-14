@@ -120,6 +120,25 @@ const contactSchema = new mongoose.Schema({
   message: String
 }, { timestamps: true });
 
+const messageSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  message: { type: String, required: true },
+  isRead: { type: Boolean, default: false },
+  repliedTo: { type: Boolean, default: false },
+  adminReply: String,
+  adminReplyDate: Date,
+  submittedAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+const activitySchema = new mongoose.Schema({
+  action: { type: String, required: true },
+  section: { type: String, required: true },
+  type: { type: String, enum: ['create', 'update', 'delete', 'view', 'login'], default: 'update' },
+  details: mongoose.Schema.Types.Mixed,
+  timestamp: { type: Date, default: Date.now }
+}, { timestamps: true });
+
 export const Project = mongoose.model('Project', projectSchema);
 export const Skill = mongoose.model('Skill', skillSchema);
 export const Education = mongoose.model('Education', educationSchema);
@@ -130,3 +149,5 @@ export const Certification = mongoose.model('Certification', certificationSchema
 export const Hero = mongoose.model('Hero', heroSchema);
 export const About = mongoose.model('About', aboutSchema);
 export const Contact = mongoose.model('Contact', contactSchema);
+export const Message = mongoose.model('Message', messageSchema);
+export const Activity = mongoose.model('Activity', activitySchema);

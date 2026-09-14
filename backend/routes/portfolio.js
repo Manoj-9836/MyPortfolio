@@ -15,7 +15,9 @@ import {
   Certification,
   Hero,
   About,
-  Contact
+  Contact,
+  Message,
+  Activity
 } from '../models/Portfolio.js';
 
 const router = express.Router();
@@ -28,36 +30,33 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const buildTransportConfig = () => {
   const port = Number(process.env.SMTP_PORT || 587);
-  const rejectUnauthorized = String(process.env.SMTP_TLS_REJECT_UNAUTHORIZED || 'true').toLowerCase() !== 'false';
-  const smtpPass = String(process.env.SMTP_PASS || '').replace(/\s+/g, '');
-
-  if (!rejectUnauthorized) {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-  }
+  const rejectUnauthorized = process.env.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false';
+  const smtpUser = (process.env.SMTP_USER || process.env.EMAIL_USER || '').trim();
+  const smtpPassword = (
+    process.env.EMAIL_APP_PASSWORD ||
+    process.env.SMTP_PASS ||
+    process.env.EMAIL_PASS ||
+    ''
+  ).trim();
 
   return {
-    host: process.env.SMTP_HOST,
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port,
     secure: port === 465,
-    requireTLS: true,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: smtpPass
-    },
     tls: {
-      rejectUnauthorized,
-      minVersion: 'TLSv1.2'
+      rejectUnauthorized
+    },
+    auth: {
+      user: smtpUser,
+      pass: smtpPassword
     }
   };
 };
 
 const canSendMail = () => {
   return Boolean(
-    process.env.SMTP_HOST &&
-    process.env.SMTP_PORT &&
-    process.env.SMTP_USER &&
-    process.env.SMTP_PASS &&
-    process.env.EMAIL_FROM
+    process.env.EMAIL_USER &&
+    (process.env.EMAIL_APP_PASSWORD || process.env.EMAIL_PASS)
   );
 };
 
@@ -68,6 +67,21 @@ const escapeHtml = (value = '') => {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+};
+
+// Activity Logging Helper
+const logActivity = async (action, section, type = 'update', details = {}) => {
+  try {
+    await Activity.create({
+      action,
+      section,
+      type,
+      details,
+      timestamp: new Date()
+    });
+  } catch (error) {
+    console.error('Failed to log activity:', error);
+  }
 };
 
 // Middleware to verify JWT token
@@ -1014,11 +1028,27 @@ router.post('/contact/message', async (req, res) => {
     }
 
     if (!canSendMail()) {
-      console.error('Contact email configuration missing SMTP or sender environment variables.');
-      return res.status(500).json({ message: 'Email service is not configured.' });
+      console.error('Email configuration missing:', {
+        SMTP_HOST: process.env.SMTP_HOST ? 'Set' : 'Missing',
+        SMTP_PORT: process.env.SMTP_PORT ? 'Set' : 'Missing',
+        SMTP_USER: process.env.SMTP_USER ? 'Set' : 'Missing',
+        SMTP_PASS: process.env.SMTP_PASS ? 'Set' : 'Missing',
+        EMAIL_FROM: process.env.EMAIL_FROM ? 'Set' : 'Missing'
+      });
+      return res.status(500).json({ message: 'Email service is not configured properly.' });
     }
 
     const transporter = nodemailer.createTransport(buildTransportConfig());
+
+    // Test the connection
+    try {
+      await transporter.verify();
+      console.log('✅ Email transporter verified successfully');
+    } catch (verifyError) {
+      console.error('❌ Email transporter verification failed:', verifyError.message);
+      return res.status(500).json({ message: 'Email service connection failed. Please try again later.' });
+    }
+
     const safeName = escapeHtml(name);
     const safeMessage = escapeHtml(message).replace(/\n/g, '<br/>');
     const emailHtml = `
@@ -1106,10 +1136,21 @@ router.post('/contact/message', async (req, res) => {
       html: emailHtml
     });
 
+    // Save message to database
+    const savedMessage = await Message.create({
+      name,
+      email,
+      message,
+      isRead: false,
+      repliedTo: false
+    });
+
+    console.log('✅ Email sent successfully to:', email);
+    console.log('✅ Message saved to database:', savedMessage._id);
     res.json({ message: 'Message received and acknowledgement email sent.' });
   } catch (error) {
-    console.error('Failed to process contact message:', error);
-    res.status(500).json({ message: 'Failed to send acknowledgement email.' });
+    console.error('❌ Failed to process contact message:', error);
+    res.status(500).json({ message: 'Failed to send message. Please try again later.', error: error.message });
   }
 });
 
@@ -1161,6 +1202,296 @@ router.get('/stats', async (req, res) => {
     stats.total = Object.values(stats).reduce((acc, val) => acc + val, 0);
 
     res.json(stats);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Message Management Routes
+// Get all messages (admin only)
+router.get('/messages', verifyToken, async (req, res) => {
+  try {
+    const messages = await Message.find().sort({ submittedAt: -1 });
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get single message (admin only)
+router.get('/messages/:id', verifyToken, async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.id);
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+    // Mark as read when viewed
+    message.isRead = true;
+    await message.save();
+    res.json(message);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Mark message as read
+router.put('/messages/:id/read', verifyToken, async (req, res) => {
+  try {
+    const message = await Message.findByIdAndUpdate(
+      req.params.id,
+      { isRead: true },
+      { new: true }
+    );
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+    res.json(message);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Reply to message
+router.put('/messages/:id/reply', verifyToken, async (req, res) => {
+  try {
+    const { adminReply } = req.body;
+
+    if (!adminReply || !adminReply.trim()) {
+      return res.status(400).json({ message: 'Reply message is required' });
+    }
+
+    const message = await Message.findById(req.params.id);
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+
+    // Send reply email
+    if (!canSendMail()) {
+      return res.status(500).json({ message: 'Email service is not configured' });
+    }
+
+    const transporter = nodemailer.createTransport(buildTransportConfig());
+
+    const safeReply = escapeHtml(adminReply).replace(/\n/g, '<br/>');
+    const replyHtml = `
+      <div style="margin:0;padding:24px 12px;background:#edf2f7;font-family:Arial,sans-serif;">
+        <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+          <tr>
+            <td style="padding:0;background:#0f172a;">
+              <img src="https://raw.githubusercontent.com/Manoj-9836/images/refs/heads/main/hello%40reallygreatsite.com.png" alt="Manoj Kumar" style="width:100%;display:block;border:0;" />
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:26px 24px 10px 24px;">
+              <h2 style="margin:0;text-align:center;color:#1f2937;font-size:30px;line-height:1.2;font-weight:800;">Response to Your Message</h2>
+              <p style="margin:14px 0 0 0;color:#334155;font-size:15px;line-height:1.75;">Hi <strong>${escapeHtml(message.name)}</strong>,</p>
+              <p style="margin:10px 0 0 0;color:#334155;font-size:15px;line-height:1.75;">Thank you for your message. Here's my response:</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:14px 24px 0 24px;">
+              <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;">
+                <tr>
+                  <td style="padding:14px 16px;">
+                    <p style="margin:0;color:#0f172a;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Your Message</p>
+                    <p style="margin:8px 0 0 0;color:#334155;font-size:14px;line-height:1.75;">${escapeHtml(message.message).replace(/\n/g, '<br/')}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:14px 24px 0 24px;">
+              <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="background:#dcfce7;border:1px solid #86efac;border-radius:12px;">
+                <tr>
+                  <td style="padding:14px 16px;">
+                    <p style="margin:0;color:#166534;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">My Reply</p>
+                    <p style="margin:8px 0 0 0;color:#166534;font-size:14px;line-height:1.75;">${safeReply}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:18px 24px 0 24px;">
+              <p style="margin:0;color:#475569;font-size:14px;">You can also explore my work here:</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:12px 18px 4px 18px;">
+              <table width="100%" cellspacing="8" cellpadding="0" role="presentation" style="table-layout:fixed;">
+                <tr>
+                  <td align="center" valign="middle" style="background:#16a34a;border-radius:10px;">
+                    <a href="https://manoj-9836.github.io/Portfolio" style="display:block;padding:11px 6px;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;line-height:1.2;white-space:nowrap;">
+                      <img src="https://img.icons8.com/ios-filled/50/FFFFFF/domain.png" alt="Portfolio" width="15" height="15" style="vertical-align:-2px;border:0;"/> Portfolio
+                    </a>
+                  </td>
+                  <td align="center" valign="middle" style="background:#111827;border-radius:10px;">
+                    <a href="https://github.com/Manoj-9836" style="display:block;padding:11px 6px;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;line-height:1.2;white-space:nowrap;">
+                      <img src="https://img.icons8.com/ios-glyphs/30/FFFFFF/github.png" alt="GitHub" width="15" height="15" style="vertical-align:-2px;border:0;"/> GitHub
+                    </a>
+                  </td>
+                  <td align="center" valign="middle" style="background:#0a66c2;border-radius:10px;">
+                    <a href="https://linkedin.com/in/mkmanoj-dev" style="display:block;padding:11px 6px;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;line-height:1.2;white-space:nowrap;">
+                      <img src="https://img.icons8.com/ios-filled/50/FFFFFF/linkedin.png" alt="LinkedIn" width="15" height="15" style="vertical-align:-2px;border:0;"/> LinkedIn
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:16px 24px 0 24px;">
+              <p style="margin:0;color:#334155;font-size:14px;line-height:1.8;">Best regards,<br/><strong>Bavisetti Manoj Kumar</strong><br/>AI Web Developer</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:18px 24px 24px 24px;">
+              <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 12px 0;" />
+              <p style="margin:0;text-align:center;color:#64748b;font-size:12px;line-height:1.6;">This is a response from my portfolio contact system.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: message.email,
+      replyTo: process.env.ADMIN_EMAIL || process.env.EMAIL_FROM,
+      subject: `Re: Your message`,
+      text: `Hi ${message.name},\n\nThank you for your message. Here's my response:\n\n${adminReply}\n\nBest regards,\nBavisetti Manoj Kumar`,
+      html: replyHtml
+    });
+
+    // Update message
+    message.adminReply = adminReply;
+    message.adminReplyDate = new Date();
+    message.repliedTo = true;
+    await message.save();
+
+    console.log('✅ Reply email sent to:', message.email);
+    res.json(message);
+  } catch (error) {
+    console.error('❌ Failed to send reply:', error);
+    res.status(500).json({ message: 'Failed to send reply', error: error.message });
+  }
+});
+
+// Delete message (admin only)
+router.delete('/messages/:id', verifyToken, async (req, res) => {
+  try {
+    const message = await Message.findByIdAndDelete(req.params.id);
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+    res.json({ message: 'Message deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get message stats
+router.get('/messages-stats', verifyToken, async (req, res) => {
+  try {
+    const total = await Message.countDocuments();
+    const unread = await Message.countDocuments({ isRead: false });
+    const replied = await Message.countDocuments({ repliedTo: true });
+    const unreplied = await Message.countDocuments({ repliedTo: false });
+
+    res.json({ total, unread, replied, unreplied });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Activity Management Routes
+// Get all activities (admin only)
+router.get('/activities', verifyToken, async (req, res) => {
+  try {
+    const activities = await Activity.find()
+      .sort({ timestamp: -1 })
+      .limit(50);
+    res.json(activities);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get activities filtered by section
+router.get('/activities/section/:section', verifyToken, async (req, res) => {
+  try {
+    const activities = await Activity.find({ section: req.params.section })
+      .sort({ timestamp: -1 })
+      .limit(30);
+    res.json(activities);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get activity statistics
+router.get('/activities-stats', verifyToken, async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const totalActivities = await Activity.countDocuments();
+    const todayActivities = await Activity.countDocuments({ timestamp: { $gte: today } });
+    const createCount = await Activity.countDocuments({ type: 'create' });
+    const updateCount = await Activity.countDocuments({ type: 'update' });
+    const deleteCount = await Activity.countDocuments({ type: 'delete' });
+
+    res.json({
+      total: totalActivities,
+      today: todayActivities,
+      byType: {
+        create: createCount,
+        update: updateCount,
+        delete: deleteCount
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Log activity endpoint (can be called from frontend)
+router.post('/activities/log', verifyToken, async (req, res) => {
+  try {
+    const { action, section, type = 'update', details = {} } = req.body;
+
+    if (!action || !section) {
+      return res.status(400).json({ message: 'Action and section are required' });
+    }
+
+    const activity = await Activity.create({
+      action,
+      section,
+      type,
+      details,
+      timestamp: new Date()
+    });
+
+    res.status(201).json(activity);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Clear old activities (older than 30 days) - admin only
+router.delete('/activities/clear-old', verifyToken, async (req, res) => {
+  try {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const result = await Activity.deleteMany({ timestamp: { $lt: thirtyDaysAgo } });
+    res.json({ message: `Cleared ${result.deletedCount} old activities` });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
