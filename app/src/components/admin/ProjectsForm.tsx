@@ -1,8 +1,34 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, X, Save, Briefcase, ExternalLink, Github, Star } from 'lucide-react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { API_ENDPOINTS } from '../../config/api';
 import { toast } from 'react-toastify';
+
+const quillModules = {
+  toolbar: [
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ color: ['#111827', '#374151', '#6b7280', '#9ca3af', '#d1d5db', '#f9fafb', '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'] }, { background: ['#fef3c7', '#fee2e2', '#ffedd5', '#dcfce7', '#cffafe', '#dbeafe', '#ede9fe', '#fce7f3', '#fde68a', '#fecaca', '#fed7aa', '#bbf7d0', '#a5f3fc', '#bfdbfe', '#ddd6fe', '#fbcfe8'] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['indent', 'outdent'],
+    ['link', 'image', 'code-block', 'clean'],
+  ],
+};
+
+const quillFormats = [
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'color',
+  'background',
+  'list',
+  'indent',
+  'link',
+  'image',
+  'code-block',
+];
 
 interface Project {
   _id?: string;
@@ -167,8 +193,25 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
     setFormData({ ...formData, highlights: formData.highlights.filter((_, i) => i !== index) });
   };
 
+  const updateCaseStudyField = (field: 'problem' | 'approach' | 'impact', value: string) => {
+    setFormData({
+      ...formData,
+      caseStudy: {
+        ...normalizeCaseStudy(formData),
+        [field]: value,
+      },
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.description.replace(/<(.|\n)*?>/g, '').trim()) {
+      setError('Project description is required');
+      toast.error('Project description is required.');
+      return;
+    }
+
     setSaving(true);
     setError('');
 
@@ -448,13 +491,16 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                       <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                         Description *
                       </label>
-                      <textarea
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[100px] resize-y"
-                        placeholder="Detailed project description..."
-                        required
-                      />
+                      <div className="portfolio-quill">
+                        <ReactQuill
+                          theme="snow"
+                          value={formData.description}
+                          onChange={(description) => setFormData({ ...formData, description })}
+                          modules={quillModules}
+                          formats={quillFormats}
+                          placeholder="Detailed project description..."
+                        />
+                      </div>
                     </div>
 
                     <div className="md:col-span-2 rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4 space-y-3">
@@ -464,54 +510,48 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                         <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                           Problem
                         </label>
-                        <textarea
-                          value={formData.caseStudy?.problem || ''}
-                          onChange={(e) => setFormData({
-                            ...formData,
-                            caseStudy: {
-                              ...normalizeCaseStudy(formData),
-                              problem: e.target.value,
-                            },
-                          })}
-                          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[85px] resize-y"
-                          placeholder="What challenge did this project solve?"
-                        />
+                        <div className="portfolio-quill">
+                          <ReactQuill
+                            theme="snow"
+                            value={formData.caseStudy?.problem || ''}
+                            onChange={(problem) => updateCaseStudyField('problem', problem)}
+                            modules={quillModules}
+                            formats={quillFormats}
+                            placeholder="What challenge did this project solve?"
+                          />
+                        </div>
                       </div>
 
                       <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                           Approach
                         </label>
-                        <textarea
-                          value={formData.caseStudy?.approach || ''}
-                          onChange={(e) => setFormData({
-                            ...formData,
-                            caseStudy: {
-                              ...normalizeCaseStudy(formData),
-                              approach: e.target.value,
-                            },
-                          })}
-                          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[85px] resize-y"
-                          placeholder="How did you design and implement the solution?"
-                        />
+                        <div className="portfolio-quill">
+                          <ReactQuill
+                            theme="snow"
+                            value={formData.caseStudy?.approach || ''}
+                            onChange={(approach) => updateCaseStudyField('approach', approach)}
+                            modules={quillModules}
+                            formats={quillFormats}
+                            placeholder="How did you design and implement the solution?"
+                          />
+                        </div>
                       </div>
 
                       <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                           Impact
                         </label>
-                        <textarea
-                          value={formData.caseStudy?.impact || ''}
-                          onChange={(e) => setFormData({
-                            ...formData,
-                            caseStudy: {
-                              ...normalizeCaseStudy(formData),
-                              impact: e.target.value,
-                            },
-                          })}
-                          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[85px] resize-y"
-                          placeholder="What measurable result or outcome did you achieve?"
-                        />
+                        <div className="portfolio-quill">
+                          <ReactQuill
+                            theme="snow"
+                            value={formData.caseStudy?.impact || ''}
+                            onChange={(impact) => updateCaseStudyField('impact', impact)}
+                            modules={quillModules}
+                            formats={quillFormats}
+                            placeholder="What measurable result or outcome did you achieve?"
+                          />
+                        </div>
                       </div>
                     </div>
 

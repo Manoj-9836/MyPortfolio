@@ -120,3 +120,425 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+/* Dark theme for the admin rich text editor */
+.portfolio-quill .ql-toolbar.ql-snow,
+.portfolio-quill .ql-container.ql-snow {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.portfolio-quill .ql-toolbar.ql-snow {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.portfolio-quill .ql-container.ql-snow {
+  min-height: 220px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 0 0.5rem 0.5rem;
+  color: #f9fafb;
+  font-size: 0.875rem;
+}
+
+.portfolio-quill .ql-editor {
+  min-height: 220px;
+  color: #f9fafb;
+}
+
+.portfolio-quill .ql-editor p,
+.portfolio-quill .ql-editor li,
+.portfolio-quill .ql-editor blockquote {
+  background-color: transparent;
+}
+
+.portfolio-quill .ql-editor.ql-blank::before,
+.portfolio-quill .ql-picker-label,
+.portfolio-quill .ql-picker-item,
+.portfolio-quill .ql-toolbar button {
+  color: #9ca3af;
+}
+
+.portfolio-quill .ql-toolbar button:hover,
+.portfolio-quill .ql-toolbar button.ql-active,
+.portfolio-quill .ql-toolbar .ql-picker-label:hover,
+.portfolio-quill .ql-toolbar .ql-picker-label.ql-active,
+.portfolio-quill .ql-toolbar .ql-picker-item:hover,
+.portfolio-quill .ql-toolbar .ql-picker-item.ql-selected {
+  color: #ffffff;
+}
+
+.portfolio-quill .ql-toolbar button svg,
+.portfolio-quill .ql-toolbar .ql-stroke {
+  stroke: #d1d5db;
+}
+
+.portfolio-quill .ql-toolbar button svg,
+.portfolio-quill .ql-toolbar .ql-fill {
+  fill: #d1d5db;
+}
+
+.portfolio-quill .ql-toolbar button:hover svg,
+.portfolio-quill .ql-toolbar button.ql-active svg,
+.portfolio-quill .ql-toolbar .ql-stroke {
+  stroke: #ffffff;
+}
+
+.portfolio-quill .ql-toolbar button:hover .ql-fill,
+.portfolio-quill .ql-toolbar button.ql-active .ql-fill {
+  fill: #ffffff;
+}
+
+.portfolio-quill .ql-picker-options,
+.portfolio-quill .ql-tooltip {
+  background: #171717;
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  color: #f9fafb;
+}
+
+.portfolio-quill .ql-tooltip input {
+  background: #262626;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f9fafb;
+}
+
+.post-display p,
+.post-display blockquote,
+.post-display pre,
+.post-display ul,
+.post-display ol {
+  margin-bottom: 1rem;
+}
+
+.post-display * {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.post-display img,
+.post-display video,
+.post-display iframe {
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.post-display h1,
+.post-display h2,
+.post-display h3 {
+  color: #ffffff;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.post-display h1 { font-size: 1.875rem; }
+.post-display h2 { font-size: 1.5rem; }
+.post-display h3 { font-size: 1.25rem; }
+.post-display ul { list-style: disc; padding-left: 1.5rem; }
+.post-display ol { list-style: decimal; padding-left: 1.5rem; }
+.post-display a { color: #60a5fa; text-decoration: underline; }
+.post-display blockquote { border-left: 3px solid #6b7280; padding-left: 1rem; color: #d1d5db; }
+.post-display pre {
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+}
+
+/* ===== SIMPLE AND EFFECTIVE LIST STYLING ===== */
+
+/* ALL LIST STYLING */
+.portfolio-quill .ql-editor ul,
+.portfolio-quill .ql-editor ol,
+.post-display ul,
+.post-display ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+}
+
+.portfolio-quill .ql-editor li,
+.post-display li {
+  color: #f9fafb;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+  display: list-item;
+}
+
+/* BULLET LISTS */
+.portfolio-quill .ql-editor ul,
+.post-display ul {
+  list-style: disc;
+  list-style-position: outside;
+}
+
+/* ORDERED LISTS */
+.portfolio-quill .ql-editor ol,
+.post-display ol {
+  list-style: decimal;
+  list-style-position: outside;
+}
+
+/* NESTED BULLET LISTS */
+.portfolio-quill .ql-editor li ul,
+.post-display li ul {
+  list-style: circle;
+  padding-left: 2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* DOUBLE NESTED BULLET LISTS */
+.portfolio-quill .ql-editor li li ul,
+.post-display li li ul {
+  list-style: square;
+  padding-left: 2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* TRIPLE NESTED BULLET LISTS */
+.portfolio-quill .ql-editor li li li ul,
+.post-display li li li ul {
+  list-style: disc;
+  padding-left: 2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* NESTED ORDERED LISTS */
+.portfolio-quill .ql-editor li ol,
+.post-display li ol {
+  list-style: lower-alpha;
+  padding-left: 2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* DOUBLE NESTED ORDERED LISTS */
+.portfolio-quill .ql-editor li li ol,
+.post-display li li ol {
+  list-style: lower-roman;
+  padding-left: 2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* TRIPLE NESTED ORDERED LISTS */
+.portfolio-quill .ql-editor li li li ol,
+.post-display li li li ol {
+  list-style: decimal;
+  padding-left: 2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.post-modal-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.post-modal-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== UNIVERSAL HIGHLIGHT STYLING ===== */
+/* This applies to both editor and display sections */
+
+/* All highlighted spans get base styling */
+.portfolio-quill .ql-editor span[style],
+.post-display span[style] {
+  border-radius: 6px;
+  padding: 2px 6px;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+/* YELLOW BACKGROUND */
+.portfolio-quill .ql-editor span[style*="background-color: rgb(254, 243, 199)"],
+.portfolio-quill .ql-editor span[style*="background-color:#fef3c7"],
+.portfolio-quill .ql-editor span[style*="background: rgb(254, 243, 199)"],
+.portfolio-quill .ql-editor span[style*="background:#fef3c7"],
+.post-display span[style*="background-color: rgb(254, 243, 199)"],
+.post-display span[style*="background-color:#fef3c7"],
+.post-display span[style*="background: rgb(254, 243, 199)"],
+.post-display span[style*="background:#fef3c7"] {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+}
+
+/* RED BACKGROUND */
+.portfolio-quill .ql-editor span[style*="background-color: rgb(254, 226, 226)"],
+.portfolio-quill .ql-editor span[style*="background-color:#fee2e2"],
+.portfolio-quill .ql-editor span[style*="background: rgb(254, 226, 226)"],
+.portfolio-quill .ql-editor span[style*="background:#fee2e2"],
+.post-display span[style*="background-color: rgb(254, 226, 226)"],
+.post-display span[style*="background-color:#fee2e2"],
+.post-display span[style*="background: rgb(254, 226, 226)"],
+.post-display span[style*="background:#fee2e2"] {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+/* ORANGE BACKGROUND */
+.portfolio-quill .ql-editor span[style*="background-color: rgb(255, 237, 213)"],
+.portfolio-quill .ql-editor span[style*="background-color:#ffedd5"],
+.portfolio-quill .ql-editor span[style*="background: rgb(255, 237, 213)"],
+.portfolio-quill .ql-editor span[style*="background:#ffedd5"],
+.post-display span[style*="background-color: rgb(255, 237, 213)"],
+.post-display span[style*="background-color:#ffedd5"],
+.post-display span[style*="background: rgb(255, 237, 213)"],
+.post-display span[style*="background:#ffedd5"] {
+  background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%) !important;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+/* GREEN BACKGROUND */
+.portfolio-quill .ql-editor span[style*="background-color: rgb(220, 252, 231)"],
+.portfolio-quill .ql-editor span[style*="background-color:#dcfce7"],
+.portfolio-quill .ql-editor span[style*="background: rgb(220, 252, 231)"],
+.portfolio-quill .ql-editor span[style*="background:#dcfce7"],
+.post-display span[style*="background-color: rgb(220, 252, 231)"],
+.post-display span[style*="background-color:#dcfce7"],
+.post-display span[style*="background: rgb(220, 252, 231)"],
+.post-display span[style*="background:#dcfce7"] {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* CYAN BACKGROUND */
+.portfolio-quill .ql-editor span[style*="background-color: rgb(207, 250, 254)"],
+.portfolio-quill .ql-editor span[style*="background-color:#cffafe"],
+.portfolio-quill .ql-editor span[style*="background: rgb(207, 250, 254)"],
+.portfolio-quill .ql-editor span[style*="background:#cffafe"],
+.post-display span[style*="background-color: rgb(207, 250, 254)"],
+.post-display span[style*="background-color:#cffafe"],
+.post-display span[style*="background: rgb(207, 250, 254)"],
+.post-display span[style*="background:#cffafe"] {
+  background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%) !important;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+/* BLUE BACKGROUND */
+.portfolio-quill .ql-editor span[style*="background-color: rgb(219, 234, 254)"],
+.portfolio-quill .ql-editor span[style*="background-color:#dbeafe"],
+.portfolio-quill .ql-editor span[style*="background: rgb(219, 234, 254)"],
+.portfolio-quill .ql-editor span[style*="background:#dbeafe"],
+.post-display span[style*="background-color: rgb(219, 234, 254)"],
+.post-display span[style*="background-color:#dbeafe"],
+.post-display span[style*="background: rgb(219, 234, 254)"],
+.post-display span[style*="background:#dbeafe"] {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* PURPLE BACKGROUND */
+.portfolio-quill .ql-editor span[style*="background-color: rgb(237, 233, 254)"],
+.portfolio-quill .ql-editor span[style*="background-color:#ede9fe"],
+.portfolio-quill .ql-editor span[style*="background: rgb(237, 233, 254)"],
+.portfolio-quill .ql-editor span[style*="background:#ede9fe"],
+.post-display span[style*="background-color: rgb(237, 233, 254)"],
+.post-display span[style*="background-color:#ede9fe"],
+.post-display span[style*="background: rgb(237, 233, 254)"],
+.post-display span[style*="background:#ede9fe"] {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%) !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* PINK BACKGROUND */
+.portfolio-quill .ql-editor span[style*="background-color: rgb(252, 231, 243)"],
+.portfolio-quill .ql-editor span[style*="background-color:#fce7f3"],
+.portfolio-quill .ql-editor span[style*="background: rgb(252, 231, 243)"],
+.portfolio-quill .ql-editor span[style*="background:#fce7f3"],
+.post-display span[style*="background-color: rgb(252, 231, 243)"],
+.post-display span[style*="background-color:#fce7f3"],
+.post-display span[style*="background: rgb(252, 231, 243)"],
+.post-display span[style*="background:#fce7f3"] {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%) !important;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+/* TEXT COLORS WITH GLOW */
+
+/* Red text */
+.portfolio-quill .ql-editor span[style*="color: rgb(239, 68, 68)"],
+.portfolio-quill .ql-editor span[style*="color:#ef4444"],
+.post-display span[style*="color: rgb(239, 68, 68)"],
+.post-display span[style*="color:#ef4444"] {
+  color: #ef4444 !important;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+}
+
+/* Orange text */
+.portfolio-quill .ql-editor span[style*="color: rgb(249, 115, 22)"],
+.portfolio-quill .ql-editor span[style*="color:#f97316"],
+.post-display span[style*="color: rgb(249, 115, 22)"],
+.post-display span[style*="color:#f97316"] {
+  color: #f97316 !important;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(249, 115, 22, 0.5);
+}
+
+/* Yellow text */
+.portfolio-quill .ql-editor span[style*="color: rgb(234, 179, 8)"],
+.portfolio-quill .ql-editor span[style*="color:#eab308"],
+.post-display span[style*="color: rgb(234, 179, 8)"],
+.post-display span[style*="color:#eab308"] {
+  color: #eab308 !important;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(234, 179, 8, 0.5);
+}
+
+/* Green text */
+.portfolio-quill .ql-editor span[style*="color: rgb(34, 197, 94)"],
+.portfolio-quill .ql-editor span[style*="color:#22c55e"],
+.post-display span[style*="color: rgb(34, 197, 94)"],
+.post-display span[style*="color:#22c55e"] {
+  color: #22c55e !important;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+}
+
+/* Cyan text */
+.portfolio-quill .ql-editor span[style*="color: rgb(6, 182, 212)"],
+.portfolio-quill .ql-editor span[style*="color:#06b6d4"],
+.post-display span[style*="color: rgb(6, 182, 212)"],
+.post-display span[style*="color:#06b6d4"] {
+  color: #06b6d4 !important;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+}
+
+/* Blue text */
+.portfolio-quill .ql-editor span[style*="color: rgb(59, 130, 246)"],
+.portfolio-quill .ql-editor span[style*="color:#3b82f6"],
+.post-display span[style*="color: rgb(59, 130, 246)"],
+.post-display span[style*="color:#3b82f6"] {
+  color: #3b82f6 !important;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+}
+
+/* Purple text */
+.portfolio-quill .ql-editor span[style*="color: rgb(139, 92, 246)"],
+.portfolio-quill .ql-editor span[style*="color:#8b5cf6"],
+.post-display span[style*="color: rgb(139, 92, 246)"],
+.post-display span[style*="color:#8b5cf6"] {
+  color: #8b5cf6 !important;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+}
+
+/* Pink text */
+.portfolio-quill .ql-editor span[style*="color: rgb(236, 72, 153)"],
+.portfolio-quill .ql-editor span[style*="color:#ec4899"],
+.post-display span[style*="color: rgb(236, 72, 153)"],
+.post-display span[style*="color:#ec4899"] {
+  color: #ec4899 !important;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(236, 72, 153, 0.5);
+}

@@ -10,6 +10,7 @@ import {
   Github
 } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
+import PostDisplay from '../components/PostDisplay';
 
 interface Project {
   _id: string;
@@ -151,9 +152,9 @@ export default function Projects() {
 
                   {/* Content */}
                   <div className="flex-1 md:w-2/3">
-                    <p className="text-gray-300 mb-4 leading-relaxed">
-                      {project.description}
-                    </p>
+                    <div className="text-gray-300 mb-4 leading-relaxed">
+                      <PostDisplay content={project.description} />
+                    </div>
 
                     <button
                       onClick={() => setExpandedCaseStudyId(expandedCaseStudyId === project._id ? null : project._id)}
@@ -174,21 +175,19 @@ export default function Projects() {
                         <div className="grid grid-cols-1 gap-3 sm:gap-4">
                           <div>
                             <p className="text-[11px] sm:text-xs uppercase tracking-wider text-gray-500 mb-1">Problem</p>
-                            <p className="text-sm text-gray-300 leading-relaxed">
-                              {project.caseStudy?.problem || project.subtitle || 'Building a reliable, user-friendly product with real impact.'}
-                            </p>
+                            <PostDisplay
+                              content={project.caseStudy?.problem || project.subtitle || 'Building a reliable, user-friendly product with real impact.'}
+                            />
                           </div>
                           <div>
                             <p className="text-[11px] sm:text-xs uppercase tracking-wider text-gray-500 mb-1">Approach</p>
-                            <p className="text-sm text-gray-300 leading-relaxed">
-                              {project.caseStudy?.approach || project.description}
-                            </p>
+                            <PostDisplay content={project.caseStudy?.approach || project.description} />
                           </div>
                           <div>
                             <p className="text-[11px] sm:text-xs uppercase tracking-wider text-gray-500 mb-1">Impact</p>
-                            <p className="text-sm text-gray-300 leading-relaxed">
-                              {project.caseStudy?.impact || `Delivered with ${project.tech.slice(0, 3).join(', ')} and production-oriented design decisions.`}
-                            </p>
+                            <PostDisplay
+                              content={project.caseStudy?.impact || `Delivered with ${project.tech.slice(0, 3).join(', ')} and production-oriented design decisions.`}
+                            />
                           </div>
                         </div>
                       </motion.div>

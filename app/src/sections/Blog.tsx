@@ -2,6 +2,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { Calendar, X, Heart, Eye, MessageCircle, Share2, Twitter, Facebook, Linkedin, Copy, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
+import PostDisplay from '../components/PostDisplay';
 
 interface Comment {
   _id: string;
@@ -574,7 +575,7 @@ export default function Blog() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl sm:rounded-3xl max-w-3xl w-full h-[92dvh] sm:h-auto max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6 md:p-8"
+              className="post-modal-scroll relative min-w-0 max-w-3xl w-full bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl sm:rounded-3xl h-[92dvh] sm:h-auto max-h-[92dvh] sm:max-h-[90vh] overflow-x-hidden overflow-y-auto p-4 sm:p-6 md:p-8"
             >
               {/* Close Button */}
               <motion.button
@@ -591,7 +592,7 @@ export default function Blog() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="w-full rounded-2xl overflow-hidden mb-6 mt-8 sm:mt-4"
+                className="w-full rounded-2xl overflow-hidden mb-6 mt-12"
               >
                 <div className="relative h-52 sm:h-64 md:h-80 rounded-2xl overflow-hidden bg-black/20">
                   <AnimatePresence mode="wait">
@@ -773,11 +774,9 @@ export default function Blog() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="prose prose-invert max-w-none"
+                className="max-w-none"
               >
-                <div className="text-gray-300 leading-relaxed space-y-4 text-sm md:text-base whitespace-pre-wrap">
-                  {selectedPost.content}
-                </div>
+                <PostDisplay content={selectedPost.content} />
               </motion.div>
 
               {/* Tags */}

@@ -1,5 +1,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
 
 interface Certification {
@@ -16,6 +17,8 @@ export default function Certifications() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [certifications, setCertifications] = useState<Certification[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const certificationsPerPage = 6;
 
   useEffect(() => {
     const fetchCertifications = async () => {
@@ -30,6 +33,16 @@ export default function Certifications() {
 
     fetchCertifications();
   }, []);
+
+  const indexOfLastCertification = currentPage * certificationsPerPage;
+  const indexOfFirstCertification = indexOfLastCertification - certificationsPerPage;
+  const currentCertifications = certifications.slice(indexOfFirstCertification, indexOfLastCertification);
+  const totalPages = Math.ceil(certifications.length / certificationsPerPage);
+
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    ref.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <section id="certifications" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900/10 overflow-x-clip">
@@ -68,7 +81,7 @@ export default function Certifications() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {certifications.map((cert, index) => (
+            {currentCertifications.map((cert, index) => (
               <motion.article
                 key={cert._id}
                 initial={{ opacity: 0, y: 30 }}
@@ -111,6 +124,45 @@ export default function Certifications() {
               </motion.article>
             ))}
           </div>
+
+          {totalPages > 1 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              className="mt-12 flex items-center justify-center gap-2"
+            >
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => paginate(page)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    currentPage === page
+                      ? 'bg-blue-500/20 text-blue-400 border border-blue-400/50'
+                      : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </section>

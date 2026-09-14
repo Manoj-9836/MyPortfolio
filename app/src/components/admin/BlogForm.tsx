@@ -1,8 +1,34 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, X, Save, BookOpen, Eye, EyeOff, Heart, MessageCircle, Calendar, User, Trash } from 'lucide-react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { API_ENDPOINTS } from '../../config/api';
 import { toast } from 'react-toastify';
+
+const quillModules = {
+  toolbar: [
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ color: ['#111827', '#374151', '#6b7280', '#9ca3af', '#d1d5db', '#f9fafb', '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'] }, { background: ['#fef3c7', '#fee2e2', '#ffedd5', '#dcfce7', '#cffafe', '#dbeafe', '#ede9fe', '#fce7f3', '#fde68a', '#fecaca', '#fed7aa', '#bbf7d0', '#a5f3fc', '#bfdbfe', '#ddd6fe', '#fbcfe8'] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ indent: '-1' }, { indent: '+1' }],
+    ['link', 'image', 'code-block', 'clean'],
+  ],
+};
+
+const quillFormats = [
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'color',
+  'background',
+  'list',
+  'indent',
+  'link',
+  'image',
+  'code-block',
+];
 
 interface BlogPost {
   _id?: string;
@@ -21,7 +47,16 @@ interface BlogPost {
   order?: number;
   views?: number;
   likes?: number;
-  comments?: any[];
+  comments?: BlogComment[];
+}
+
+interface BlogComment {
+  _id: string;
+  author: string;
+  email?: string;
+  content: string;
+  createdAt: string;
+  approved?: boolean;
 }
 
 interface BlogFormProps {
@@ -145,6 +180,13 @@ export default function BlogForm({ onSave }: BlogFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.content.replace(/<(.|\n)*?>/g, '').trim()) {
+      setError('Post content is required');
+      toast.error('Post content is required.');
+      return;
+    }
+
     setSaving(true);
     setError('');
 
@@ -684,13 +726,19 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                     <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                       Content *
                     </label>
-                    <textarea
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-white focus:outline-none focus:border-white/30 transition-all min-h-[200px] resize-y font-mono"
-                      placeholder="Full post content..."
-                      required
-                    />
+                    <div className="portfolio-quill">
+                      <ReactQuill
+                        theme="snow"
+                        value={formData.content}
+                        onChange={(content) => setFormData({ ...formData, content })}
+                        modules={quillModules}
+                        formats={quillFormats}
+                        placeholder="Write your post content..."
+                      />
+                    </div>
+                    {!formData.content.replace(/<(.|\n)*?>/g, '').trim() && (
+                      <p className="mt-2 text-xs text-amber-400">Post content is required.</p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -865,8 +913,8 @@ export default function BlogForm({ onSave }: BlogFormProps) {
                 <div className="space-y-3">
                   {selectedPostForComments.comments && selectedPostForComments.comments.length > 0 ? (
                     [...selectedPostForComments.comments]
-                      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                      .map((comment: any) => (
+                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .map((comment) => (
                         <motion.div
                           key={comment._id}
                           initial={{ opacity: 0, y: 10 }}
