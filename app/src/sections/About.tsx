@@ -138,24 +138,45 @@ export default function About() {
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
               <p className="text-xs uppercase tracking-wider text-gray-500 mb-3">Live Profiles</p>
               <div className="flex flex-col gap-3">
-                <img
-                  src="https://img.shields.io/badge/GitHub-Profile-111?logo=github"
-                  alt="GitHub profile badge"
-                  className="h-7 w-fit"
-                  loading="lazy"
-                />
-                <img
-                  src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?logo=linkedin&logoColor=white"
-                  alt="LinkedIn profile badge"
-                  className="h-7 w-fit"
-                  loading="lazy"
-                />
-                <img
-                  src="https://img.shields.io/badge/LeetCode-Active%20Coder-f89f1b?logo=leetcode&logoColor=white"
-                  alt="LeetCode profile badge"
-                  className="h-7 w-fit"
-                  loading="lazy"
-                />
+                <a
+                  href="https://github.com/Manoj-9836"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Visit Manoj's GitHub profile"
+                >
+                  <img
+                    src="https://img.shields.io/badge/GitHub-Profile-111?logo=github"
+                    alt="GitHub profile badge"
+                    className="h-7 w-fit"
+                    loading="lazy"
+                  />
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/mkmanoj-dev/"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Visit Manoj's LinkedIn profile"
+                >
+                  <img
+                    src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?logo=linkedin&logoColor=white"
+                    alt="LinkedIn profile badge"
+                    className="h-7 w-fit"
+                    loading="lazy"
+                  />
+                </a>
+                <a
+                  href="https://leetcode.com/u/Manoj9836/"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Visit Manoj's LeetCode profile"
+                >
+                  <img
+                    src="https://img.shields.io/badge/LeetCode-Active%20Coder-f89f1b?logo=leetcode&logoColor=white"
+                    alt="LeetCode profile badge"
+                    className="h-7 w-fit"
+                    loading="lazy"
+                  />
+                </a>
               </div>
             </div>
           </div>
