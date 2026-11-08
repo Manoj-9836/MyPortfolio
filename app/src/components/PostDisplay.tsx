@@ -13,7 +13,7 @@ export default function PostDisplay({ content }: PostDisplayProps) {
 
   return (
     <div
-      className="post-display min-w-0 max-w-full overflow-hidden text-gray-300 leading-relaxed text-sm md:text-base"
+      className="post-display min-w-0 max-w-full break-words font-serif text-sm leading-7 text-[#F3EEE3]/75 md:text-base"
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );

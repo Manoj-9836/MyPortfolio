@@ -5,12 +5,13 @@ import LoginModal from '../components/admin/LoginModal';
 const navItems = [
   { label: 'Home', href: '#home' },
   { label: 'About', href: '#about' },
+  { label: 'Education', href: '#education' },
   { label: 'Skills', href: '#skills' },
   { label: 'Projects', href: '#projects' },
   { label: 'Blog', href: '#blog' },
-  { label: 'Leadership', href: '#leadership' },
-  { label: 'Certificates', href: '#certifications' },
-  { label: 'Achievements', href: '#achievements' },
+  { label: 'Community', href: '#leadership' },
+  { label: 'Credentials', href: '#certifications' },
+  { label: 'Recognition', href: '#achievements' },
   { label: 'Contact', href: '#contact' },
 ];
 
@@ -19,7 +20,6 @@ export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   const handleLoginSuccess = () => {
     window.location.href = '/admin';
@@ -43,9 +43,6 @@ export default function Navigation() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
-      const maxScroll = document.body.scrollHeight - window.innerHeight;
-      const progress = maxScroll > 0 ? (window.scrollY / maxScroll) * 100 : 0;
-      setScrollProgress(Math.max(0, Math.min(100, progress)));
       
       // Track active section
       const sections = navItems.map(item => item.href.replace('#', ''));
@@ -76,14 +73,7 @@ export default function Navigation() {
       
       // Wait for menu animation to complete before scrolling
       setTimeout(() => {
-        const navHeight = 64; // h-16 = 64px
-        const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-        const offsetPosition = elementPosition - navHeight;
-        
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
   };
@@ -93,17 +83,17 @@ export default function Navigation() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || isMobileMenuOpen ? 'bg-black backdrop-blur-md border-b border-white/10' : ''
+      className={`fixed left-0 right-0 top-0 z-50 border-b border-[#111111]/15 bg-[#F3EEE3] transition-colors duration-300 ${
+        isScrolled || isMobileMenuOpen ? 'shadow-[0_1px_0_#D9541E]' : ''
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-black">
-        <div className="flex items-center justify-between h-16 md:h-20">
+      <div className="mx-auto max-w-[1200px] px-5 sm:px-8 lg:px-12">
+        <div className="flex h-16 items-center justify-between md:h-20">
           {/* Logo */}
           <motion.a
             href="#home"
             onClick={handleLogoClick}
-            className="text-base md:text-lg font-semibold tracking-wider cursor-pointer"
+            className="cursor-pointer font-display text-base font-semibold uppercase tracking-[0.12em] text-[#111111] md:text-lg"
             whileHover={{ scale: 1.05 }}
             title="Ctrl+Click to login"
           >
@@ -111,15 +101,15 @@ export default function Navigation() {
           </motion.a>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-5 lg:space-x-8">
+          <div className="hidden items-center gap-6 md:flex lg:gap-8">
             {navItems.map((item) => {
               const isActive = activeSection === item.href.replace('#', '');
               return (
                 <motion.a
                   key={item.label}
                   href={item.href}
-                  className={`text-sm transition-colors duration-200 ${
-                    isActive ? 'text-white font-medium' : 'text-gray-400 hover:text-white'
+                  className={`border-b pb-1 font-mono text-xs uppercase tracking-[0.08em] transition-colors duration-200 ${
+                    isActive ? 'border-[#D9541E] text-[#D9541E]' : 'border-transparent text-[#111111]/60 hover:border-[#D9541E] hover:text-[#111111]'
                   }`}
                   whileHover={{ y: -2 }}
                   onClick={(e) => handleNavClick(e, item.href)}
@@ -133,7 +123,7 @@ export default function Navigation() {
           {/* Year Badge - Click to login */}
           <motion.button
             onClick={() => setIsLoginOpen(true)}
-            className="hidden lg:block text-sm text-gray-500 hover:text-white transition-colors cursor-pointer"
+            className="hidden cursor-pointer border border-[#111111] px-3 py-2 font-mono text-xs uppercase tracking-[0.08em] text-[#111111] transition-colors hover:border-[#D9541E] hover:bg-[#D9541E] hover:text-[#F3EEE3] md:block"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             title="Click to login"
@@ -143,7 +133,7 @@ export default function Navigation() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 relative w-10 h-10 flex items-center justify-center"
+            className="relative flex h-11 w-11 items-center justify-center border border-[#111111] p-2 text-[#111111] md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -154,7 +144,7 @@ export default function Navigation() {
                   y: isMobileMenuOpen ? 8 : 0,
                 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-0.5 bg-white origin-center"
+                className="w-full origin-center bg-[#111111] h-0.5"
               />
               <motion.span
                 animate={{
@@ -162,7 +152,7 @@ export default function Navigation() {
                   x: isMobileMenuOpen ? -10 : 0,
                 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-0.5 bg-white"
+                className="w-full bg-[#111111] h-0.5"
               />
               <motion.span
                 animate={{
@@ -170,19 +160,11 @@ export default function Navigation() {
                   y: isMobileMenuOpen ? -8 : 0,
                 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-0.5 bg-white origin-center"
+                className="w-full origin-center bg-[#111111] h-0.5"
               />
             </div>
           </button>
         </div>
-      </div>
-
-      <div className="h-[2px] bg-white/5">
-        <motion.div
-          className="h-full bg-white"
-          animate={{ width: `${scrollProgress}%` }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-        />
       </div>
 
       {/* Mobile Menu */}
@@ -193,14 +175,14 @@ export default function Navigation() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="md:hidden bg-black backdrop-blur-xl border-b border-white/10 overflow-hidden"
+            className="overflow-hidden border-b border-[#111111]/20 bg-[#F3EEE3] md:hidden"
           >
             <motion.div
               initial={{ y: -20 }}
               animate={{ y: 0 }}
               exit={{ y: -20 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="px-4 py-6 space-y-1"
+              className="space-y-1 px-5 py-5 sm:px-8"
             >
               {navItems.map((item, index) => {
                 const isActive = activeSection === item.href.replace('#', '');
@@ -216,8 +198,8 @@ export default function Navigation() {
                       delay: index * 0.05,
                       ease: [0.22, 1, 0.36, 1]
                     }}
-                    className={`block text-base transition-colors py-3 px-2 rounded-lg hover:bg-white/5 ${
-                      isActive ? 'text-white font-medium' : 'text-gray-400 hover:text-white'
+                    className={`block border-l-2 px-3 py-3 font-mono text-xs uppercase tracking-[0.08em] transition-colors hover:bg-[#111111]/5 ${
+                      isActive ? 'border-[#D9541E] text-[#D9541E]' : 'border-transparent text-[#111111]/65 hover:text-[#111111]'
                     }`}
                     onClick={(e) => handleNavClick(e, item.href)}
                   >
@@ -225,20 +207,6 @@ export default function Navigation() {
                   </motion.a>
                 );
               })}
-
-              <motion.button
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, delay: navItems.length * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  setIsLoginOpen(true);
-                }}
-                className="mt-3 w-full text-left text-base text-gray-400 hover:text-white transition-colors py-3 px-2 rounded-lg hover:bg-white/5 border-t border-white/10"
-              >
-                ©2026
-              </motion.button>
             </motion.div>
           </motion.div>
         )}

@@ -16,10 +16,10 @@ interface Comment {
 interface BlogPost {
   _id: string;
   title: string;
-  date: string;
-  category: string;
-  excerpt: string;
-  content: string;
+  date?: string;
+  category?: string;
+  excerpt?: string;
+  content?: string;
   image?: string;
   images?: string[];
   leetcodeImage?: string;
@@ -32,6 +32,26 @@ interface BlogPost {
   likedBy?: string[];
   comments?: Comment[];
 }
+
+const normalizeBlogPost = (post: Partial<BlogPost>): BlogPost => ({
+  _id: post._id || `blog-${post.title || 'untitled'}`,
+  title: post.title?.trim() || 'Untitled article',
+  date: post.date,
+  category: post.category?.trim() || 'Writing',
+  excerpt: post.excerpt?.trim() || '',
+  content: post.content || post.excerpt || '',
+  image: post.image,
+  images: post.images,
+  leetcodeImage: post.leetcodeImage,
+  tags: post.tags,
+  readTime: post.readTime,
+  published: post.published,
+  featured: post.featured,
+  views: post.views,
+  likes: post.likes,
+  likedBy: post.likedBy,
+  comments: post.comments,
+});
 
 export default function Blog() {
   const ref = useRef<HTMLDivElement>(null);
@@ -59,7 +79,8 @@ export default function Blog() {
     return userId;
   };
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return 'Undated';
     return new Date(dateStr).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -67,23 +88,11 @@ export default function Blog() {
     });
   };
 
-  const formatCompactNumber = (value: number) => {
+  const formatCompactNumber = (value = 0) => {
     return new Intl.NumberFormat('en', {
       notation: 'compact',
       maximumFractionDigits: 1,
     }).format(value);
-  };
-
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      'React': 'bg-blue-500/20 text-blue-400',
-      'Web Design': 'bg-purple-500/20 text-purple-400',
-      'JavaScript': 'bg-yellow-500/20 text-yellow-400',
-      'CSS': 'bg-pink-500/20 text-pink-400',
-      'TypeScript': 'bg-cyan-500/20 text-cyan-400',
-      'Backend': 'bg-green-500/20 text-green-400',
-    };
-    return colors[category] || 'bg-white/10 text-white';
   };
 
   const isLeetCodePost = (post: BlogPost) => {
@@ -110,7 +119,8 @@ export default function Blog() {
     return normalized;
   };
 
-  const incrementView = async (postId: string) => {
+  const incrementView = async (postId?: string) => {
+    if (!postId) return;
     try {
       await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/view`, {
         method: 'POST',
@@ -124,7 +134,8 @@ export default function Blog() {
     }
   };
 
-  const fetchRelatedPosts = async (postId: string) => {
+  const fetchRelatedPosts = async (postId?: string) => {
+    if (!postId) return;
     try {
       const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/related`);
       const data = await response.json();
@@ -134,7 +145,8 @@ export default function Blog() {
     }
   };
 
-  const checkIfLiked = (postId: string) => {
+  const checkIfLiked = (postId?: string) => {
+    if (!postId) return;
     const post = posts.find(p => p._id === postId);
     if (post?.likedBy) {
       const userId = getUserId();
@@ -149,14 +161,14 @@ export default function Blog() {
         if (!response.ok) throw new Error(`Blog request failed: ${response.status}`);
         const data = await response.json();
         const publishedPosts = Array.isArray(data)
-          ? data.filter((post: BlogPost) => post.published !== false)
+          ? data.map((post: Partial<BlogPost>) => normalizeBlogPost(post)).filter((post) => post.published !== false)
           : [];
 
         // Sort: featured first, then by date (newest first)
         const sortedPosts = publishedPosts.sort((a: BlogPost, b: BlogPost) => {
           if (a.featured && !b.featured) return -1;
           if (!a.featured && b.featured) return 1;
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
+          return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
         });
 
         setPosts(sortedPosts);
@@ -194,7 +206,7 @@ export default function Blog() {
     if (searchQuery) {
       filtered = filtered.filter(post =>
         post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (post.excerpt || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         post.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
@@ -267,6 +279,7 @@ export default function Blog() {
 
   const handleLike = async (postId: string) => {
     try {
+      if (!postId) return;
       const userId = getUserId();
       const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/like`, {
         method: 'POST',
@@ -301,7 +314,7 @@ export default function Blog() {
 
   const handleComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPost || !commentForm.author || !commentForm.content) return;
+    if (!selectedPost?._id || !commentForm.author || !commentForm.content) return;
 
     try {
       const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${selectedPost._id}/comments`, {
@@ -382,7 +395,7 @@ export default function Blog() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="font-mono text-xs uppercase tracking-[0.16em] text-[#111111]/55"
             >
-              My Stories
+              05 / Writing
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -512,7 +525,8 @@ export default function Blog() {
                           <Calendar className="w-3 h-3" />
                           {formatDate(post.date)}
                         </div>
-                        <div className="ml-auto px-3 py-1">
+                        <div className="ml-auto flex items-center gap-3 px-3 py-1">
+                          {post.readTime && <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#111111]/50">{post.readTime}</span>}
                           <span className="text-xs font-medium text-[#D9541E]">Read story →</span>
                         </div>
                       </div>
@@ -595,12 +609,12 @@ export default function Blog() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedPost(null)}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#111111]/90 p-2 sm:p-4"
           >
             {/* Reading Progress Bar */}
             <div className="fixed top-0 left-0 right-0 h-1 bg-white/10 z-[60]">
               <motion.div
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                className="h-full bg-[#D9541E]"
                 style={{ width: `${readingProgress}%` }}
                 initial={{ width: 0 }}
                 animate={{ width: `${readingProgress}%` }}
@@ -615,14 +629,15 @@ export default function Blog() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="post-modal-scroll relative min-w-0 max-w-3xl w-full bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl sm:rounded-3xl h-[92dvh] sm:h-auto max-h-[92dvh] sm:max-h-[90vh] overflow-x-hidden overflow-y-auto p-4 sm:p-6 md:p-8"
+              className="post-modal-scroll relative min-w-0 w-full max-w-4xl border border-[#F3EEE3]/25 border-t-4 border-t-[#D9541E] bg-[#111111] text-[#F3EEE3] shadow-2xl shadow-black/40 h-[92dvh] max-h-[92dvh] overflow-x-hidden overflow-y-auto p-4 sm:h-auto sm:max-h-[90vh] sm:p-7 md:p-10"
             >
               {/* Close Button */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setSelectedPost(null)}
-                className="absolute top-3 right-3 md:top-6 md:right-6 p-2 hover:bg-white/10 rounded-full transition-colors z-10"
+                aria-label="Close article"
+                className="absolute right-3 top-3 z-10 border border-[#F3EEE3]/25 p-2 text-[#F3EEE3]/70 transition-colors hover:border-[#D9541E] hover:text-[#D9541E] md:right-6 md:top-6"
               >
                 <X className="w-6 h-6" />
               </motion.button>
@@ -632,9 +647,9 @@ export default function Blog() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="w-full rounded-2xl overflow-hidden mb-6 mt-12"
+                className="mb-8 mt-12 w-full overflow-hidden border border-[#F3EEE3]/20"
               >
-                <div className="relative h-52 sm:h-64 md:h-80 rounded-2xl overflow-hidden bg-black/20">
+                <div className="relative h-52 overflow-hidden bg-[#F3EEE3]/5 sm:h-64 md:h-80">
                   <AnimatePresence mode="wait">
                     <motion.img
                       key={`${selectedPost._id}-${currentModalImageIndex}`}
@@ -647,7 +662,7 @@ export default function Blog() {
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   </AnimatePresence>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-[#111111]/15 pointer-events-none" />
 
                   {hasMultipleImages && (
                     <>
@@ -655,7 +670,7 @@ export default function Blog() {
                         onClick={() =>
                           setCurrentModalImageIndex((prev) => (prev - 1 + modalImages.length) % modalImages.length)
                         }
-                        className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/45 border border-white/20 hover:bg-black/60 transition-colors"
+                        className="absolute left-3 top-1/2 -translate-y-1/2 border border-[#F3EEE3]/35 bg-[#111111]/75 p-2 text-[#F3EEE3] transition-colors hover:border-[#D9541E] hover:text-[#D9541E]"
                         aria-label="Previous image"
                       >
                         <ChevronLeft className="w-4 h-4" />
@@ -664,7 +679,7 @@ export default function Blog() {
                         onClick={() =>
                           setCurrentModalImageIndex((prev) => (prev + 1) % modalImages.length)
                         }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/45 border border-white/20 hover:bg-black/60 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 border border-[#F3EEE3]/35 bg-[#111111]/75 p-2 text-[#F3EEE3] transition-colors hover:border-[#D9541E] hover:text-[#D9541E]"
                         aria-label="Next image"
                       >
                         <ChevronRight className="w-4 h-4" />
@@ -680,7 +695,7 @@ export default function Blog() {
                         key={index}
                         onClick={() => setCurrentModalImageIndex(index)}
                         className={`h-2 rounded-full transition-all ${
-                          index === currentModalImageIndex ? 'w-6 bg-white' : 'w-2 bg-white/40 hover:bg-white/60'
+                          index === currentModalImageIndex ? 'w-6 bg-[#D9541E]' : 'w-2 bg-[#F3EEE3]/40 hover:bg-[#F3EEE3]/70'
                         }`}
                         aria-label={`Go to image ${index + 1}`}
                       />
@@ -692,10 +707,10 @@ export default function Blog() {
               {/* Header */}
               <div className="mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                  <span className={`px-4 py-2 rounded-full text-sm font-medium ${getCategoryColor(selectedPost.category)}`}>
+                  <span className="border border-[#D9541E]/70 px-3 py-1 font-mono text-xs uppercase tracking-[0.08em] text-[#D9541E]">
                     {selectedPost.category}
                   </span>
-                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400">
+                  <div className="flex flex-wrap items-center gap-3 font-mono text-xs uppercase tracking-[0.05em] text-[#F3EEE3]/50 sm:gap-4 sm:text-sm">
                     <div className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
                       <span>{formatCompactNumber(selectedPost.views || 0)}</span>
@@ -714,7 +729,7 @@ export default function Blog() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-xl sm:text-2xl md:text-4xl font-bold mb-4 pr-10 sm:pr-0"
+                  className="mb-4 pr-10 font-display text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl"
                 >
                   {selectedPost.title}
                 </motion.h2>
@@ -722,7 +737,7 @@ export default function Blog() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-base sm:text-lg text-gray-300 italic"
+                  className="max-w-3xl font-serif text-base leading-7 text-[#F3EEE3]/70 sm:text-lg"
                 >
                   {selectedPost.excerpt}
                 </motion.p>
@@ -744,14 +759,14 @@ export default function Blog() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 }}
-                className="mb-6 flex items-center gap-3 flex-wrap"
+                className="mb-8 flex flex-wrap items-center gap-3 border-y border-[#F3EEE3]/15 py-4"
               >
                 <button
                   onClick={() => handleLike(selectedPost._id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  className={`flex items-center gap-2 border px-4 py-2 text-sm transition-all ${
                     hasLiked
-                      ? 'bg-red-500/20 text-red-400 border border-red-400/50'
-                      : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                      ? 'border-[#D9541E] bg-[#D9541E] text-[#111111]'
+                      : 'border-[#F3EEE3]/25 text-[#F3EEE3]/70 hover:border-[#D9541E] hover:text-[#D9541E]'
                   }`}
                 >
                   <Heart className={`w-4 h-4 ${hasLiked ? 'fill-current' : ''}`} />
@@ -761,7 +776,7 @@ export default function Blog() {
                 <div className="relative">
                   <button
                     onClick={() => setShowShareMenu(!showShareMenu)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10 transition-all"
+                    className="flex items-center gap-2 border border-[#F3EEE3]/25 px-4 py-2 text-sm text-[#F3EEE3]/70 transition-all hover:border-[#D9541E] hover:text-[#D9541E]"
                   >
                     <Share2 className="w-4 h-4" />
                     <span>Share</span>
@@ -771,11 +786,11 @@ export default function Blog() {
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="absolute top-full mt-2 right-0 sm:left-0 sm:right-auto bg-gray-900 border border-white/20 rounded-lg p-2 shadow-xl z-20 min-w-[150px]"
+                      className="absolute right-0 top-full z-20 mt-2 min-w-[150px] border border-[#F3EEE3]/25 bg-[#111111] p-2 shadow-xl sm:left-0 sm:right-auto"
                     >
                       <button
                         onClick={() => sharePost('twitter')}
-                        className="flex items-center gap-2 px-4 py-2 hover:bg-white/10 rounded w-full text-left"
+                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-[#F3EEE3]/10"
                       >
                         <Twitter className="w-4 h-4" />
                         <span>Twitter</span>
@@ -807,7 +822,7 @@ export default function Blog() {
               </motion.div>
 
               {/* Divider */}
-              <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6" />
+              <div className="mb-6 h-px bg-[#F3EEE3]/15" />
 
               {/* Content */}
               <motion.div
@@ -816,7 +831,7 @@ export default function Blog() {
                 transition={{ delay: 0.4 }}
                 className="max-w-none"
               >
-                <PostDisplay content={selectedPost.content} />
+                <PostDisplay content={selectedPost.content || ''} />
               </motion.div>
 
               {/* Tags */}

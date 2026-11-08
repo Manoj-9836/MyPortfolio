@@ -45,6 +45,7 @@ export default function About() {
     const fetchAboutData = async () => {
       try {
         const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/about`);
+        if (!response.ok) throw new Error(`About request failed: ${response.status}`);
         const data = await response.json();
         if (data && data.title && data.description) {
           setAboutData({
@@ -52,8 +53,8 @@ export default function About() {
             description: data.description,
           });
         }
-      } catch {
-        console.log('Using default about content');
+      } catch (error) {
+        console.error('Failed to fetch professional summary:', error);
       }
     };
 
@@ -61,8 +62,8 @@ export default function About() {
   }, []);
 
   return (
-    <section id="about" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-x-clip">
-      <div className="max-w-7xl mx-auto">
+    <section id="about" data-gsap-reveal className="bg-[#F3EEE3] px-5 py-16 text-[#111111] sm:px-8 md:py-24 lg:px-12">
+      <div className="mx-auto max-w-[1200px]">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 50 }}
@@ -70,52 +71,54 @@ export default function About() {
           transition={{ duration: 0.8 }}
         >
           {/* Section Header */}
-          <div className="mb-16">
+          <div className="grid gap-12 border-t border-[#111111]/20 pt-5 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
             <motion.span
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-sm text-gray-500 uppercase tracking-wider"
+              className="font-mono text-xs uppercase tracking-[0.16em] text-[#111111]/60"
             >
-              About Me
+              01 / About
             </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold mt-4 mb-6"
-            >
-              {aboutData.title}
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-base sm:text-lg text-gray-400 max-w-3xl leading-relaxed"
-            >
-              {aboutData.description}
-            </motion.p>
+            <div>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="max-w-3xl font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
+              >
+                {aboutData.title}
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="mt-6 max-w-3xl font-serif text-lg leading-8 text-[#111111]/75"
+              >
+                {aboutData.description}
+              </motion.p>
+            </div>
           </div>
 
           {/* Highlights Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="mt-16 grid grid-cols-1 border-t border-[#111111]/20 sm:grid-cols-2 lg:grid-cols-4">
             {highlights.map((item, index) => (
               <motion.div
                 key={item.title}
                 initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
-                className="group p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+                className="group border-b border-[#111111]/20 py-6 sm:border-r sm:px-6 sm:first:pl-0 lg:border-b-0 lg:last:border-r-0"
               >
-                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <item.icon className="w-6 h-6 text-white" />
+                <div className="mb-6 flex h-10 w-10 items-center justify-center border border-[#D9541E] text-[#D9541E]">
+                  <item.icon className="h-5 w-5" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-400">{item.description}</p>
+                <p className="mb-3 font-mono text-xs text-[#111111]/55">0{index + 1}</p>
+                <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+                <p className="mt-3 font-serif text-sm leading-6 text-[#111111]/65">{item.description}</p>
               </motion.div>
             ))}
           </div>
-
           <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
               <p className="text-xs uppercase tracking-wider text-gray-500 mb-3">Impact Snapshot</p>

@@ -12,23 +12,12 @@ interface Skill {
 interface SkillCategory {
   title: string;
   skills: Skill[];
-  color: string;
 }
-
-const categoryColors: Record<string, string> = {
-  'Programming Languages': 'from-yellow-500/20 to-orange-500/20',
-  'Frontend': 'from-blue-500/20 to-cyan-500/20',
-  'Backend': 'from-green-500/20 to-emerald-500/20',
-  'Databases': 'from-purple-500/20 to-pink-500/20',
-  'Cloud & Tools': 'from-red-500/20 to-rose-500/20',
-  'Other': 'from-gray-500/20 to-slate-500/20'
-};
 
 export default function Skills() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [skillCategories, setSkillCategories] = useState<SkillCategory[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -48,15 +37,12 @@ export default function Skills() {
         // Convert to array format
         const categoriesArray: SkillCategory[] = Object.entries(grouped).map(([title, skills]) => ({
           title,
-          skills,
-          color: categoryColors[title] || categoryColors['Other']
+          skills
         }));
         
         setSkillCategories(categoriesArray);
       } catch {
         // Use default empty state if fetch fails
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -64,8 +50,8 @@ export default function Skills() {
   }, []);
 
   return (
-    <section id="skills" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-x-clip">
-      <div className="max-w-7xl mx-auto">
+    <section id="skills" data-gsap-reveal className="bg-[#F3EEE3] px-5 py-16 text-[#111111] sm:px-8 md:py-24 lg:px-12">
+      <div className="mx-auto max-w-[1200px]">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 50 }}
@@ -73,20 +59,20 @@ export default function Skills() {
           transition={{ duration: 0.8 }}
         >
           {/* Section Header */}
-          <div className="mb-16">
+          <div className="mb-16 grid gap-8 border-t border-[#111111]/20 pt-5 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
             <motion.span
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-sm text-gray-500 uppercase tracking-wider"
+              className="font-mono text-xs uppercase tracking-[0.16em] text-[#111111]/60"
             >
-              Skills
+              03 / Capabilities
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold mt-4"
+              className="font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
             >
               Technical Expertise
             </motion.h2>
@@ -94,59 +80,34 @@ export default function Skills() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-base sm:text-lg text-gray-400 mt-4 max-w-2xl"
+              className="max-w-2xl font-serif text-lg leading-8 text-[#111111]/70"
             >
               A comprehensive toolkit for building modern, scalable applications
             </motion.p>
           </div>
 
           {/* Skills Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {loading &&
-              [1, 2, 3].map((i) => (
-                <div key={i} className="p-6 rounded-2xl bg-white/5 border border-white/10 animate-pulse">
-                  <div className="h-5 w-32 bg-white/10 rounded mb-4" />
-                  <div className="space-y-3">
-                    <div className="h-4 w-full bg-white/10 rounded" />
-                    <div className="h-4 w-5/6 bg-white/10 rounded" />
-                    <div className="h-4 w-4/6 bg-white/10 rounded" />
-                  </div>
-                </div>
-              ))}
-
+          <div className="grid grid-cols-1 border-t border-[#111111]/20 md:grid-cols-2 lg:grid-cols-3">
             {skillCategories.map((category, index) => (
               <motion.div
                 key={category.title}
                 initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
-                className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300"
+                className="group relative border-b border-[#111111]/20 py-6 md:border-r md:px-6 md:first:pl-0 lg:py-8 lg:last:border-r-0"
               >
-                {/* Gradient background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                
-                {/* Content */}
-                <div className="relative z-10">
-                  <h3 className="text-lg font-semibold mb-4">{category.title}</h3>
-                  <div className="space-y-3">
-                    {category.skills.map((skill) => {
-                      return (
-                      <div key={skill._id} className="space-y-1.5">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-white/90">{skill.name}</span>
-                          <span className="text-white/60">{skill.level}%</span>
-                        </div>
-
-                        <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={isInView ? { width: `${skill.level}%` } : { width: 0 }}
-                            transition={{ duration: 1, delay: 0.5 + category.skills.indexOf(skill) * 0.1, ease: 'easeOut' }}
-                            className="h-full bg-gradient-to-r from-white/80 to-white/40 rounded-full"
-                          />
-                        </div>
+                <div>
+                  <p className="mb-4 font-mono text-xs uppercase tracking-[0.08em] text-[#111111]/55">
+                    0{index + 1}
+                  </p>
+                  <h3 className="font-display text-xl font-semibold">{category.title}</h3>
+                  <div className="mt-6 space-y-3">
+                    {category.skills.map((skill) => (
+                      <div key={skill._id} className="flex items-center gap-3 border-b border-[#111111]/15 py-2.5">
+                        <span className="h-1.5 w-1.5 flex-shrink-0 bg-[#D9541E]" aria-hidden="true" />
+                        <span className="font-mono text-xs text-[#111111]/85">{skill.name}</span>
                       </div>
-                    );})}
+                    ))}
                   </div>
                 </div>
               </motion.div>
