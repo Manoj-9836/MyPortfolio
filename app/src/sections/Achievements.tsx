@@ -1,6 +1,6 @@
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
-import { Trophy, Code2, Medal, Star } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Code2, Medal, Star, Trophy } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
 
 interface Achievement {
@@ -9,26 +9,12 @@ interface Achievement {
   description: string;
   category: string;
   date: string;
-  order?: number;
 }
 
-const getCategoryIcon = (category: string) => {
-  switch (category) {
-    case 'Competitive Programming':
-      return Code2;
-    case 'Technical Leadership':
-      return Trophy;
-    case 'Project Innovation':
-      return Star;
-    case 'Academic Excellence':
-      return Medal;
-    default:
-      return Trophy;
-  }
-};
+const icons = [Trophy, Code2, Star, Medal];
 
 export default function Achievements() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [achievements, setAchievements] = useState<Achievement[]>([]);
 
@@ -36,113 +22,56 @@ export default function Achievements() {
     const fetchAchievements = async () => {
       try {
         const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/achievements`);
-        const data = await response.json();
-        setAchievements(data);
-      } catch {
-        // Use empty state if fetch fails
+        if (!response.ok) throw new Error(`Achievements request failed: ${response.status}`);
+        const data: Achievement[] = await response.json();
+        setAchievements(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Failed to fetch milestones:', error);
       }
     };
-
     fetchAchievements();
   }, []);
 
   return (
-    <section id="achievements" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-x-clip">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-        >
-          {/* Section Header */}
-          <div className="mb-16">
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-sm text-gray-500 uppercase tracking-wider"
-            >
-              Achievements
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold mt-4"
-            >
-              Milestones & Recognition
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-base sm:text-lg text-gray-400 mt-4 max-w-2xl"
-            >
-              Key accomplishments that mark my journey in tech
-            </motion.p>
+    <section id="achievements" className="bg-[#F3EEE3] px-5 py-16 text-[#111111] sm:px-8 md:py-24 lg:px-12">
+      <div className="mx-auto max-w-[1200px]">
+        <motion.div ref={ref} initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}}>
+          <div className="mb-14 grid gap-8 border-t border-[#111111]/25 pt-5 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
+            <span className="font-mono text-xs uppercase tracking-[0.16em] text-[#111111]/55">07 / Recognition</span>
+            <div>
+              <h2 className="font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
+                Milestones &amp; Recognition
+              </h2>
+              <p className="mt-5 max-w-xl font-serif text-base leading-7 text-[#111111]/65">
+                A record of moments where persistence, curiosity, and useful work became visible.
+              </p>
+            </div>
           </div>
 
-          {/* Achievements Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid border-t border-[#111111]/20 md:grid-cols-2">
             {achievements.map((achievement, index) => {
-              const Icon = getCategoryIcon(achievement.category);
+              const Icon = icons[index % icons.length];
               return (
-                <motion.div
-                  key={achievement._id}
-                  initial={{ opacity: 0, y: 30 }}
+                <motion.article
+                  key={achievement._id || achievement.title}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
-                  className="group relative p-4 sm:p-5 md:p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300"
+                  transition={{ delay: index * 0.1 }}
+                  className="border-b border-[#111111]/20 py-7 md:odd:mr-8 md:even:ml-8"
                 >
-                  {/* Category Badge */}
-                  <div className="inline-flex mb-3 px-2 md:px-3 py-1 bg-white/10 rounded-full text-[10px] md:text-xs font-medium max-w-full truncate whitespace-nowrap">
-                    {achievement.category}
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 md:gap-4">
-                      {/* Icon */}
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                        <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                      </div>
-
-                      {/* Title */}
-                      <div className="flex-1 min-w-0 pt-0.5">
-                        <h3 className="text-lg font-semibold leading-tight break-words">{achievement.title}</h3>
-                      </div>
+                  <div className="flex items-start gap-4">
+                    <Icon className="mt-1 h-5 w-5 flex-shrink-0 text-[#D9541E]" />
+                    <div>
+                      <p className="font-mono text-xs uppercase tracking-[0.08em] text-[#111111]/50">{achievement.category}</p>
+                      <h3 className="mt-2 font-display text-2xl font-semibold leading-tight">{achievement.title}</h3>
+                      <p className="mt-3 font-serif text-sm leading-6 text-[#111111]/70">{achievement.description}</p>
+                      <p className="mt-4 font-mono text-xs uppercase tracking-[0.08em] text-[#D9541E]">{achievement.date}</p>
                     </div>
-
-                    {/* Content */}
-                    <p className="text-sm text-gray-400 leading-relaxed">
-                      {achievement.description}
-                    </p>
-                    <span className="text-xs text-gray-500">{achievement.date}</span>
                   </div>
-
-                  {/* Decorative corner */}
-                  <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-white/5 to-transparent rounded-tl-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                </motion.div>
+                </motion.article>
               );
             })}
           </div>
-
-          {/* Bottom CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 1 }}
-            className="mt-16 text-center"
-          >
-            <p className="text-gray-400 mb-6">
-              Always striving for excellence and pushing boundaries
-            </p>
-            <div className="flex justify-center gap-2">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-              ))}
-            </div>
-          </motion.div>
         </motion.div>
       </div>
     </section>

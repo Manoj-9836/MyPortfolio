@@ -1,6 +1,6 @@
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
-import { Users, Calendar, Award } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Award, Calendar, Users } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
 
 interface LeadershipItem {
@@ -11,11 +11,10 @@ interface LeadershipItem {
   description: string;
   achievements: string[];
   logo?: string;
-  order?: number;
 }
 
 export default function Leadership() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [experiences, setExperiences] = useState<LeadershipItem[]>([]);
 
@@ -23,142 +22,72 @@ export default function Leadership() {
     const fetchLeadership = async () => {
       try {
         const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/leadership`);
-        const data = await response.json();
-        setExperiences(data);
-      } catch {
-        // Use empty state if fetch fails
+        if (!response.ok) throw new Error(`Leadership request failed: ${response.status}`);
+        const data: LeadershipItem[] = await response.json();
+        setExperiences(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Failed to fetch community engagement:', error);
       }
     };
-
     fetchLeadership();
   }, []);
 
   return (
-    <section id="leadership" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900/10 overflow-x-clip">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-        >
-          {/* Section Header */}
-          <div className="mb-16">
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-sm text-gray-500 uppercase tracking-wider"
-            >
-              Leadership
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold mt-4"
-            >
-              Community Engagement
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-base sm:text-lg text-gray-400 mt-4 max-w-2xl"
-            >
-              Building developer communities and empowering student programmers
-            </motion.p>
+    <section id="leadership" className="bg-[#111111] px-5 py-16 text-[#F3EEE3] sm:px-8 md:py-24 lg:px-12">
+      <div className="mx-auto max-w-[1200px]">
+        <motion.div ref={ref} initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}}>
+          <div className="mb-14 grid gap-8 border-t border-[#F3EEE3]/25 pt-5 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
+            <span className="font-mono text-xs uppercase tracking-[0.16em] text-[#F3EEE3]/60">06 / Community</span>
+            <div>
+              <h2 className="font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
+                Community Engagement
+              </h2>
+              <p className="mt-5 max-w-xl font-serif text-base leading-7 text-[#F3EEE3]/65">
+                Building developer communities and empowering student programmers through practical, shared learning.
+              </p>
+            </div>
           </div>
 
-          {/* Experience Cards */}
-          <div className="space-y-8">
-            {experiences.map((exp, index) => (
-              <motion.div
-                key={exp._id}
-                initial={{ opacity: 0, y: 30 }}
+          <div className="space-y-0 border-t border-[#F3EEE3]/20">
+            {experiences.map((experience, index) => (
+              <motion.article
+                key={experience._id || experience.title}
+                initial={{ opacity: 0, y: 24 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.5 + index * 0.15 }}
-                className="relative group"
+                transition={{ delay: index * 0.12 }}
+                className="grid gap-8 border-b border-[#F3EEE3]/20 py-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                
-                <div className="relative p-6 md:p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300">
-                  <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-                    {/* Left - Role Info */}
-                    <div className="lg:w-1/3">
-                      {exp.logo ? (
-                        <img
-                          src={exp.logo}
-                          alt={exp.organization}
-                          className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-2 border-white/20 mb-4 md:mb-6"
-                        />
-                      ) : (
-                        <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-4 md:mb-6">
-                          <Users className="w-7 h-7 md:w-8 md:h-8 text-white" />
-                        </div>
-                      )}
-                      <h3 className="text-xl md:text-2xl font-bold mb-2">{exp.title}</h3>
-                      <p className="text-sm md:text-base text-gray-400 mb-4">{exp.organization}</p>
-                      <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
-                        <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                        <span>{exp.period}</span>
-                      </div>
-                    </div>
-
-                    {/* Right - Achievements */}
-                    <div className="lg:w-2/3">
-                      <p className="text-sm md:text-base text-gray-300 mb-6">{exp.description}</p>
-                      
-                      <div className="space-y-4">
-                        <h4 className="text-xs md:text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                          Key Achievements
-                        </h4>
-                        <ul className="space-y-3">
-                          {exp.achievements.map((achievement, i) => (
-                            <motion.li
-                              key={i}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={isInView ? { opacity: 1, x: 0 } : {}}
-                              transition={{ duration: 0.5, delay: 0.7 + i * 0.1 }}
-                              className="flex items-start gap-3"
-                            >
-                              <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Award className="w-3 h-3 text-white" />
-                              </div>
-                              <span className="text-gray-300">{achievement}</span>
-                            </motion.li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
+                <div>
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center border border-[#D9541E] text-[#D9541E]">
+                    {experience.logo ? (
+                      <img src={experience.logo} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Users className="h-5 w-5" />
+                    )}
                   </div>
+                  <h3 className="font-display text-2xl font-semibold leading-tight">{experience.title}</h3>
+                  <p className="mt-2 text-sm text-[#F3EEE3]/65">{experience.organization}</p>
+                  <p className="mt-4 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-[#F3EEE3]/50">
+                    <Calendar className="h-3.5 w-3.5 text-[#D9541E]" />
+                    {experience.period}
+                  </p>
                 </div>
-              </motion.div>
+                <div>
+                  <p className="font-serif text-base leading-7 text-[#F3EEE3]/75">{experience.description}</p>
+                  {experience.achievements?.length > 0 && (
+                    <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                      {experience.achievements.map((achievement) => (
+                        <li key={achievement} className="flex items-start gap-3 text-sm leading-6 text-[#F3EEE3]/65">
+                          <Award className="mt-1 h-4 w-4 flex-shrink-0 text-[#D9541E]" />
+                          {achievement}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </motion.article>
             ))}
           </div>
-
-          {/* Stats Banner */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.9 }}
-            className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4"
-          >
-            {[
-              { value: '100+', label: 'Students Mentored' },
-              { value: '10+', label: 'Workshops Conducted' },
-              { value: '5+', label: 'AI Bootcamps' },
-              { value: '3+', label: 'Innovation Projects' },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="p-6 rounded-2xl bg-white/5 border border-white/10 text-center"
-              >
-                <div className="text-2xl sm:text-3xl font-bold mb-1">{stat.value}</div>
-                <div className="text-sm text-gray-400">{stat.label}</div>
-              </div>
-            ))}
-          </motion.div>
         </motion.div>
       </div>
     </section>

@@ -146,8 +146,11 @@ export default function Blog() {
     const fetchPosts = async () => {
       try {
         const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs`);
+        if (!response.ok) throw new Error(`Blog request failed: ${response.status}`);
         const data = await response.json();
-        const publishedPosts = data.filter((post: BlogPost) => post.published !== false);
+        const publishedPosts = Array.isArray(data)
+          ? data.filter((post: BlogPost) => post.published !== false)
+          : [];
 
         // Sort: featured first, then by date (newest first)
         const sortedPosts = publishedPosts.sort((a: BlogPost, b: BlogPost) => {
@@ -363,7 +366,7 @@ export default function Blog() {
   };
 
   return (
-    <section id="blog" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 overflow-x-clip">
+    <section id="blog" className="bg-[#F3EEE3] px-5 py-16 text-[#111111] sm:px-8 md:py-24 lg:px-12 overflow-x-clip">
       <div className="max-w-7xl mx-auto">
         <motion.div
           ref={ref}
@@ -372,12 +375,12 @@ export default function Blog() {
           transition={{ duration: 0.8 }}
         >
           {/* Section Header */}
-          <div className="mb-16">
+          <div className="mb-14 grid gap-8 border-t border-[#111111]/25 pt-5 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
             <motion.span
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-sm text-gray-500 uppercase tracking-wider"
+              className="font-mono text-xs uppercase tracking-[0.16em] text-[#111111]/55"
             >
               My Stories
             </motion.span>
@@ -385,7 +388,7 @@ export default function Blog() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold mt-4"
+              className="mt-0 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
             >
               My Blog
             </motion.h2>
@@ -393,7 +396,7 @@ export default function Blog() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-base sm:text-lg text-gray-400 mt-4"
+              className="mt-5 max-w-xl font-serif text-base leading-7 text-[#111111]/65"
             >
               Sharing insights, experiences, and thoughts on web development and technology
             </motion.p>
@@ -403,7 +406,7 @@ export default function Blog() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="mt-8"
+              className="mt-8 lg:col-start-2"
             >
               <div className="relative max-w-2xl">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -412,10 +415,10 @@ export default function Blog() {
                   placeholder="Search posts by title, content, or tags..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 text-white placeholder-gray-400 transition-all"
+                  className="w-full border border-[#111111]/25 bg-transparent py-3 pl-12 pr-4 text-sm text-[#111111] placeholder-[#111111]/45 outline-none focus:border-[#D9541E]"
                 />
                 {searchQuery && (
-                  <div className="hidden sm:block absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                  <div className="absolute right-4 top-1/2 hidden -translate-y-1/2 text-xs text-[#111111]/50 sm:block">
                     {filteredPosts.length} result{filteredPosts.length !== 1 ? 's' : ''}
                   </div>
                 )}
@@ -424,7 +427,7 @@ export default function Blog() {
           </div>
 
           {/* Blog Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 border-t border-[#111111]/20 sm:grid-cols-2 lg:grid-cols-3">
             {currentPosts.map((post, index) => (
               <motion.div
                 key={post._id || index}
@@ -432,25 +435,25 @@ export default function Blog() {
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
                 onClick={() => setSelectedPost(post)}
-                className="h-auto sm:h-96 cursor-pointer group"
+                className="group h-auto cursor-pointer border-b border-[#111111]/20 py-6 sm:mx-4 sm:first:ml-0 lg:mx-5 lg:first:ml-0"
               >
-                <div className="relative h-full rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-white/30 transition-all duration-300 overflow-hidden hover:shadow-2xl hover:shadow-white/20 p-4 sm:p-6 flex flex-col justify-between">
+                <div className="relative flex h-full flex-col justify-between overflow-hidden border border-[#111111]/15 bg-[#F3EEE3] p-4 transition-colors duration-300 hover:border-[#D9541E] sm:p-6">
                   {/* Background animation */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/5 group-hover:to-purple-500/5 transition-all duration-300" />
+                  <div className="absolute inset-0 border-t-2 border-[#D9541E] opacity-0 transition-opacity group-hover:opacity-100" />
 
                   {/* Image Section */}
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={isInView ? { opacity: 1, scale: 1 } : {}}
                     transition={{ delay: 0.5 + index * 0.1 + 0.2 }}
-                    className="relative z-10 mb-4 h-32 rounded-2xl overflow-hidden group/image"
+                    className="relative z-10 mb-5 h-32 overflow-hidden border border-[#111111]/15 group/image"
                   >
                     <img
                       src={post.image || post.images?.[0] || post.leetcodeImage}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover/image:scale-110 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    <div className="absolute inset-0 bg-[#111111]/10" />
                   </motion.div>
 
                   {/* Content */}
@@ -459,17 +462,17 @@ export default function Blog() {
                     <div>
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                         <div className="flex flex-wrap items-center gap-2 pr-1">
-                          <span className={`px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-medium ${getCategoryColor(post.category)}`}>
+                          <span className="border border-[#D9541E]/60 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#D9541E] sm:px-3 sm:text-xs">
                             {post.category}
                           </span>
                           {post.featured && (
-                            <span className="px-2 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-400/30">
+                            <span className="border border-[#111111]/20 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#111111]/60 sm:text-xs">
                               ★ Featured
                             </span>
                           )}
                         </div>
                         {/* Stats */}
-                        <div className="flex items-center gap-2 text-xs text-gray-400 whitespace-nowrap self-start sm:self-auto shrink-0">
+                        <div className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-[#111111]/50 self-start sm:self-auto">
                           <div className="flex items-center gap-1">
                             <Eye className="w-3 h-3" />
                             <span>{formatCompactNumber(post.views || 0)}</span>
@@ -488,7 +491,7 @@ export default function Blog() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={isInView ? { opacity: 1, y: 0 } : {}}
                         transition={{ delay: 0.5 + index * 0.1 + 0.3 }}
-                        className="text-lg md:text-xl font-bold line-clamp-2 group-hover:text-blue-400 transition-colors"
+                        className="font-display text-lg font-semibold leading-tight text-[#111111] transition-colors group-hover:text-[#D9541E] md:text-xl"
                       >
                         {post.title}
                       </motion.h3>
@@ -501,16 +504,16 @@ export default function Blog() {
                       transition={{ delay: 0.5 + index * 0.1 + 0.4 }}
                       className="flex flex-col gap-2"
                     >
-                      <p className="text-gray-300 text-xs md:text-sm line-clamp-2">
+                      <p className="font-serif text-xs leading-6 text-[#111111]/65 md:text-sm">
                         {post.excerpt}
                       </p>
-                      <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-white/10">
-                        <div className="flex items-center gap-2 text-xs text-gray-400">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#111111]/15 pt-3">
+                        <div className="flex items-center gap-2 font-mono text-xs text-[#111111]/50">
                           <Calendar className="w-3 h-3" />
                           {formatDate(post.date)}
                         </div>
-                        <div className="px-3 py-1 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors ml-auto">
-                          <span className="text-xs font-medium text-gray-300 group-hover:text-white">Read</span>
+                        <div className="ml-auto px-3 py-1">
+                          <span className="text-xs font-medium text-[#D9541E]">Read story →</span>
                         </div>
                       </div>
                     </motion.div>
@@ -519,6 +522,11 @@ export default function Blog() {
               </motion.div>
             ))}
           </div>
+          {currentPosts.length === 0 && (
+            <p className="border-t border-[#111111]/20 py-10 font-mono text-xs uppercase tracking-[0.08em] text-[#111111]/55">
+              No published stories match this search.
+            </p>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -526,24 +534,28 @@ export default function Blog() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.8 }}
-              className="mt-12 flex items-center justify-center gap-2"
+              className="mt-10 flex items-center justify-center gap-2"
             >
               <button
+                type="button"
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                aria-label="Previous blog page"
+                className="border border-[#111111]/25 p-2 text-[#111111] hover:border-[#D9541E] disabled:cursor-not-allowed disabled:opacity-35"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
+                  type="button"
                   key={page}
                   onClick={() => paginate(page)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  aria-current={currentPage === page ? 'page' : undefined}
+                  className={`min-w-9 border px-3 py-2 font-mono text-xs ${
                     currentPage === page
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-400/50'
-                      : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                      ? 'border-[#D9541E] text-[#D9541E]'
+                      : 'border-[#111111]/25 text-[#111111]/60 hover:border-[#D9541E]'
                   }`}
                 >
                   {page}
@@ -551,13 +563,20 @@ export default function Blog() {
               ))}
 
               <button
+                type="button"
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                aria-label="Next blog page"
+                className="border border-[#111111]/25 p-2 text-[#111111] hover:border-[#D9541E] disabled:cursor-not-allowed disabled:opacity-35"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
             </motion.div>
+          )}
+          {totalPages > 1 && (
+            <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.12em] text-[#111111]/45">
+              Page {currentPage} of {totalPages}
+            </p>
           )}
         </motion.div>
       </div>
