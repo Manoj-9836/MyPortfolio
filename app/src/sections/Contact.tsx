@@ -211,7 +211,7 @@ export default function Contact() {
             </motion.div>
           </div>
           <a
-            href="/resume.pdf"
+            href="/Manoj_Kumar_Bavisetti_Resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-10 inline-flex min-h-12 items-center gap-2 border border-[#D9541E] bg-[#D9541E] px-5 text-sm font-medium text-[#111111] transition-colors hover:bg-[#F3EEE3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D9541E]"

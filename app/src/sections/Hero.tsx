@@ -101,7 +101,7 @@ export default function Hero() {
             Get in Touch
           </motion.a>
           <motion.a
-            href="/resume.pdf"
+            href="/Manoj_Kumar_Bavisetti_Resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-12 items-center border border-[#F3EEE3]/30 px-6 font-sans text-sm font-medium text-[#F3EEE3]/80 transition-colors hover:border-[#D9541E] hover:text-[#D9541E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D9541E]"
