@@ -72,6 +72,11 @@ export default function Achievements() {
               );
             })}
           </div>
+          {achievements.length === 0 && (
+            <p className="border-b border-[#111111]/20 py-10 font-mono text-xs uppercase tracking-[0.08em] text-[#111111]/55">
+              Recognition details are being updated.
+            </p>
+          )}
         </motion.div>
       </div>
     </section>

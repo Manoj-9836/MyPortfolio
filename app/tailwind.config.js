@@ -4,6 +4,12 @@ module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'Open Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['Comic Sans MS', 'Comic Neue', 'cursive', 'sans-serif'],
+        mono: ['Inter', 'Open Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        serif: ['Inter', 'Open Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

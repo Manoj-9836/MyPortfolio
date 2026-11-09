@@ -39,8 +39,11 @@ export default function Leadership() {
           <div className="mb-14 grid gap-8 border-t border-[#F3EEE3]/25 pt-5 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
             <span className="font-mono text-xs uppercase tracking-[0.16em] text-[#F3EEE3]/60">06 / Community</span>
             <div>
-              <h2 className="font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
+              <h2 className="relative inline-block pb-3 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
                 Community Engagement
+                <svg viewBox="0 0 260 14" className="absolute -bottom-0 left-6 w-[200px] sm:w-[250px]" aria-hidden="true">
+                  <path d="M3 10 C60 3 160 2 257 6" fill="none" stroke="#EA580C" strokeWidth="3.5" strokeLinecap="round" />
+                </svg>
               </h2>
               <p className="mt-5 max-w-xl font-serif text-base leading-7 text-[#F3EEE3]/65">
                 Building developer communities and empowering student programmers through practical, shared learning.
@@ -88,6 +91,11 @@ export default function Leadership() {
               </motion.article>
             ))}
           </div>
+          {experiences.length === 0 && (
+            <p className="border-b border-[#F3EEE3]/20 py-10 font-mono text-xs uppercase tracking-[0.08em] text-[#F3EEE3]/55">
+              Community work is being updated.
+            </p>
+          )}
         </motion.div>
       </div>
     </section>

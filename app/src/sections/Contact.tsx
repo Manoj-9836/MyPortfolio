@@ -1,6 +1,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, Linkedin, Github, ExternalLink, Code2, Globe } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Github, ExternalLink, Code2, Globe, FileText } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
 
 interface ContactData {
@@ -117,15 +117,18 @@ export default function Contact() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="font-mono text-xs uppercase tracking-[0.16em] text-[#F3EEE3]/60"
             >
-              09 / Contact
+              08 / Contact
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
+              className="relative inline-block pb-3 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
             >
               Let's Connect
+              <svg viewBox="0 0 260 14" className="absolute -bottom-0 left-6 w-[200px] sm:w-[250px]" aria-hidden="true">
+                <path d="M3 10 C60 3 160 2 257 6" fill="none" stroke="#EA580C" strokeWidth="3.5" strokeLinecap="round" />
+              </svg>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -207,6 +210,15 @@ export default function Contact() {
               </div>
             </motion.div>
           </div>
+          <a
+            href="/resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-10 inline-flex min-h-12 items-center gap-2 border border-[#D9541E] bg-[#D9541E] px-5 text-sm font-medium text-[#111111] transition-colors hover:bg-[#F3EEE3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D9541E]"
+          >
+            <FileText className="h-4 w-4" />
+            Open resume
+          </a>
 
           {/* Footer */}
           <motion.div

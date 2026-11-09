@@ -5,7 +5,6 @@ import { API_ENDPOINTS } from '../config/api';
 interface Skill {
   _id: string;
   name: string;
-  level: number;
   category: string;
 }
 
@@ -23,6 +22,7 @@ export default function Skills() {
     const fetchSkills = async () => {
       try {
         const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/skills`);
+        if (!response.ok) throw new Error(`Skills request failed: ${response.status}`);
         const data: Skill[] = await response.json();
         
         // Group skills by category
@@ -37,12 +37,18 @@ export default function Skills() {
         // Convert to array format
         const categoriesArray: SkillCategory[] = Object.entries(grouped).map(([title, skills]) => ({
           title,
-          skills
+          skills,
         }));
-        
+
+        categoriesArray.sort((a, b) => {
+          const aIsOther = a.title.trim().toLowerCase() === 'other' || a.title.trim().toLowerCase() === 'others';
+          const bIsOther = b.title.trim().toLowerCase() === 'other' || b.title.trim().toLowerCase() === 'others';
+          return Number(aIsOther) - Number(bIsOther);
+        });
+
         setSkillCategories(categoriesArray);
-      } catch {
-        // Use default empty state if fetch fails
+      } catch (error) {
+        console.error('Failed to fetch skills:', error);
       }
     };
 
@@ -68,22 +74,27 @@ export default function Skills() {
             >
               03 / Capabilities
             </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
-            >
-              Technical Expertise
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="max-w-2xl font-serif text-lg leading-8 text-[#111111]/70"
-            >
-              A comprehensive toolkit for building modern, scalable applications
-            </motion.p>
+            <div>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="relative inline-block pb-3 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
+              >
+                Technical Expertise
+                <svg viewBox="0 0 260 14" className="absolute -bottom-0 left-6 w-[200px] sm:w-[250px]" aria-hidden="true">
+                  <path d="M3 10 C60 3 160 2 257 6" fill="none" stroke="#EA580C" strokeWidth="3.5" strokeLinecap="round" />
+                </svg>
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="mt-5 max-w-2xl font-serif text-lg leading-8 text-[#111111]/70"
+              >
+                A comprehensive toolkit for building modern, scalable applications
+              </motion.p>
+            </div>
           </div>
 
           {/* Skills Grid */}
@@ -101,14 +112,18 @@ export default function Skills() {
                     0{index + 1}
                   </p>
                   <h3 className="font-display text-xl font-semibold">{category.title}</h3>
-                  <div className="mt-6 space-y-3">
+                  <div className="mt-5 flex flex-wrap gap-2">
                     {category.skills.map((skill) => (
-                      <div key={skill._id} className="flex items-center gap-3 border-b border-[#111111]/15 py-2.5">
-                        <span className="h-1.5 w-1.5 flex-shrink-0 bg-[#D9541E]" aria-hidden="true" />
-                        <span className="font-mono text-xs text-[#111111]/85">{skill.name}</span>
-                      </div>
+                      <span key={skill._id} className="border border-[#111111]/25 px-3 py-2 font-mono text-xs text-[#111111]/80">
+                        {skill.name}
+                      </span>
                     ))}
                   </div>
+                  {skillCategories.length === 0 && (
+                    <p className="border-t border-[#111111]/20 py-10 font-mono text-xs uppercase tracking-[0.08em] text-[#111111]/55">
+                      Technical toolkit is being updated.
+                    </p>
+                  )}
                 </div>
               </motion.div>
             ))}

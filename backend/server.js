@@ -12,13 +12,35 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
-// Middleware - CORS Configuration for Vercel
+// Middleware - CORS Configuration for Vercel and local-network testing
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  process.env.FRONTEND_URL || 'http://localhost:5173'
+];
+
+const isPrivateNetworkOrigin = (origin) => {
+  if (!origin) return true;
+
+  try {
+    const url = new URL(origin);
+    const isHttp = url.protocol === 'http:';
+    const isPrivateIpv4 = /^(10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3})$/.test(url.hostname);
+    return allowedOrigins.includes(origin) || (isHttp && isPrivateIpv4);
+  } catch {
+    return false;
+  }
+};
+
 const corsOptions = {
-  origin: [
-    'http://localhost:5173', // Local development
-    'http://localhost:5174',
-    process.env.FRONTEND_URL || 'http://localhost:5173' // Vercel production URL
-  ],
+  origin: (origin, callback) => {
+    if (isPrivateNetworkOrigin(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`CORS blocked origin: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

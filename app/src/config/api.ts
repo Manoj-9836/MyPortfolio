@@ -1,5 +1,12 @@
 // API Configuration
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const configuredApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const isLocalBrowser = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+// On a phone, localhost refers to the phone itself. Use the same LAN host as
+// the Vite page so the phone can reach the backend running on the computer.
+export const API_URL = isLocalBrowser
+  ? configuredApiUrl
+  : `${window.location.protocol}//${window.location.hostname}:5000`;
 
 // API Endpoints
 export const API_ENDPOINTS = {

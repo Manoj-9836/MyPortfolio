@@ -198,9 +198,12 @@ export default function LeetCodeStats() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold mt-4"
+              className="relative inline-block pb-3 text-3xl font-bold sm:text-4xl md:text-5xl"
             >
               LeetCode Stats
+              <svg viewBox="0 0 260 14" className="absolute -bottom-0 left-6 w-[200px] sm:w-[250px]" aria-hidden="true">
+                <path d="M3 10 C60 3 160 2 257 6" fill="none" stroke="#EA580C" strokeWidth="3.5" strokeLinecap="round" />
+              </svg>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}

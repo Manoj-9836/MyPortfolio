@@ -16,10 +16,10 @@ interface Comment {
 interface BlogPost {
   _id: string;
   title: string;
-  date?: string;
-  category?: string;
-  excerpt?: string;
-  content?: string;
+  date: string;
+  category: string;
+  excerpt: string;
+  content: string;
   image?: string;
   images?: string[];
   leetcodeImage?: string;
@@ -32,26 +32,6 @@ interface BlogPost {
   likedBy?: string[];
   comments?: Comment[];
 }
-
-const normalizeBlogPost = (post: Partial<BlogPost>): BlogPost => ({
-  _id: post._id || `blog-${post.title || 'untitled'}`,
-  title: post.title?.trim() || 'Untitled article',
-  date: post.date,
-  category: post.category?.trim() || 'Writing',
-  excerpt: post.excerpt?.trim() || '',
-  content: post.content || post.excerpt || '',
-  image: post.image,
-  images: post.images,
-  leetcodeImage: post.leetcodeImage,
-  tags: post.tags,
-  readTime: post.readTime,
-  published: post.published,
-  featured: post.featured,
-  views: post.views,
-  likes: post.likes,
-  likedBy: post.likedBy,
-  comments: post.comments,
-});
 
 export default function Blog() {
   const ref = useRef<HTMLDivElement>(null);
@@ -79,8 +59,7 @@ export default function Blog() {
     return userId;
   };
 
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return 'Undated';
+  const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -88,7 +67,7 @@ export default function Blog() {
     });
   };
 
-  const formatCompactNumber = (value = 0) => {
+  const formatCompactNumber = (value: number) => {
     return new Intl.NumberFormat('en', {
       notation: 'compact',
       maximumFractionDigits: 1,
@@ -119,8 +98,7 @@ export default function Blog() {
     return normalized;
   };
 
-  const incrementView = async (postId?: string) => {
-    if (!postId) return;
+  const incrementView = async (postId: string) => {
     try {
       await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/view`, {
         method: 'POST',
@@ -134,8 +112,7 @@ export default function Blog() {
     }
   };
 
-  const fetchRelatedPosts = async (postId?: string) => {
-    if (!postId) return;
+  const fetchRelatedPosts = async (postId: string) => {
     try {
       const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/related`);
       const data = await response.json();
@@ -145,8 +122,7 @@ export default function Blog() {
     }
   };
 
-  const checkIfLiked = (postId?: string) => {
-    if (!postId) return;
+  const checkIfLiked = (postId: string) => {
     const post = posts.find(p => p._id === postId);
     if (post?.likedBy) {
       const userId = getUserId();
@@ -161,14 +137,14 @@ export default function Blog() {
         if (!response.ok) throw new Error(`Blog request failed: ${response.status}`);
         const data = await response.json();
         const publishedPosts = Array.isArray(data)
-          ? data.map((post: Partial<BlogPost>) => normalizeBlogPost(post)).filter((post) => post.published !== false)
+          ? data.filter((post: BlogPost) => post.published !== false)
           : [];
 
         // Sort: featured first, then by date (newest first)
         const sortedPosts = publishedPosts.sort((a: BlogPost, b: BlogPost) => {
           if (a.featured && !b.featured) return -1;
           if (!a.featured && b.featured) return 1;
-          return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
         });
 
         setPosts(sortedPosts);
@@ -206,7 +182,7 @@ export default function Blog() {
     if (searchQuery) {
       filtered = filtered.filter(post =>
         post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (post.excerpt || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
         post.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
@@ -279,7 +255,6 @@ export default function Blog() {
 
   const handleLike = async (postId: string) => {
     try {
-      if (!postId) return;
       const userId = getUserId();
       const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${postId}/like`, {
         method: 'POST',
@@ -314,7 +289,7 @@ export default function Blog() {
 
   const handleComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPost?._id || !commentForm.author || !commentForm.content) return;
+    if (!selectedPost || !commentForm.author || !commentForm.content) return;
 
     try {
       const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${selectedPost._id}/comments`, {
@@ -397,31 +372,33 @@ export default function Blog() {
             >
               05 / Writing
             </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="mt-0 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
-            >
-              My Blog
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="mt-5 max-w-xl font-serif text-base leading-7 text-[#111111]/65"
-            >
-              Sharing insights, experiences, and thoughts on web development and technology
-            </motion.p>
+            <div>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="mt-0 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
+              >
+                My Blog
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="mt-5 max-w-xl font-serif text-base leading-7 text-[#111111]/65"
+              >
+                Sharing insights, experiences, and thoughts on web development and technology
+              </motion.p>
+            </div>
 
             {/* Search Box */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="mt-8 lg:col-start-2"
+              className="mt-2 w-full lg:col-span-2"
             >
-              <div className="relative max-w-2xl">
+              <div className="relative w-full">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
@@ -461,11 +438,19 @@ export default function Blog() {
                     transition={{ delay: 0.5 + index * 0.1 + 0.2 }}
                     className="relative z-10 mb-5 h-32 overflow-hidden border border-[#111111]/15 group/image"
                   >
-                    <img
-                      src={post.image || post.images?.[0] || post.leetcodeImage}
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover/image:scale-110 transition-transform duration-500"
-                    />
+                    {post.image || post.images?.[0] || post.leetcodeImage ? (
+                      <img
+                        src={post.image || post.images?.[0] || post.leetcodeImage}
+                        alt={`${post.title} article preview`}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover/image:scale-110"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="flex h-full items-end bg-[#111111]/5 p-3 font-mono text-[10px] uppercase tracking-[0.08em] text-[#111111]/45">
+                        Article / {post.category || 'Writing'}
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-[#111111]/10" />
                   </motion.div>
 
@@ -525,8 +510,7 @@ export default function Blog() {
                           <Calendar className="w-3 h-3" />
                           {formatDate(post.date)}
                         </div>
-                        <div className="ml-auto flex items-center gap-3 px-3 py-1">
-                          {post.readTime && <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#111111]/50">{post.readTime}</span>}
+                        <div className="ml-auto px-3 py-1">
                           <span className="text-xs font-medium text-[#D9541E]">Read story →</span>
                         </div>
                       </div>
@@ -629,7 +613,7 @@ export default function Blog() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="post-modal-scroll relative min-w-0 w-full max-w-4xl border border-[#F3EEE3]/25 border-t-4 border-t-[#D9541E] bg-[#111111] text-[#F3EEE3] shadow-2xl shadow-black/40 h-[92dvh] max-h-[92dvh] overflow-x-hidden overflow-y-auto p-4 sm:h-auto sm:max-h-[90vh] sm:p-7 md:p-10"
+              className="post-modal-scroll relative min-w-0 w-full max-w-[760px] overflow-x-hidden rounded-xl border border-[#F3EEE3]/20 border-t-4 border-t-[#D9541E] bg-[#111111] text-[#F3EEE3] shadow-2xl shadow-black/40 h-[94dvh] max-h-[94dvh] overflow-y-auto p-4 sm:h-auto sm:max-h-[92vh] sm:p-7 md:p-8"
             >
               {/* Close Button */}
               <motion.button
@@ -647,9 +631,9 @@ export default function Blog() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="mb-8 mt-12 w-full overflow-hidden border border-[#F3EEE3]/20"
+                className="mx-auto mb-6 mt-12 w-full overflow-hidden rounded-lg border border-[#F3EEE3]/20"
               >
-                <div className="relative h-52 overflow-hidden bg-[#F3EEE3]/5 sm:h-64 md:h-80">
+                <div className="relative aspect-[16/9] overflow-hidden bg-[#F3EEE3]/5">
                   <AnimatePresence mode="wait">
                     <motion.img
                       key={`${selectedPost._id}-${currentModalImageIndex}`}
@@ -659,7 +643,7 @@ export default function Blog() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -24 }}
                       transition={{ duration: 0.55, ease: 'easeInOut' }}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 h-full w-full object-cover"
                     />
                   </AnimatePresence>
                   <div className="absolute inset-0 bg-[#111111]/15 pointer-events-none" />
@@ -705,8 +689,8 @@ export default function Blog() {
               </motion.div>
 
               {/* Header */}
-              <div className="mb-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <div className="mx-auto mb-5 w-full">
+                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="border border-[#D9541E]/70 px-3 py-1 font-mono text-xs uppercase tracking-[0.08em] text-[#D9541E]">
                     {selectedPost.category}
                   </span>
@@ -729,7 +713,7 @@ export default function Blog() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="mb-4 pr-10 font-display text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl"
+                  className="mb-3 pr-10 font-display text-[28px] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[30px]"
                 >
                   {selectedPost.title}
                 </motion.h2>
@@ -737,7 +721,7 @@ export default function Blog() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="max-w-3xl font-serif text-base leading-7 text-[#F3EEE3]/70 sm:text-lg"
+                  className="max-w-3xl font-sans text-[15px] leading-7 text-[#F3EEE3]/70 sm:text-base"
                 >
                   {selectedPost.excerpt}
                 </motion.p>
@@ -759,11 +743,11 @@ export default function Blog() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 }}
-                className="mb-8 flex flex-wrap items-center gap-3 border-y border-[#F3EEE3]/15 py-4"
+                className="mx-auto mb-7 flex w-full flex-wrap items-center gap-3 border-y border-[#F3EEE3]/15 py-4"
               >
                 <button
                   onClick={() => handleLike(selectedPost._id)}
-                  className={`flex items-center gap-2 border px-4 py-2 text-sm transition-all ${
+                  className={`flex min-h-11 items-center gap-2 rounded-md border px-4 py-2 text-sm transition-all ${
                     hasLiked
                       ? 'border-[#D9541E] bg-[#D9541E] text-[#111111]'
                       : 'border-[#F3EEE3]/25 text-[#F3EEE3]/70 hover:border-[#D9541E] hover:text-[#D9541E]'
@@ -776,7 +760,7 @@ export default function Blog() {
                 <div className="relative">
                   <button
                     onClick={() => setShowShareMenu(!showShareMenu)}
-                    className="flex items-center gap-2 border border-[#F3EEE3]/25 px-4 py-2 text-sm text-[#F3EEE3]/70 transition-all hover:border-[#D9541E] hover:text-[#D9541E]"
+                    className="flex min-h-11 items-center gap-2 rounded-md border border-[#F3EEE3]/25 px-4 py-2 text-sm text-[#F3EEE3]/70 transition-all hover:border-[#D9541E] hover:text-[#D9541E]"
                   >
                     <Share2 className="w-4 h-4" />
                     <span>Share</span>
@@ -821,9 +805,6 @@ export default function Blog() {
                 </div>
               </motion.div>
 
-              {/* Divider */}
-              <div className="mb-6 h-px bg-[#F3EEE3]/15" />
-
               {/* Content */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -831,7 +812,7 @@ export default function Blog() {
                 transition={{ delay: 0.4 }}
                 className="max-w-none"
               >
-                <PostDisplay content={selectedPost.content || ''} />
+                <PostDisplay key={selectedPost._id} content={selectedPost.content} />
               </motion.div>
 
               {/* Tags */}
@@ -840,7 +821,7 @@ export default function Blog() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="mt-8 pt-6 border-t border-white/10"
+                  className="mx-auto mt-8 w-full max-w-[800px] border-t border-white/10 pt-6"
                 >
                   <div className="flex flex-wrap gap-2">
                     {selectedPost.tags.map((tag, index) => (
