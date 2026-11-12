@@ -1,6 +1,6 @@
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-import { Calendar, X, Heart, Eye, MessageCircle, Share2, Twitter, Facebook, Linkedin, Copy, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Calendar, X, Heart, Eye, MessageCircle, Share2, Twitter, Facebook, Linkedin, Copy, ChevronLeft, ChevronRight, Search, Link2, User, Mail, Pencil, SlidersHorizontal, ArrowDown } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
 import PostDisplay from '../components/PostDisplay';
 
@@ -46,6 +46,10 @@ export default function Blog() {
   const [readingProgress, setReadingProgress] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [commentForm, setCommentForm] = useState({ author: '', email: '', content: '' });
+  const [commentSort, setCommentSort] = useState<'newest' | 'oldest'>('newest');
+  const [visibleCommentCount, setVisibleCommentCount] = useState(5);
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [commentError, setCommentError] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [currentModalImageIndex, setCurrentModalImageIndex] = useState(0);
   const postsPerPage = 6;
@@ -220,6 +224,9 @@ export default function Blog() {
       fetchRelatedPosts(selectedPost._id);
       checkIfLiked(selectedPost._id);
       setCurrentModalImageIndex(0);
+      setVisibleCommentCount(5);
+      setCommentSort('newest');
+      setCommentError('');
     } else {
       setReadingProgress(0);
       setRelatedPosts([]);
@@ -240,6 +247,17 @@ export default function Blog() {
     }, 3500);
 
     return () => window.clearInterval(timer);
+  }, [selectedPost]);
+
+  useEffect(() => {
+    if (!selectedPost) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedPost(null);
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedPost]);
 
   useEffect(() => {
@@ -291,12 +309,15 @@ export default function Blog() {
     e.preventDefault();
     if (!selectedPost || !commentForm.author || !commentForm.content) return;
 
+    setIsSubmittingComment(true);
+    setCommentError('');
     try {
       const response = await fetch(`${API_ENDPOINTS.PORTFOLIO}/blogs/${selectedPost._id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(commentForm),
       });
+      if (!response.ok) throw new Error(`Comment request failed: ${response.status}`);
       const newComment = await response.json();
       
       const updatedComments = [...(selectedPost.comments || []), newComment];
@@ -317,6 +338,9 @@ export default function Blog() {
       setCommentForm({ author: '', email: '', content: '' });
     } catch (error) {
       console.error('Failed to add comment:', error);
+      setCommentError('Unable to post your comment. Please try again.');
+    } finally {
+      setIsSubmittingComment(false);
     }
   };
 
@@ -613,7 +637,7 @@ export default function Blog() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="post-modal-scroll relative min-w-0 w-full max-w-[760px] overflow-x-hidden rounded-xl border border-[#F3EEE3]/20 border-t-4 border-t-[#D9541E] bg-[#111111] text-[#F3EEE3] shadow-2xl shadow-black/40 h-[94dvh] max-h-[94dvh] overflow-y-auto p-4 sm:h-auto sm:max-h-[92vh] sm:p-7 md:p-8"
+              className="post-modal-scroll relative min-w-0 w-full max-w-[800px] overflow-x-hidden rounded-lg border border-[#D9541E]/80 border-t-4 border-t-[#D9541E] bg-[#111111] text-[#F3EEE3] shadow-2xl shadow-black/40 h-[90dvh] max-h-[90vh] overflow-y-auto p-4 sm:p-7 md:p-8"
             >
               {/* Close Button */}
               <motion.button
@@ -845,28 +869,33 @@ export default function Blog() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
-                  className="mt-8 pt-6 border-t border-white/10"
+                  className="mt-8 border-b border-[#F3EEE3]/20 pb-5 pt-6"
                 >
-                  <h3 className="text-xl font-bold mb-4">Related Posts</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {relatedPosts.map((post) => (
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <h3 className="flex items-center gap-2 text-base font-semibold">
+                      <Link2 className="h-4 w-4 text-[#D9541E]" />
+                      Related Posts
+                    </h3>
+                  </div>
+                  <div className="flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-3 md:overflow-visible">
+                    {relatedPosts.slice(0, 3).map((post) => (
                       <div
                         key={post._id}
                         onClick={() => {
                           setSelectedPost(post);
                           modalRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        className="cursor-pointer group p-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+                        className="group min-w-[220px] cursor-pointer border border-[#F3EEE3]/15 bg-[#F3EEE3]/[0.03] p-2 transition-colors hover:border-[#D9541E] md:min-w-0"
                       >
                         <img
                           src={post.image || post.images?.[0] || post.leetcodeImage}
                           alt={post.title}
-                          className="w-full h-32 object-cover rounded-lg mb-3"
+                          className="mb-2 aspect-[16/8] w-full object-cover"
                         />
-                        <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-blue-400 transition-colors">
+                        <h4 className="line-clamp-2 text-xs font-semibold transition-colors group-hover:text-[#D9541E]">
                           {post.title}
                         </h4>
-                        <p className="text-xs text-gray-400 mt-2">{formatDate(post.date)}</p>
+                        <p className="mt-1 text-[10px] text-[#F3EEE3]/50">{formatDate(post.date)}</p>
                       </div>
                     ))}
                   </div>
@@ -878,86 +907,119 @@ export default function Blog() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
-                className="mt-8 pt-6 border-t border-white/10"
+                className="mt-6 border-t border-[#F3EEE3]/20 pt-5"
               >
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5" />
-                  Comments ({selectedPost.comments?.length || 0})
-                </h3>
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <h3 className="flex items-center gap-2 text-base font-semibold">
+                    <MessageCircle className="h-4 w-4 text-[#D9541E]" />
+                    Comments <span className="text-[#D9541E]">{selectedPost.comments?.length || 0}</span>
+                  </h3>
+                  <label className="flex items-center gap-2 border border-[#F3EEE3]/20 px-3 py-1.5 text-xs text-[#F3EEE3]/70">
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    <span className="sr-only">Sort comments</span>
+                    <select
+                      value={commentSort}
+                      onChange={(e) => setCommentSort(e.target.value as 'newest' | 'oldest')}
+                      className="bg-transparent text-xs text-[#F3EEE3] outline-none"
+                    >
+                      <option value="newest" className="bg-[#111111]">Newest First</option>
+                      <option value="oldest" className="bg-[#111111]">Oldest First</option>
+                    </select>
+                  </label>
+                </div>
 
                 {/* Comment Form */}
-                <form onSubmit={handleComment} className="mb-6 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="Your Name *"
-                      value={commentForm.author}
-                      onChange={(e) => setCommentForm({ ...commentForm, author: e.target.value })}
-                      required
-                      className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 text-white placeholder-gray-400"
-                    />
-                    <input
-                      type="email"
-                      placeholder="Your Email (optional)"
-                      value={commentForm.email}
-                      onChange={(e) => setCommentForm({ ...commentForm, email: e.target.value })}
-                      className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 text-white placeholder-gray-400"
-                    />
+                <form onSubmit={handleComment} className="mb-6 space-y-3 border border-[#F3EEE3]/15 bg-[#F3EEE3]/[0.02] p-3">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <label className="flex items-center gap-2 border border-[#F3EEE3]/20 px-3">
+                      <User className="h-4 w-4 shrink-0 text-[#F3EEE3]/55" />
+                      <input
+                        type="text"
+                        placeholder="Your Name *"
+                        value={commentForm.author}
+                        onChange={(e) => setCommentForm({ ...commentForm, author: e.target.value })}
+                        required
+                        className="h-10 min-w-0 flex-1 bg-transparent text-sm text-[#F3EEE3] outline-none placeholder-[#F3EEE3]/45"
+                      />
+                    </label>
+                    <label className="flex items-center gap-2 border border-[#F3EEE3]/20 px-3">
+                      <Mail className="h-4 w-4 shrink-0 text-[#F3EEE3]/55" />
+                      <input
+                        type="email"
+                        placeholder="Your Email (optional)"
+                        value={commentForm.email}
+                        onChange={(e) => setCommentForm({ ...commentForm, email: e.target.value })}
+                        className="h-10 min-w-0 flex-1 bg-transparent text-sm text-[#F3EEE3] outline-none placeholder-[#F3EEE3]/45"
+                      />
+                    </label>
                   </div>
-                  <textarea
-                    placeholder="Write your comment *"
-                    value={commentForm.content}
-                    onChange={(e) => setCommentForm({ ...commentForm, content: e.target.value })}
-                    required
-                    rows={4}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 text-white placeholder-gray-400"
-                  />
-                  <button
-                    type="submit"
-                    className="px-6 py-2 bg-blue-500/20 text-blue-400 border border-blue-400/50 rounded-lg hover:bg-blue-500/30 transition-colors font-medium"
-                  >
-                    Post Comment
-                  </button>
+                  <label className="flex gap-2 border border-[#F3EEE3]/20 px-3 py-2">
+                    <Pencil className="mt-1 h-4 w-4 shrink-0 text-[#F3EEE3]/55" />
+                    <textarea
+                      placeholder="Write your comment *"
+                      value={commentForm.content}
+                      onChange={(e) => setCommentForm({ ...commentForm, content: e.target.value })}
+                      required
+                      rows={3}
+                      className="min-h-[76px] min-w-0 flex-1 resize-y bg-transparent text-sm text-[#F3EEE3] outline-none placeholder-[#F3EEE3]/45"
+                    />
+                  </label>
+                  {commentError && <p className="text-xs text-red-300" role="alert">{commentError}</p>}
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={isSubmittingComment}
+                      className="border border-[#D9541E] bg-[#D9541E] px-4 py-2 text-xs font-semibold text-[#111111] transition-colors hover:bg-[#F3EEE3] disabled:cursor-wait disabled:opacity-60"
+                    >
+                      {isSubmittingComment ? 'Posting...' : 'Post Comment'}
+                    </button>
+                  </div>
                 </form>
 
                 {/* Comments List */}
-                <div className="space-y-4">
-                  {selectedPost.comments && selectedPost.comments.length > 0 ? (
-                    [...selectedPost.comments]
-                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                      .map((comment) => (
-                      <div
-                        key={comment._id}
-                        className="p-4 bg-white/5 rounded-lg border border-white/10"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-semibold text-blue-400">{comment.author}</span>
-                          <span className="text-xs text-gray-400">
-                            {formatDate(comment.createdAt)}
-                          </span>
-                        </div>
-                        <p className="text-gray-300 text-sm">{comment.content}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-400 text-sm">No comments yet. Be the first to comment!</p>
-                  )}
-                </div>
-              </motion.div>
+                {(() => {
+                  const comments = [...(selectedPost.comments || [])].sort((a, b) =>
+                    commentSort === 'newest'
+                      ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                      : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                  );
+                  const visibleComments = comments.slice(0, visibleCommentCount);
+                  const remainingComments = Math.max(comments.length - visibleComments.length, 0);
 
-              {/* Footer */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-                className="mt-8 pt-6 border-t border-white/10 flex justify-end"
-              >
-                <button
-                  onClick={() => setSelectedPost(null)}
-                  className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors font-medium"
-                >
-                  Close
-                </button>
+                  return (
+                    <>
+                      <div className="max-h-[280px] overflow-y-auto overscroll-contain pr-1">
+                        {visibleComments.length > 0 ? (
+                          visibleComments.map((comment) => (
+                            <div key={comment._id} className="flex gap-3 border-b border-[#F3EEE3]/15 py-3 last:border-b-0">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#D9541E]/25 text-xs font-semibold text-[#F3EEE3]">
+                                {(comment.author.trim()[0] || '?').toUpperCase()}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                                  <span className="break-words text-sm font-semibold text-[#F3EEE3]">{comment.author}</span>
+                                  <span className="shrink-0 text-[10px] text-[#F3EEE3]/50">{formatDate(comment.createdAt)}</span>
+                                </div>
+                                <p className="mt-1 whitespace-pre-wrap break-words text-xs leading-5 text-[#F3EEE3]/75">{comment.content}</p>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="py-3 text-sm text-[#F3EEE3]/55">No comments yet. Be the first to comment!</p>
+                        )}
+                      </div>
+                      {remainingComments > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setVisibleCommentCount((count) => count + 5)}
+                          className="mx-auto mt-4 flex items-center gap-2 rounded-full border border-[#D9541E] px-5 py-2 text-xs text-[#F3EEE3] transition-colors hover:bg-[#D9541E] hover:text-[#111111]"
+                        >
+                          Load More Comments ({Math.min(5, remainingComments)}) <ArrowDown className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </>
+                  );
+                })()}
               </motion.div>
             </motion.div>
           </motion.div>
