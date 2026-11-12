@@ -78,7 +78,7 @@ export default function Education() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="font-mono text-xs uppercase tracking-[0.16em] text-[#F3EEE3]/60"
             >
-              04 / Education
+              02 / Education
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}

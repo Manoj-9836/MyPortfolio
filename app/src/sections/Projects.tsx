@@ -132,7 +132,7 @@ export default function Projects() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="font-mono text-xs uppercase tracking-[0.16em] text-[#F3EEE3]/60"
             >
-              02 / Selected work
+              04 / Selected work
             </motion.span>
             <div>
               <motion.h2
