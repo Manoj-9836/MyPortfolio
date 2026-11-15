@@ -64,12 +64,7 @@ export default function Education() {
   return (
     <section id="education" className="bg-[#111111] px-5 py-16 text-[#F3EEE3] sm:px-8 md:py-24 lg:px-12">
       <div className="mx-auto max-w-[1200px]">
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-        >
+        <div ref={ref}>
           {/* Section Header */}
           <div className="mb-16 grid gap-8 border-t border-[#F3EEE3]/25 pt-5 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
             <motion.span
@@ -81,6 +76,7 @@ export default function Education() {
               02 / Education
             </motion.span>
             <motion.h2
+              data-cs="type"
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
@@ -103,6 +99,7 @@ export default function Education() {
             {educationData.map((edu, index) => (
               <motion.div
                 key={edu._id || edu.institution}
+                data-cs-copy="true"
                 initial={{ opacity: 0, y: 24 }}
                 animate={isInView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.4 + index * 0.2 }}
@@ -156,7 +153,7 @@ export default function Education() {
             ))}
           </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

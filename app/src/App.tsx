@@ -2,8 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
 import About from './sections/About';
@@ -15,60 +13,47 @@ import Certifications from './sections/Certifications';
 import Achievements from './sections/Achievements';
 import Contact from './sections/Contact';
 import AdminDashboard from './pages/AdminDashboard.tsx';
+import { initSwarm } from './lib/cursorSwarm';
 import './App.css';
 
-gsap.registerPlugin(ScrollTrigger);
-
-function App() {
-  const [isLoading, setIsLoading] = useState(true);
+function MainPortfolio() {
   const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    if (!mainRef.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return;
-    }
+    if (!mainRef.current) return;
 
-    const cards = Array.from(mainRef.current.querySelectorAll<HTMLElement>('[data-project-card]'));
-    const cardListeners = cards.map((card) => {
-      const handleEnter = () => gsap.to(card, { y: -2, duration: 0.2, ease: 'power2.out' });
-      const handleLeave = () => gsap.to(card, { y: 0, duration: 0.2, ease: 'power2.out' });
-      card.addEventListener('mouseenter', handleEnter);
-      card.addEventListener('mouseleave', handleLeave);
-      return { card, handleEnter, handleLeave };
-    });
-
-    const context = gsap.context(() => {
-      gsap.from('[data-gsap-hero]', {
-        autoAlpha: 0,
-        x: 24,
-        duration: 0.7,
-        delay: 0.35,
-        ease: 'power2.out',
-      });
-
-      gsap.utils.toArray<HTMLElement>('[data-gsap-reveal]').forEach((section) => {
-        gsap.from(section, {
-          autoAlpha: 0,
-          y: 18,
-          duration: 0.55,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 88%',
-            once: true,
-          },
-        });
-      });
-    }, mainRef);
+    const cleanupSwarm = initSwarm(mainRef.current);
 
     return () => {
-      cardListeners.forEach(({ card, handleEnter, handleLeave }) => {
-        card.removeEventListener('mouseenter', handleEnter);
-        card.removeEventListener('mouseleave', handleLeave);
-      });
-      context.revert();
+      cleanupSwarm();
     };
-  }, [isLoading]);
+  }, []);
+
+  return (
+    <motion.div
+      key="main"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Navigation />
+      <main ref={mainRef}>
+        <Hero />
+        <About />
+        <Education />
+        <Skills />
+        <Projects />
+        <Blog />
+        <Certifications />
+        <Achievements />
+        <Contact />
+      </main>
+    </motion.div>
+  );
+}
+
+function App() {
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Simulate loading for the intro animation
@@ -90,25 +75,7 @@ function App() {
               {isLoading ? (
                 <IntroAnimation key="intro" />
               ) : (
-                <motion.div
-                  key="main"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Navigation />
-                  <main ref={mainRef}>
-                    <Hero />
-                    <About />
-                    <Education />
-                    <Skills />
-                    <Projects />
-                    <Blog />
-                    <Certifications />
-                    <Achievements />
-                    <Contact />
-                  </main>
-                </motion.div>
+                <MainPortfolio />
               )}
             </AnimatePresence>
           </div>

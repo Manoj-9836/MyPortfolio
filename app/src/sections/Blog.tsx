@@ -1,7 +1,8 @@
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { Calendar, X, Heart, Eye, MessageCircle, Share2, Twitter, Facebook, Linkedin, Copy, ChevronLeft, ChevronRight, Search, Link2, User, Mail, Pencil, SlidersHorizontal, ArrowDown } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
+import { refreshSwarm } from '../lib/cursorSwarm';
 import PostDisplay from '../components/PostDisplay';
 
 interface Comment {
@@ -36,7 +37,6 @@ interface BlogPost {
 export default function Blog() {
   const ref = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
@@ -153,6 +153,7 @@ export default function Blog() {
 
         setPosts(sortedPosts);
         setFilteredPosts(sortedPosts);
+        refreshSwarm();
 
         // Check if there's a blog ID in the URL query parameter
         const urlParams = new URLSearchParams(window.location.search);
@@ -374,52 +375,39 @@ export default function Blog() {
 
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+    refreshSwarm();
     ref.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <section id="blog" className="bg-[#F3EEE3] px-5 py-16 text-[#111111] sm:px-8 md:py-24 lg:px-12 overflow-x-clip">
       <div className="max-w-7xl mx-auto">
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-        >
+        <div ref={ref}>
           {/* Section Header */}
           <div className="mb-14 grid gap-8 border-t border-[#111111]/25 pt-5 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 }}
+            <span
               className="font-mono text-xs uppercase tracking-[0.16em] text-[#111111]/55"
             >
               05 / Writing
-            </motion.span>
+            </span>
             <div>
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.3 }}
+              <h2
+                data-cs="type"
                 className="mt-0 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
               >
                 My Blog
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.4 }}
+              </h2>
+              <p
+                data-cs="words"
                 className="mt-5 max-w-xl font-serif text-base leading-7 text-[#111111]/65"
               >
                 Sharing insights, experiences, and thoughts on web development and technology
-              </motion.p>
+              </p>
             </div>
 
             {/* Search Box */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.5 }}
+            <div
+              data-cs-ignore
               className="mt-2 w-full lg:col-span-2"
             >
               <div className="relative w-full">
@@ -437,33 +425,33 @@ export default function Blog() {
                   </div>
                 )}
               </div>
-            </motion.div>
+            </div>
           </div>
 
           {/* Blog Cards Grid */}
           <div className="grid grid-cols-1 border-t border-[#111111]/20 sm:grid-cols-2 lg:grid-cols-3">
             {currentPosts.map((post, index) => (
-              <motion.div
+              <div
                 key={post._id || index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                data-cs="frame"
+                data-cs-copy="true"
                 onClick={() => setSelectedPost(post)}
-                className="group h-auto cursor-pointer border-b border-[#111111]/20 py-6 sm:mx-4 sm:first:ml-0 lg:mx-5 lg:first:ml-0"
+                className="group h-auto cursor-pointer border-b border-[#111111]/20 py-6 outline-none transition-all duration-300 hover:-translate-y-1.5 sm:mx-4 sm:first:ml-0 lg:mx-5 lg:first:ml-0"
               >
-                <div className="relative flex h-full flex-col justify-between overflow-hidden border border-[#111111]/15 bg-[#F3EEE3] p-4 transition-colors duration-300 hover:border-[#D9541E] sm:p-6">
+                <div
+                  data-cs="frame"
+                  className="relative flex h-full flex-col justify-between overflow-hidden border border-[#111111]/15 bg-[#F3EEE3] p-4 transition-all duration-300 hover:border-[#D9541E] hover:shadow-[0_10px_30px_rgba(217,84,30,0.12)] sm:p-6"
+                >
                   {/* Background animation */}
                   <div className="absolute inset-0 border-t-2 border-[#D9541E] opacity-0 transition-opacity group-hover:opacity-100" />
 
                   {/* Image Section */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                    transition={{ delay: 0.5 + index * 0.1 + 0.2 }}
+                  <div
                     className="relative z-10 mb-5 h-32 overflow-hidden border border-[#111111]/15 group/image"
                   >
                     {post.image || post.images?.[0] || post.leetcodeImage ? (
                       <img
+                        data-cs="media"
                         src={post.image || post.images?.[0] || post.leetcodeImage}
                         alt={`${post.title} article preview`}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover/image:scale-110"
@@ -476,7 +464,7 @@ export default function Blog() {
                       </div>
                     )}
                     <div className="absolute inset-0 bg-[#111111]/10" />
-                  </motion.div>
+                  </div>
 
                   {/* Content */}
                   <div className="relative z-10 flex flex-col h-full justify-between flex-1">
@@ -484,17 +472,17 @@ export default function Blog() {
                     <div>
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                         <div className="flex flex-wrap items-center gap-2 pr-1">
-                          <span className="border border-[#D9541E]/60 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#D9541E] sm:px-3 sm:text-xs">
+                          <span data-cs="pop" className="border border-[#D9541E]/60 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#D9541E] sm:px-3 sm:text-xs">
                             {post.category}
                           </span>
                           {post.featured && (
-                            <span className="border border-[#111111]/20 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#111111]/60 sm:text-xs">
+                            <span data-cs="pop" className="border border-[#111111]/20 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#111111]/60 sm:text-xs">
                               ★ Featured
                             </span>
                           )}
                         </div>
                         {/* Stats */}
-                        <div className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-[#111111]/50 self-start sm:self-auto">
+                        <div data-cs="pop" className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-[#111111]/50 self-start sm:self-auto">
                           <div className="flex items-center gap-1">
                             <Eye className="w-3 h-3" />
                             <span>{formatCompactNumber(post.views || 0)}</span>
@@ -509,24 +497,19 @@ export default function Blog() {
                           </div>
                         </div>
                       </div>
-                      <motion.h3
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={isInView ? { opacity: 1, y: 0 } : {}}
-                        transition={{ delay: 0.5 + index * 0.1 + 0.3 }}
+                      <h3
+                        data-cs="type"
                         className="font-display text-lg font-semibold leading-tight text-[#111111] transition-colors group-hover:text-[#D9541E] md:text-xl"
                       >
                         {post.title}
-                      </motion.h3>
+                      </h3>
                     </div>
 
                     {/* Bottom Section */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={isInView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ delay: 0.5 + index * 0.1 + 0.4 }}
+                    <div
                       className="flex flex-col gap-2"
                     >
-                      <p className="font-serif text-xs leading-6 text-[#111111]/65 md:text-sm">
+                      <p data-cs="words" className="font-serif text-xs leading-6 text-[#111111]/65 md:text-sm">
                         {post.excerpt}
                       </p>
                       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#111111]/15 pt-3">
@@ -535,13 +518,13 @@ export default function Blog() {
                           {formatDate(post.date)}
                         </div>
                         <div className="ml-auto px-3 py-1">
-                          <span className="text-xs font-medium text-[#D9541E]">Read story →</span>
+                          <span data-cs="pop" className="text-xs font-medium text-[#D9541E]">Read story →</span>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
           {currentPosts.length === 0 && (
@@ -552,10 +535,7 @@ export default function Blog() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.8 }}
+            <div
               className="mt-10 flex items-center justify-center gap-2"
             >
               <button
@@ -593,14 +573,14 @@ export default function Blog() {
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
-            </motion.div>
+            </div>
           )}
           {totalPages > 1 && (
             <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.12em] text-[#111111]/45">
               Page {currentPage} of {totalPages}
             </p>
           )}
-        </motion.div>
+        </div>
       </div>
 
       {/* Expanded Post Modal */}

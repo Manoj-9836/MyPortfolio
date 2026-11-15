@@ -9,7 +9,7 @@ interface Activity {
   section: string;
   timestamp: string;
   type: 'create' | 'update' | 'delete' | 'view' | 'login';
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 interface ActivityTimelineProps {

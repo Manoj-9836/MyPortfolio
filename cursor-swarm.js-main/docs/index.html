@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CursorSwarm — Examples</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: ui-monospace, Menlo, monospace; background: #050505; color: #f1efe9; padding: 10vh 24px; }
+        .wrap { max-width: 860px; margin: 0 auto; }
+        h1 { font-size: clamp(42px, 8vw, 88px); line-height: .95; text-transform: uppercase; }
+        h1 span { color: #ff5e00; }
+        p { color: #a3a29d; margin: 20px 0 50px; max-width: 560px; line-height: 1.6; }
+        ul { list-style: none; display: grid; gap: 10px; }
+        a { display: flex; justify-content: space-between; gap: 20px; padding: 20px; border: 1px solid #222; background: #0d0d0d; color: inherit; text-decoration: none; transition: border-color .3s, color .3s; }
+        a:hover { border-color: #ff5e00; color: #ff5e00; }
+        a small { color: #777; text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <h1>Cursor<span>Swarm</span><br>examples</h1>
+        <p>Every page below is a normal website. The only thing added is one &lt;script&gt; tag and one call to <b>new CursorSwarm().init()</b>.</p>
+        <ul>
+            <li><a href="./examples/saas-landing/">SaaS landing <small>3 agents · brand colors · copy-paste cards</small></a></li>
+            <li><a href="./examples/blog-article/">Blog article <small>2 named agents · fly in from outside · exit after build</small></a></li>
+            <li><a href="./examples/photo-portfolio/">Photo portfolio <small>6 agents · random start · relocation + copy-paste</small></a></li>
+            <li><a href="./examples/restaurant/">Restaurant <small>1 agent · custom position · no HUD · builds once</small></a></li>
+            <li><a href="./examples/zero-js/">Zero-JS setup <small>only data-* attributes on the script tag</small></a></li>
+            <li><a href="./examples/monochrome/">Monochrome studio <small>one base color · live palette switching · setPalette()</small></a></li>
+            <li><a href="./examples/playground/">Playground <small>live options + palettes + pause / resume / stop / destroy</small></a></li>
+        </ul>
+    </div>
+    <script src="./cursor-swarm.js"></script>
+    <script>new CursorSwarm({ cursors: 3, deconstruct: false }).init();</script>
+</body>
+</html>

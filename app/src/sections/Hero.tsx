@@ -48,6 +48,7 @@ export default function Hero() {
           </motion.p>
 
         <motion.h1
+          data-cs="type"
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: prefersReducedMotion ? 0 : 0.7, delay: prefersReducedMotion ? 0 : 0.1 }}
@@ -65,6 +66,7 @@ export default function Hero() {
         </motion.h1>
 
         <motion.p
+          data-cs="words"
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: prefersReducedMotion ? 0 : 0.55, delay: prefersReducedMotion ? 0 : 0.55 }}
@@ -74,6 +76,7 @@ export default function Hero() {
         </motion.p>
 
         <motion.p
+          data-cs="words"
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: prefersReducedMotion ? 0 : 0.55, delay: prefersReducedMotion ? 0 : 0.7 }}
@@ -89,18 +92,21 @@ export default function Hero() {
           className="mt-8 flex flex-col items-start gap-3 sm:flex-row"
         >
           <motion.a
+            data-cs="pop"
             href="#projects"
             className="inline-flex min-h-12 items-center border border-[#D9541E] bg-[#D9541E] px-6 font-sans text-sm font-medium text-[#111111] transition-colors hover:bg-[#F3EEE3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D9541E]"
           >
             View Projects
           </motion.a>
           <motion.a
+            data-cs="pop"
             href="#contact"
             className="inline-flex min-h-12 items-center border border-[#F3EEE3] px-6 font-sans text-sm font-medium text-[#F3EEE3] transition-colors hover:bg-[#F3EEE3] hover:text-[#111111] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D9541E]"
           >
             Get in Touch
           </motion.a>
           <motion.a
+            data-cs="pop"
             href="/Manoj_Kumar_Bavisetti_Resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
@@ -113,17 +119,17 @@ export default function Hero() {
         </div>
 
         <motion.aside
+          data-cs="frame"
           initial={{ opacity: 0, x: prefersReducedMotion ? 0 : 24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: prefersReducedMotion ? 0 : 0.65, delay: prefersReducedMotion ? 0 : 0.35 }}
           className="border-l border-[#D9541E] pl-5 lg:mb-2"
-          data-gsap-hero
           aria-label="Professional focus"
         >
           <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#F3EEE3]/55">
             00 / Focus
           </p>
-          <p className="mt-5 max-w-sm font-sans text-2xl font-medium leading-tight">
+          <p data-cs="words" className="mt-5 max-w-sm font-sans text-2xl font-medium leading-tight">
             Turning complex ideas into useful products.
           </p>
           <dl className="mt-10 space-y-4 border-t border-[#F3EEE3]/20 pt-5 font-mono text-xs uppercase tracking-[0.08em]">
@@ -138,11 +144,11 @@ export default function Hero() {
           </dl>
           <div className="mt-8 grid grid-cols-2 gap-3 border-t border-[#F3EEE3]/20 pt-5">
             <div>
-              <p className="font-display text-2xl font-semibold text-[#D9541E]">100+</p>
+              <p data-cs="type" className="font-display text-2xl font-semibold text-[#D9541E]">100+</p>
               <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#F3EEE3]/50">Students mentored</p>
             </div>
             <div>
-              <p className="font-display text-2xl font-semibold text-[#D9541E]">8.1</p>
+              <p data-cs="type" className="font-display text-2xl font-semibold text-[#D9541E]">8.1</p>
               <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#F3EEE3]/50">Current CGPA</p>
             </div>
           </div>
