@@ -101,37 +101,48 @@ export default function Contact() {
   ];
 
   return (
-    <section id="contact" className="bg-[#111111] px-5 py-16 text-[#F3EEE3] sm:px-8 md:py-24 lg:px-12">
+    <section id="contact" data-gsap-reveal className="bg-[#111111] px-5 py-16 text-[#F3EEE3] sm:px-8 md:py-24 lg:px-12">
       <div className="mx-auto max-w-[1200px]">
-        <div ref={ref}>
+        <motion.div
+          ref={ref}
+          initial={{ opacity: 0, y: 50 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+        >
           {/* Section Header */}
           <div className="mb-16 grid gap-8 border-t border-[#F3EEE3]/25 pt-5 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
-            <span
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.6, delay: 0.2 }}
               className="font-mono text-xs uppercase tracking-[0.16em] text-[#F3EEE3]/60"
             >
               08 / Contact
-            </span>
-            <h2
-              data-cs="type"
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.3 }}
               className="relative inline-block pb-3 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
             >
               Let's Connect
               <svg viewBox="0 0 260 14" className="absolute -bottom-0 left-6 w-[200px] sm:w-[250px]" aria-hidden="true">
                 <path d="M3 10 C60 3 160 2 257 6" fill="none" stroke="#EA580C" strokeWidth="3.5" strokeLinecap="round" />
               </svg>
-            </h2>
-            <p
-              data-cs="words"
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.4 }}
               className="max-w-2xl font-serif text-lg leading-8 text-[#F3EEE3]/70"
             >
               {contact.message}
-            </p>
+            </motion.p>
           </div>
 
           <div className="grid grid-cols-1 gap-12 border-t border-[#F3EEE3]/25 pt-8 lg:grid-cols-2 lg:gap-20">
             {/* Contact Info */}
             <motion.div
-              data-cs="frame"
               initial={{ opacity: 0, x: -30 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.5 }}
@@ -178,7 +189,6 @@ export default function Contact() {
                 {socialLinks.map((link, index) => (
                   <motion.a
                     key={link.label}
-                    data-cs-copy="true"
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -224,7 +234,7 @@ export default function Contact() {
               Built with React, TypeScript & Tailwind CSS
             </p>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

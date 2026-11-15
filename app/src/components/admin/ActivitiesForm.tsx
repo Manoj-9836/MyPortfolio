@@ -10,7 +10,7 @@ interface Activity {
   section: string;
   timestamp: string;
   type: 'create' | 'update' | 'delete' | 'view' | 'login';
-  details?: Record<string, unknown>;
+  details?: Record<string, any>;
 }
 
 interface Stats {

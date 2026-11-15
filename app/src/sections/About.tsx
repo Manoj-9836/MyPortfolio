@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+import { useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { Code2, Brain, Users, Rocket } from 'lucide-react';
 import DOMPurify from 'dompurify';
@@ -47,6 +49,7 @@ const sanitizeAboutHtml = (value: string) => {
 
 export default function About() {
   const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [aboutData, setAboutData] = useState<AboutData>({
     title: 'Professional Summary',
     description: 'Computer Science undergraduate and Technical Head of the AI Club with strong experience in full-stack development and AI-powered applications. Actively involved in developer community building, technical workshops, and coding culture promotion. Passionate about mentoring peers, organizing programming initiatives to empower student developers.',
@@ -75,32 +78,47 @@ export default function About() {
   }, []);
 
   return (
-    <section id="about" className="bg-[#F3EEE3] px-5 py-16 text-[#111111] sm:px-8 md:py-24 lg:px-12">
+    <section id="about" data-gsap-reveal className="bg-[#F3EEE3] px-5 py-16 text-[#111111] sm:px-8 md:py-24 lg:px-12">
       <div className="mx-auto max-w-[1200px]">
-        <div ref={ref}>
+        <motion.div
+          ref={ref}
+          initial={{ opacity: 0, y: 50 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+        >
           {/* Editorial profile */}
           <div className="grid gap-10 border-t border-[#111111]/20 pt-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-20">
-            <div
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.2 }}
               className="order-1 flex min-h-[300px] items-center justify-center lg:min-h-[430px]"
             >
               <img
-                data-cs="media"
                 src="/Images/ManojKumar.png"
                 alt="Bavisetti Manoj Kumar"
                 className="h-auto max-h-[440px] w-full max-w-[360px] object-contain object-bottom sm:max-w-[400px] lg:max-h-[500px] lg:max-w-[430px]"
               />
-            </div>
+            </motion.div>
 
-            <div
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.7, delay: 0.25 }}
               className="order-2"
             >
-              <span
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={isInView ? { opacity: 1 } : {}}
+                transition={{ duration: 0.6, delay: 0.2 }}
                 className="block font-mono text-xs uppercase tracking-[0.16em] text-[#111111]/60"
               >
                 01 / ABOUT
-              </span>
-              <h2
-                data-cs="type"
+              </motion.span>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.3 }}
                 className="relative mt-3 inline-block max-w-3xl pb-3 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
               >
                 {aboutData.title}
@@ -118,21 +136,22 @@ export default function About() {
                     strokeLinecap="round"
                   />
                 </svg>
-              </h2>
+              </motion.h2>
               <div
-                data-cs="words"
                 className="about-rich mt-7 max-w-2xl font-sans text-base leading-8 text-[#111111]/75 sm:text-lg"
                 dangerouslySetInnerHTML={{ __html: sanitizeAboutHtml(aboutData.description) }}
               />
-            </div>
+            </motion.div>
           </div>
 
           {/* Highlights Grid */}
           <div className="mt-16 grid grid-cols-1 border-t border-[#111111]/20 sm:grid-cols-2 lg:grid-cols-4">
             {highlights.map((item, index) => (
-              <div
+              <motion.div
                 key={item.title}
-                data-cs-copy="true"
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
                 className="group border-b border-[#111111]/20 py-6 sm:border-r sm:px-6 sm:first:pl-0 lg:border-b-0 lg:last:border-r-0 lg:py-7"
               >
                 <div className="mb-6 flex h-10 w-10 items-center justify-center border border-[#D9541E] text-[#D9541E]">
@@ -143,10 +162,10 @@ export default function About() {
                 <p className="mt-3 font-serif text-sm leading-6 text-[#111111]/65">
                   {aboutData.highlights?.[index] || item.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

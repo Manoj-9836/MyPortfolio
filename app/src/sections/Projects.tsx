@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 import {
@@ -14,7 +14,6 @@ import {
   Calendar
 } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
-import { refreshSwarm } from '../lib/cursorSwarm';
 
 interface Project {
   _id: string;
@@ -80,6 +79,7 @@ const insightSections = [
 
 export default function Projects() {
   const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -107,7 +107,6 @@ export default function Projects() {
         if (!response.ok) throw new Error(`Projects request failed: ${response.status}`);
         const data: Project[] = await response.json();
         setProjects(Array.isArray(data) ? data : []);
-        refreshSwarm();
       } catch (error) {
         console.error('Failed to fetch projects:', error);
       }
@@ -117,43 +116,56 @@ export default function Projects() {
   }, []);
 
   return (
-    <section id="projects" className="bg-[#111111] px-5 py-16 text-[#F3EEE3] sm:px-8 md:py-24 lg:px-12">
+    <section id="projects" data-gsap-reveal className="bg-[#111111] px-5 py-16 text-[#F3EEE3] sm:px-8 md:py-24 lg:px-12">
       <div className="mx-auto max-w-[1200px]">
-        <div ref={ref}>
+        <motion.div
+          ref={ref}
+          initial={{ opacity: 0, y: 50 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+        >
           {/* Section Header */}
           <div className="mb-16 grid gap-8 border-t border-[#F3EEE3]/25 pt-5 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
-            <span
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.6, delay: 0.2 }}
               className="font-mono text-xs uppercase tracking-[0.16em] text-[#F3EEE3]/60"
             >
               04 / Selected work
-            </span>
+            </motion.span>
             <div>
-              <h2
-                data-cs="type"
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.3 }}
                 className="relative inline-block pb-3 font-display text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl"
               >
                 Featured Work
                 <svg viewBox="0 0 260 14" className="absolute -bottom-0 left-6 w-[200px] sm:w-[250px]" aria-hidden="true">
                   <path d="M3 10 C60 3 160 2 257 6" fill="none" stroke="#EA580C" strokeWidth="3.5" strokeLinecap="round" />
                 </svg>
-              </h2>
-              <p
-                data-cs="words"
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.4 }}
                 className="mt-5 max-w-2xl font-serif text-lg leading-8 text-[#F3EEE3]/70"
               >
                 Showcasing my best work in AI-powered applications and full-stack development
-              </p>
+              </motion.p>
             </div>
           </div>
 
           {/* Projects Grid */}
           <div className="grid grid-cols-1 border-t border-[#F3EEE3]/20 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
-              <div
+            {projects.map((project, index) => (
+              <motion.div
                 key={project.title}
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.5 + index * 0.15 }}
                 data-project-card
-                data-cs="frame"
-                data-cs-copy="true"
                 role="button"
                 tabIndex={0}
                 aria-label={`View details for ${project.title}`}
@@ -164,23 +176,21 @@ export default function Projects() {
                     setSelectedProject(project);
                   }
                 }}
-                className="group cursor-pointer border-b border-[#F3EEE3]/20 py-6 outline-none transition-all duration-300 hover:-translate-y-1.5 sm:mx-4 sm:first:ml-0 lg:mx-5 lg:first:ml-0"
+                className="group cursor-pointer border-b border-[#F3EEE3]/20 py-6 outline-none sm:mx-4 sm:first:ml-0 lg:mx-5 lg:first:ml-0"
               >
-                <div
-                  data-cs="frame"
-                  className="relative flex h-full flex-col justify-between overflow-hidden border border-[#F3EEE3]/15 bg-[#111111] p-4 transition-all duration-300 group-hover:border-[#D9541E] group-hover:shadow-[0_10px_30px_rgba(217,84,30,0.15)] group-focus-visible:border-[#D9541E] sm:p-6"
-                >
+                <div className="relative flex h-full flex-col justify-between overflow-hidden border border-[#F3EEE3]/15 bg-[#111111] p-4 transition-colors duration-300 group-hover:border-[#D9541E] group-focus-visible:border-[#D9541E] sm:p-6">
                   <div className="absolute inset-0 border-t-2 border-[#D9541E] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
                   <div className="relative z-10">
                     <div className="group/img relative mb-5 h-36 overflow-hidden border border-[#F3EEE3]/20">
                       {project.bgImage ? (
-                        <img
-                          data-cs="media"
+                        <motion.img
                           src={project.bgImage}
                           alt={`${project.title} project preview`}
                           loading="lazy"
                           decoding="async"
-                          className="h-full w-full object-cover grayscale transition-transform duration-500 group-hover/img:scale-105 group-hover/img:grayscale-0"
+                          className="h-full w-full object-cover grayscale transition duration-500 group-hover/img:scale-105 group-hover/img:grayscale-0"
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.3 }}
                         />
                       ) : (
                         <div className="flex h-48 items-end bg-[#F3EEE3]/10 p-4 font-mono text-xs uppercase tracking-[0.08em] text-[#F3EEE3]/50">
@@ -194,26 +204,26 @@ export default function Projects() {
                       </div>
                     </div>
                     <div className="mb-3 flex flex-wrap items-center gap-2">
-                      <span data-cs="pop" className="border border-[#D9541E]/70 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#D9541E]">
+                      <span className="border border-[#D9541E]/70 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#D9541E]">
                         {project.featured ? 'Featured work' : 'Project'}
                       </span>
-                      <span data-cs="pop" className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#F3EEE3]/45">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#F3EEE3]/45">
                         {project.date}
                       </span>
                     </div>
-                    <h3 data-cs="type" className="font-display text-xl font-semibold leading-tight tracking-[-0.03em] transition-colors group-hover:text-[#D9541E]">
+                    <h3 className="font-display text-xl font-semibold leading-tight tracking-[-0.03em] transition-colors group-hover:text-[#D9541E]">
                       {project.title}
                     </h3>
-                    <p data-cs="words" className="mt-2 font-serif text-sm leading-6 text-[#F3EEE3]/65">{project.subtitle}</p>
+                    <p className="mt-2 font-serif text-sm leading-6 text-[#F3EEE3]/65">{project.subtitle}</p>
                   </div>
                   <div className="relative z-10 mt-6 flex items-center justify-between border-t border-[#F3EEE3]/15 pt-3">
                     <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#F3EEE3]/45">
                       {project.tech.slice(0, 2).join(' / ')}
                     </span>
-                    <span data-cs="pop" className="text-xs font-medium text-[#D9541E]">View case study →</span>
+                    <span className="text-xs font-medium text-[#D9541E]">View case study →</span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
           {projects.length === 0 && (
@@ -221,13 +231,12 @@ export default function Projects() {
               Project case studies are being updated.
             </p>
           )}
-        </div>
+        </motion.div>
       </div>
 
       <AnimatePresence>
         {selectedProject && (
           <motion.div
-            data-cs-ignore
             className="fixed inset-0 z-[100] flex items-center justify-center bg-[#111111]/90 p-4 sm:p-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

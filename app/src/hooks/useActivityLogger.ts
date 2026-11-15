@@ -7,7 +7,7 @@ export const useActivityLogger = () => {
     action: string,
     section: string,
     type: 'create' | 'update' | 'delete' | 'view' | 'login' = 'update',
-    details?: Record<string, unknown>
+    details?: Record<string, any>
   ) => {
     try {
       await fetch(`${API_ENDPOINTS.PORTFOLIO}/activities/log`, {
