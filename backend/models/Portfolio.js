@@ -16,6 +16,24 @@ const projectSchema = new mongoose.Schema({
   highlights: [String],
   featured: { type: Boolean, default: false },
   bgImage: String,
+  metrics: {
+    type: [{ value: String, label: String }],
+    default: []
+  },
+  features: {
+    type: [{ title: String, description: String }],
+    default: []
+  },
+  demoVideoUrl: String,
+  screenshots: {
+    type: [{ src: String, alt: String, caption: String }],
+    default: []
+  },
+  architectureImage: String,
+  challengesAndLearnings: {
+    type: [String],
+    default: []
+  },
   order: { type: Number, default: 0 }
 }, { timestamps: true });
 

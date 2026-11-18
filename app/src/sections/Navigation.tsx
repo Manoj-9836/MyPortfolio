@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
 import LoginModal from '../components/admin/LoginModal';
 
 const navItems = [
@@ -18,6 +19,8 @@ const secondaryNavItems = [
 ];
 
 export default function Navigation() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -30,23 +33,23 @@ export default function Navigation() {
 
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (e.ctrlKey || e.metaKey) {
-      // Ctrl+Click or Cmd+Click opens login
       e.preventDefault();
       setIsLoginOpen(true);
     } else {
-      // Normal click - scroll to home
       e.preventDefault();
-      const element = document.getElementById('home');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+      navigateToSection('#home');
     }
   };
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
-      
+
+      if (location.pathname.startsWith('/projects/')) {
+        setActiveSection('projects');
+        return;
+      }
+
       // Track active section
       const sections = [...navItems, ...secondaryNavItems].map(item => item.href.replace('#', ''));
       const current = sections.find(section => {
@@ -61,31 +64,37 @@ export default function Navigation() {
     };
 
     window.addEventListener('scroll', handleScroll);
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [location.pathname]);
+
+  const navigateToSection = (href: string) => {
+    const scrollToSection = () => {
+      const element = document.getElementById(href.slice(1));
+      if (!element) return;
+
+      const navHeight = 64;
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+
+      window.scrollTo({
+        top: elementPosition - navHeight,
+        behavior,
+      });
+    };
+
+    if (location.pathname !== '/') {
+      navigate(`/${href}`);
+      return;
+    }
+
+    scrollToSection();
+  };
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    
-    const targetId = href.replace('#', '');
-    const element = document.getElementById(targetId);
-    
-    if (element) {
-      // Close menu first
-      setIsMobileMenuOpen(false);
-      
-      // Wait for menu animation to complete before scrolling
-      setTimeout(() => {
-        const navHeight = 64; // h-16 = 64px
-        const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-        const offsetPosition = elementPosition - navHeight;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }, 100);
-    }
+    setIsMobileMenuOpen(false);
+    navigateToSection(href);
   };
 
   return (

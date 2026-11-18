@@ -4,6 +4,7 @@ import { Plus, Edit, Trash2, X, Save, Briefcase, ExternalLink, Github, Star } fr
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { API_ENDPOINTS } from '../../config/api';
+import type { Project } from '../../types/project';
 import { toast } from 'react-toastify';
 
 const quillModules = {
@@ -30,25 +31,52 @@ const quillFormats = [
   'code-block',
 ];
 
-interface Project {
-  _id?: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  caseStudy?: {
-    problem: string;
-    approach: string;
-    impact: string;
-  };
-  tech: string[];
-  date: string;
-  liveUrl?: string;
-  githubUrl?: string;
-  highlights: string[];
-  featured?: boolean;
-  bgImage?: string;
-  order?: number;
-}
+type ProjectFormData = Omit<Project, '_id'> & { _id?: string };
+
+const createEmptyProject = (): ProjectFormData => ({
+  title: '',
+  subtitle: '',
+  description: '',
+  caseStudy: { problem: '', approach: '', impact: '' },
+  tech: [],
+  date: '',
+  liveUrl: '',
+  githubUrl: '',
+  highlights: [],
+  featured: false,
+  bgImage: '',
+  metrics: [],
+  features: [],
+  demoVideoUrl: '',
+  screenshots: [],
+  architectureImage: '',
+  challengesAndLearnings: [],
+});
+
+const formatPairLines = (items: { value: string; label: string }[] = []) =>
+  items.map(({ value, label }) => `${value} | ${label}`).join('\n');
+
+const parsePairLines = (input: string) =>
+  input.split(/\r?\n/).flatMap((line) => {
+    const separator = line.indexOf('|');
+    if (separator < 0) return [];
+    const first = line.slice(0, separator).trim();
+    const second = line.slice(separator + 1).trim();
+    return first && second ? [{ first, second }] : [];
+  });
+
+const hasInvalidPairLines = (input: string) =>
+  input.split(/\r?\n/).some((line) => {
+    if (!line.trim()) return false;
+    const separator = line.indexOf('|');
+    return separator < 1 || !line.slice(separator + 1).trim();
+  });
+
+const formatTextPairs = (items: { title: string; description: string }[] = []) =>
+  items.map(({ title, description }) => `${title} | ${description}`).join('\n');
+
+const formatScreenshotLines = (items: { src: string; caption: string }[] = []) =>
+  items.map(({ src, caption }) => `${src} | ${caption}`).join('\n');
 
 interface ProjectsFormProps {
   onSave: () => void;
@@ -59,23 +87,11 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Project>({
-    title: '',
-    subtitle: '',
-    description: '',
-    caseStudy: {
-      problem: '',
-      approach: '',
-      impact: '',
-    },
-    tech: [],
-    date: '',
-    liveUrl: '',
-    githubUrl: '',
-    highlights: [],
-    featured: false,
-    bgImage: '',
-  });
+  const [formData, setFormData] = useState<ProjectFormData>(createEmptyProject);
+  const [metricsInput, setMetricsInput] = useState('');
+  const [featuresInput, setFeaturesInput] = useState('');
+  const [screenshotsInput, setScreenshotsInput] = useState('');
+  const [challengesInput, setChallengesInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -114,25 +130,30 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
     }
   };
 
-  const normalizeCaseStudy = (project?: Project) => ({
+  const normalizeCaseStudy = (project?: ProjectFormData) => ({
     problem: project?.caseStudy?.problem || '',
     approach: project?.caseStudy?.approach || '',
     impact: project?.caseStudy?.impact || '',
   });
 
+  const setProjectEditor = (project: ProjectFormData) => {
+    setFormData({ ...createEmptyProject(), ...project, caseStudy: normalizeCaseStudy(project) });
+    setMetricsInput(formatPairLines(project.metrics));
+    setFeaturesInput(formatTextPairs(project.features));
+    setScreenshotsInput(formatScreenshotLines(project.screenshots));
+    setChallengesInput((project.challengesAndLearnings || []).join('\n'));
+  };
+
   const handleOpenModal = (project?: Project) => {
     if (project) {
       setEditingId(project._id || null);
-      setFormData({
-        ...project,
-        caseStudy: normalizeCaseStudy(project),
-      });
+      setProjectEditor(project);
       if (project._id) {
         fetch(`${API_ENDPOINTS.PORTFOLIO}/projects/${project._id}`)
           .then((response) => response.json())
           .then((data) => {
             if (!data || !data._id) return;
-            setFormData({
+            setProjectEditor({
               ...data,
               caseStudy: normalizeCaseStudy(data),
             });
@@ -143,22 +164,9 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
       }
     } else {
       setEditingId(null);
-      setFormData({
-        title: '',
-        subtitle: '',
-        description: '',
-        caseStudy: {
-          problem: '',
-          approach: '',
-          impact: '',
-        },
-        tech: [],
+      setProjectEditor({
+        ...createEmptyProject(),
         date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        liveUrl: '',
-        githubUrl: '',
-        highlights: [],
-        featured: false,
-        bgImage: '',
       });
     }
     setIsModalOpen(true);
@@ -212,6 +220,12 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
       return;
     }
 
+    if ([metricsInput, featuresInput, screenshotsInput].some(hasInvalidPairLines)) {
+      setError('Use the “value | label” format shown above for each project page content line.');
+      toast.error('Check the format of the project page content lines.');
+      return;
+    }
+
     setSaving(true);
     setError('');
 
@@ -224,6 +238,16 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
       const payload = {
         ...formData,
         caseStudy: normalizeCaseStudy(formData),
+        metrics: parsePairLines(metricsInput).map(({ first, second }) => ({ value: first, label: second })),
+        features: parsePairLines(featuresInput).map(({ first, second }) => ({ title: first, description: second })),
+        demoVideoUrl: formData.demoVideoUrl?.trim() || '',
+        screenshots: parsePairLines(screenshotsInput).map(({ first, second }) => ({
+          src: first,
+          caption: second,
+          alt: second,
+        })),
+        architectureImage: formData.architectureImage?.trim() || '',
+        challengesAndLearnings: challengesInput.split(/\r?\n/).map((item) => item.trim()).filter(Boolean),
       };
 
       const response = await fetch(url, {
@@ -552,6 +576,97 @@ export default function ProjectsForm({ onSave }: ProjectsFormProps) {
                             placeholder="What measurable result or outcome did you achieve?"
                           />
                         </div>
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-2 rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4 space-y-4">
+                      <h4 className="text-sm sm:text-base font-semibold text-white">Project Page Content</h4>
+
+                      <div>
+                        <label htmlFor="project-metrics" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                          Metrics (one per line: value | label)
+                        </label>
+                        <textarea
+                          id="project-metrics"
+                          value={metricsInput}
+                          onChange={(e) => setMetricsInput(e.target.value)}
+                          rows={3}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30"
+                          placeholder={'4+ | AI agents\n60% | Less screening time'}
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="project-features" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                          Key Features (one per line: title | description)
+                        </label>
+                        <textarea
+                          id="project-features"
+                          value={featuresInput}
+                          onChange={(e) => setFeaturesInput(e.target.value)}
+                          rows={4}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30"
+                          placeholder={'Resume analyzer | Extracts experience and skills\nInterview scheduler | Coordinates interviews'}
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="project-demo-video" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                          Demo video URL
+                        </label>
+                        <input
+                          id="project-demo-video"
+                          type="url"
+                          value={formData.demoVideoUrl || ''}
+                          onChange={(e) => setFormData({ ...formData, demoVideoUrl: e.target.value })}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30"
+                          placeholder="Google Drive sharing URL"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">
+                          Set the video’s Google Drive access to “Anyone with the link” so it can play in the portfolio.
+                        </p>
+                      </div>
+
+                      <div>
+                        <label htmlFor="project-screenshots" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                          Screenshots (one per line: image URL | caption)
+                        </label>
+                        <textarea
+                          id="project-screenshots"
+                          value={screenshotsInput}
+                          onChange={(e) => setScreenshotsInput(e.target.value)}
+                          rows={4}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30"
+                          placeholder={'https://example.com/dashboard.png | Dashboard overview'}
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="project-architecture" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                          Architecture diagram URL
+                        </label>
+                        <input
+                          id="project-architecture"
+                          type="url"
+                          value={formData.architectureImage || ''}
+                          onChange={(e) => setFormData({ ...formData, architectureImage: e.target.value })}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30"
+                          placeholder="https://..."
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="project-challenges" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                          Challenges and learnings (one per line)
+                        </label>
+                        <textarea
+                          id="project-challenges"
+                          value={challengesInput}
+                          onChange={(e) => setChallengesInput(e.target.value)}
+                          rows={3}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30"
+                          placeholder="Describe an engineering challenge or lesson learned"
+                        />
                       </div>
                     </div>
 

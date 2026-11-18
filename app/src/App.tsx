@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRef } from 'react';
@@ -15,6 +15,7 @@ import Certifications from './sections/Certifications';
 import Achievements from './sections/Achievements';
 import Contact from './sections/Contact';
 import AdminDashboard from './pages/AdminDashboard.tsx';
+import ProjectDetail from './pages/ProjectDetail';
 import './App.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -82,8 +83,18 @@ function App() {
 
   return (
     <Router>
+      <ScrollToHash />
       <Routes>
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route
+          path="/projects/:projectId"
+          element={
+            <div className="min-h-screen overflow-x-hidden bg-[#111111] text-[#F3EEE3]">
+              <Navigation />
+              <ProjectDetail />
+            </div>
+          }
+        />
         <Route path="/" element={
           <div className="min-h-screen bg-black text-white overflow-x-hidden">
             <AnimatePresence mode="wait">
@@ -116,6 +127,39 @@ function App() {
       </Routes>
     </Router>
   );
+}
+
+function ScrollToHash() {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (pathname !== '/' || !hash) return;
+
+    let attempts = 0;
+    let timeout: ReturnType<typeof setTimeout>;
+    const scrollToTarget = () => {
+      const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+      if (target) {
+        const navHeight = window.matchMedia('(min-width: 768px)').matches ? 80 : 64;
+        const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: elementPosition - navHeight, behavior: 'instant' });
+        return;
+      }
+
+      if (attempts < 40) {
+        attempts += 1;
+        timeout = window.setTimeout(scrollToTarget, 100);
+      }
+    };
+
+    const frame = window.requestAnimationFrame(scrollToTarget);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+    };
+  }, [hash, pathname]);
+
+  return null;
 }
 
 function IntroAnimation() {
