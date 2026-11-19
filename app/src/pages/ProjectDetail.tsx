@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { API_ENDPOINTS } from '../config/api';
 import type { Project } from '../types/project';
 import { cleanProjectText, sanitizeProjectHtml } from '../utils/projectContent';
+import { SkeletonBlock, SkeletonStatus } from '../components/PortfolioSkeleton';
 
 function RichText({ value, className = '' }: { value?: string; className?: string }) {
   if (!value?.trim()) return null;
@@ -178,9 +179,29 @@ export default function ProjectDetail() {
   if (isLoading) {
     return (
       <main className="mx-auto max-w-[1200px] px-5 pb-24 pt-28 text-[#F3EEE3] sm:px-8 lg:px-12" aria-busy="true">
-        <p className="font-mono text-xs uppercase tracking-[0.12em] text-[#F3EEE3]/65" role="status">
-          Loading project…
-        </p>
+        <SkeletonStatus label="project details">
+          <div aria-hidden="true">
+            <SkeletonBlock tone="dark" className="h-4 w-32" />
+            <SkeletonBlock tone="dark" className="mt-10 aspect-[16/8] w-full border border-[#F3EEE3]/10" />
+            <div className="mt-10 grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
+              <div className="space-y-4">
+                <SkeletonBlock tone="dark" className="h-3 w-24" />
+                <SkeletonBlock tone="dark" className="h-10 w-3/4" />
+                <SkeletonBlock tone="dark" className="h-5 w-1/2" />
+              </div>
+              <div className="space-y-4 border-t border-[#F3EEE3]/20 pt-6">
+                <SkeletonBlock tone="dark" className="h-5 w-full" />
+                <SkeletonBlock tone="dark" className="h-5 w-full" />
+                <SkeletonBlock tone="dark" className="h-5 w-4/5" />
+              </div>
+            </div>
+            <div className="mt-16 border-t border-[#F3EEE3]/20 pt-8">
+              <SkeletonBlock tone="dark" className="h-8 w-1/3" />
+              <SkeletonBlock tone="dark" className="mt-6 h-5 w-full" />
+              <SkeletonBlock tone="dark" className="mt-3 h-5 w-5/6" />
+            </div>
+          </div>
+        </SkeletonStatus>
       </main>
     );
   }

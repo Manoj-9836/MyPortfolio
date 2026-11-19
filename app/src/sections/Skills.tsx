@@ -1,6 +1,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '../config/api';
+import { SkeletonBlock, SkeletonStatus } from '../components/PortfolioSkeleton';
 
 interface Skill {
   _id: string;
@@ -17,6 +18,7 @@ export default function Skills() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [skillCategories, setSkillCategories] = useState<SkillCategory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -49,6 +51,8 @@ export default function Skills() {
         setSkillCategories(categoriesArray);
       } catch (error) {
         console.error('Failed to fetch skills:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -98,6 +102,23 @@ export default function Skills() {
           </div>
 
           {/* Skills Grid */}
+          {isLoading ? (
+            <SkeletonStatus label="capabilities">
+              <div className="grid grid-cols-1 border-t border-[#111111]/20 md:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
+                {[0, 1, 2].map((item) => (
+                  <div key={item} className="border-b border-[#111111]/20 py-6 md:border-r md:px-6 lg:py-8">
+                    <SkeletonBlock tone="light" className="mb-5 h-3 w-8" />
+                    <SkeletonBlock tone="light" className="h-6 w-2/3" />
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {[0, 1, 2, 3].map((tag) => (
+                        <SkeletonBlock key={tag} tone="light" className="h-8 w-20 border border-[#111111]/10" />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </SkeletonStatus>
+          ) : skillCategories.length > 0 ? (
           <div className="grid grid-cols-1 border-t border-[#111111]/20 md:grid-cols-2 lg:grid-cols-3">
             {skillCategories.map((category, index) => (
               <motion.div
@@ -119,15 +140,15 @@ export default function Skills() {
                       </span>
                     ))}
                   </div>
-                  {skillCategories.length === 0 && (
-                    <p className="border-t border-[#111111]/20 py-10 font-mono text-xs uppercase tracking-[0.08em] text-[#111111]/55">
-                      Technical toolkit is being updated.
-                    </p>
-                  )}
                 </div>
               </motion.div>
             ))}
           </div>
+          ) : (
+            <p className="border-t border-[#111111]/20 py-10 font-mono text-xs uppercase tracking-[0.08em] text-[#111111]/55">
+              Technical toolkit is being updated.
+            </p>
+          )}
         </motion.div>
       </div>
     </section>

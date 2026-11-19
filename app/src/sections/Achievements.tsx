@@ -2,6 +2,7 @@ import { motion, useInView } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { Code2, Medal, Star, Trophy } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
+import { SkeletonBlock, SkeletonStatus } from '../components/PortfolioSkeleton';
 
 interface Achievement {
   _id: string;
@@ -17,6 +18,7 @@ export default function Achievements() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -27,6 +29,8 @@ export default function Achievements() {
         setAchievements(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Failed to fetch milestones:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchAchievements();
@@ -48,6 +52,24 @@ export default function Achievements() {
             </div>
           </div>
 
+          {isLoading ? (
+            <SkeletonStatus label="recognition">
+              <div className="grid border-t border-[#111111]/20 md:grid-cols-2" aria-hidden="true">
+                {[0, 1, 2, 3].map((item) => (
+                  <div key={item} className="flex gap-4 border-b border-[#111111]/20 py-7 md:odd:mr-8 md:even:ml-8">
+                    <SkeletonBlock tone="light" className="mt-1 h-5 w-5 shrink-0" />
+                    <div className="flex-1">
+                      <SkeletonBlock tone="light" className="h-3 w-20" />
+                      <SkeletonBlock tone="light" className="mt-3 h-6 w-3/4" />
+                      <SkeletonBlock tone="light" className="mt-4 h-4 w-full" />
+                      <SkeletonBlock tone="light" className="mt-2 h-4 w-2/3" />
+                      <SkeletonBlock tone="light" className="mt-5 h-3 w-24" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </SkeletonStatus>
+          ) : (
           <div className="grid border-t border-[#111111]/20 md:grid-cols-2">
             {achievements.map((achievement, index) => {
               const Icon = icons[index % icons.length];
@@ -72,7 +94,8 @@ export default function Achievements() {
               );
             })}
           </div>
-          {achievements.length === 0 && (
+          )}
+          {!isLoading && achievements.length === 0 && (
             <p className="border-b border-[#111111]/20 py-10 font-mono text-xs uppercase tracking-[0.08em] text-[#111111]/55">
               Recognition details are being updated.
             </p>

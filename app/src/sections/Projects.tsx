@@ -3,6 +3,7 @@ import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { API_ENDPOINTS } from '../config/api';
 import type { Project } from '../types/project';
+import { SkeletonBlock, SkeletonStatus } from '../components/PortfolioSkeleton';
 
 const MotionLink = motion.create(Link);
 
@@ -62,9 +63,30 @@ export default function Projects() {
           </div>
 
           {isLoading ? (
-            <p className="border-t border-[#F3EEE3]/20 py-10 font-mono text-xs uppercase tracking-[0.08em] text-[#F3EEE3]/55" role="status">
-              Loading projects…
-            </p>
+            <SkeletonStatus label="selected work">
+              <div className="grid grid-cols-1 border-t border-[#F3EEE3]/20 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
+                {[0, 1, 2].map((item) => (
+                  <div key={item} className="border-b border-[#F3EEE3]/20 py-6 sm:mx-4 lg:mx-5">
+                    <div className="flex h-full flex-col justify-between border border-[#F3EEE3]/15 p-4 sm:p-6">
+                      <div>
+                        <SkeletonBlock tone="dark" className="mb-5 aspect-[16/9] w-full border border-[#F3EEE3]/10" />
+                        <div className="mb-4 flex gap-3">
+                          <SkeletonBlock tone="dark" className="h-5 w-24" />
+                          <SkeletonBlock tone="dark" className="h-3 w-16 self-center" />
+                        </div>
+                        <SkeletonBlock tone="dark" className="h-6 w-3/4" />
+                        <SkeletonBlock tone="dark" className="mt-3 h-4 w-full" />
+                        <SkeletonBlock tone="dark" className="mt-2 h-4 w-2/3" />
+                      </div>
+                      <div className="mt-6 flex justify-between border-t border-[#F3EEE3]/15 pt-3">
+                        <SkeletonBlock tone="dark" className="h-3 w-20" />
+                        <SkeletonBlock tone="dark" className="h-4 w-24" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </SkeletonStatus>
           ) : error ? (
             <p className="border-t border-[#F3EEE3]/20 py-10 text-sm text-[#F3EEE3]/70" role="alert">
               {error}

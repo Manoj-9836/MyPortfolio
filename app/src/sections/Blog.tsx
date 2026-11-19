@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Calendar, X, Heart, Eye, MessageCircle, Share2, Twitter, Facebook, Linkedin, Copy, ChevronLeft, ChevronRight, Search, Link2, User, Mail, Pencil, SlidersHorizontal, ArrowDown } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
 import PostDisplay from '../components/PostDisplay';
+import { SkeletonBlock, SkeletonStatus } from '../components/PortfolioSkeleton';
 
 interface Comment {
   _id: string;
@@ -39,6 +40,7 @@ export default function Blog() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -171,8 +173,10 @@ export default function Blog() {
             }, 500);
           }
         }
-      } catch {
-        // Use empty state if fetch fails
+      } catch (error) {
+        console.error('Failed to fetch blog posts:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -441,6 +445,27 @@ export default function Blog() {
           </div>
 
           {/* Blog Cards Grid */}
+          {isLoading ? (
+            <SkeletonStatus label="writing">
+              <div className="grid grid-cols-1 border-t border-[#111111]/20 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
+                {[0, 1, 2].map((item) => (
+                  <div key={item} className="border-b border-[#111111]/20 py-6 sm:mx-4 lg:mx-5">
+                    <div className="border border-[#111111]/15 p-4 sm:p-6">
+                      <SkeletonBlock tone="light" className="mb-5 h-32 w-full border border-[#111111]/10" />
+                      <div className="mb-4 flex gap-2">
+                        <SkeletonBlock tone="light" className="h-5 w-20" />
+                        <SkeletonBlock tone="light" className="h-5 w-16" />
+                      </div>
+                      <SkeletonBlock tone="light" className="h-6 w-3/4" />
+                      <SkeletonBlock tone="light" className="mt-4 h-4 w-full" />
+                      <SkeletonBlock tone="light" className="mt-2 h-4 w-2/3" />
+                      <SkeletonBlock tone="light" className="mt-5 h-3 w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </SkeletonStatus>
+          ) : (
           <div className="grid grid-cols-1 border-t border-[#111111]/20 sm:grid-cols-2 lg:grid-cols-3">
             {currentPosts.map((post, index) => (
               <motion.div
@@ -544,7 +569,8 @@ export default function Blog() {
               </motion.div>
             ))}
           </div>
-          {currentPosts.length === 0 && (
+          )}
+          {!isLoading && currentPosts.length === 0 && (
             <p className="border-t border-[#111111]/20 py-10 font-mono text-xs uppercase tracking-[0.08em] text-[#111111]/55">
               No published stories match this search.
             </p>

@@ -51,8 +51,8 @@ app.use(express.json({ limit: '10mb' }));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch((err) => console.error('❌ MongoDB Connection Error:', err));
+  .then(() => console.log('--MongoDB Connected'))
+  .catch((err) => console.error('--MongoDB Connection Error:', err));
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -87,5 +87,5 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`-Server running on port ${PORT}`);
 });

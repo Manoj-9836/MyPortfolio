@@ -2,6 +2,7 @@ import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { GraduationCap, MapPin, Calendar } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
+import { SkeletonBlock, SkeletonStatus } from '../components/PortfolioSkeleton';
 
 interface EducationData {
   _id?: string;
@@ -94,9 +95,29 @@ export default function Education() {
           </div>
 
           {isLoading ? (
-            <p className="border-t border-[#F3EEE3]/20 pt-6 font-mono text-xs uppercase tracking-[0.08em] text-[#F3EEE3]/55">
-              Loading academic timeline...
-            </p>
+            <SkeletonStatus label="education">
+              <div className="relative border-t border-[#F3EEE3]/25 pt-8" aria-hidden="true">
+                <div className="absolute bottom-8 left-[7px] top-8 w-px bg-[#D9541E]/35 md:left-1/2 md:-translate-x-1/2" />
+                {[0, 1].map((item) => (
+                  <div key={item} className="relative mb-12 grid grid-cols-[16px_1fr] gap-6 last:mb-0 md:grid-cols-[1fr_32px_1fr] md:gap-8">
+                    <div className={`col-start-2 md:col-start-1 ${item % 2 === 0 ? 'md:text-right' : 'md:col-start-3'}`}>
+                      <SkeletonBlock tone="dark" className={`mb-3 h-3 w-24 ${item % 2 === 0 ? 'md:ml-auto' : ''}`} />
+                      <div className="space-y-4 border border-[#F3EEE3]/15 p-5">
+                        <SkeletonBlock tone="dark" className="h-6 w-3/4" />
+                        <SkeletonBlock tone="dark" className="h-4 w-2/3" />
+                        <div className="flex flex-wrap gap-3 border-t border-[#F3EEE3]/10 pt-4">
+                          <SkeletonBlock tone="dark" className="h-3 w-24" />
+                          <SkeletonBlock tone="dark" className="h-3 w-20" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-start-1 row-start-1 flex justify-center md:col-start-2">
+                      <SkeletonBlock tone="dark" className="z-10 mt-1 h-4 w-4 border-4 border-[#111111]" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </SkeletonStatus>
           ) : (
           <div className="relative border-t border-[#F3EEE3]/25 pt-8">
             <div className="absolute bottom-8 left-[7px] top-8 w-px bg-[#D9541E]/60 md:left-1/2 md:-translate-x-1/2" />

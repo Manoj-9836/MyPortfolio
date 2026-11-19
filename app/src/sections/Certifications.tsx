@@ -2,6 +2,7 @@ import { motion, useInView } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
+import { SkeletonBlock, SkeletonStatus } from '../components/PortfolioSkeleton';
 
 interface Certification {
   _id: string;
@@ -20,6 +21,7 @@ export default function Certifications() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchCertifications = async () => {
@@ -30,6 +32,8 @@ export default function Certifications() {
         setCertifications(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Failed to fetch certifications:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchCertifications();
@@ -63,6 +67,21 @@ export default function Certifications() {
             </div>
           </div>
 
+          {isLoading ? (
+            <SkeletonStatus label="credentials">
+              <div className="grid border-t border-[#F3EEE3]/20 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
+                {[0, 1, 2, 3, 4, 5].map((item) => (
+                  <div key={item} className="border-b border-[#F3EEE3]/20 py-7 sm:mx-4 lg:mx-5">
+                    <SkeletonBlock tone="dark" className="mb-5 h-40 w-full border border-[#F3EEE3]/10" />
+                    <SkeletonBlock tone="dark" className="h-6 w-3/4" />
+                    <SkeletonBlock tone="dark" className="mt-4 h-4 w-full" />
+                    <SkeletonBlock tone="dark" className="mt-2 h-4 w-2/3" />
+                    <SkeletonBlock tone="dark" className="mt-5 h-3 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            </SkeletonStatus>
+          ) : (
           <div className="grid border-t border-[#F3EEE3]/20 sm:grid-cols-2 lg:grid-cols-3">
             {currentCertifications.map((cert, index) => (
               <motion.article
@@ -125,7 +144,8 @@ export default function Certifications() {
               </motion.article>
             ))}
           </div>
-          {certifications.length === 0 && (
+          )}
+          {!isLoading && certifications.length === 0 && (
             <p className="border-b border-[#F3EEE3]/20 py-10 font-mono text-xs uppercase tracking-[0.08em] text-[#F3EEE3]/55">
               Credentials are being updated.
             </p>
