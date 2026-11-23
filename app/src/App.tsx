@@ -46,14 +46,6 @@ function App() {
     main.addEventListener('mouseout', handleProjectCardMouseOut);
 
     const context = gsap.context(() => {
-      gsap.from('[data-gsap-hero]', {
-        autoAlpha: 0,
-        x: 24,
-        duration: 0.7,
-        delay: 0.35,
-        ease: 'power2.out',
-      });
-
       gsap.utils.toArray<HTMLElement>('[data-gsap-reveal]').forEach((section) => {
         gsap.from(section, {
           autoAlpha: 0,
@@ -84,14 +76,14 @@ function App() {
         <Route
           path="/projects/:projectId"
           element={
-            <div className="min-h-screen overflow-x-hidden bg-[#111111] text-[#F3EEE3]">
+            <div className="min-h-screen overflow-x-clip bg-[#111111] text-[#F3EEE3]">
               <Navigation />
               <ProjectDetail />
             </div>
           }
         />
         <Route path="/" element={
-          <div className="min-h-screen bg-black text-white overflow-x-hidden">
+          <div className="min-h-screen overflow-x-clip bg-black text-white">
             <Navigation />
             <main ref={mainRef}>
               <Hero />
@@ -115,12 +107,14 @@ function ScrollToHash() {
   const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    if (pathname !== '/' || !hash) return;
+    if (pathname !== '/') return;
+
+    const targetId = hash ? decodeURIComponent(hash.slice(1)) : 'home';
 
     let attempts = 0;
     let timeout: ReturnType<typeof setTimeout>;
     const scrollToTarget = () => {
-      const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+      const target = document.getElementById(targetId);
       if (target) {
         const navHeight = window.matchMedia('(min-width: 768px)').matches ? 80 : 64;
         const elementPosition = target.getBoundingClientRect().top + window.scrollY;
