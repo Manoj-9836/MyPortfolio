@@ -9,6 +9,54 @@ interface HeroData {
   description: string;
 }
 
+interface CounterStatProps {
+  target: number;
+  decimals?: number;
+  suffix?: string;
+  label: string;
+}
+
+function CounterStat({ target, decimals = 0, suffix = '', label }: CounterStatProps) {
+  const prefersReducedMotion = useReducedMotion();
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    let animationFrame = 0;
+    const startedAt = performance.now();
+    const duration = 3000;
+
+    const animate = (now: number) => {
+      const progress = Math.min((now - startedAt) / duration, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      setValue(target * easedProgress);
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, [prefersReducedMotion, target]);
+
+  const displayValue = prefersReducedMotion ? target : value;
+  const formattedValue = decimals > 0 ? displayValue.toFixed(decimals) : Math.round(displayValue).toString();
+
+  return (
+    <div data-focus-item>
+      <p className="font-display text-2xl font-semibold text-[#D9541E]" aria-label={`${formattedValue}${suffix} ${label}`}>
+        {formattedValue}{suffix}
+      </p>
+      <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#F3EEE3]/50">{label}</p>
+    </div>
+  );
+}
+
 export default function Hero() {
   const prefersReducedMotion = useReducedMotion();
   const asideRef = useRef<HTMLElement>(null);
@@ -178,15 +226,10 @@ export default function Hero() {
               <dd className="text-right">React / AI / Node</dd>
             </div>
           </dl>
-          <div className="mt-8 grid grid-cols-2 gap-3 border-t border-[#F3EEE3]/20 pt-5">
-            <div data-focus-item>
-              <p className="font-display text-2xl font-semibold text-[#D9541E]">100+</p>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#F3EEE3]/50">Students mentored</p>
-            </div>
-            <div data-focus-item>
-              <p className="font-display text-2xl font-semibold text-[#D9541E]">8.1</p>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[#F3EEE3]/50">Current CGPA</p>
-            </div>
+          <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-5 border-t border-[#F3EEE3]/20 pt-5 sm:grid-cols-3">
+            <CounterStat target={190} suffix="+" label="LeetCode problems solved" />
+            <CounterStat target={8.1} decimals={1} label="CGPA" />
+            <CounterStat target={100} suffix="+" label="Students mentored" />
           </div>
         </aside>
       </div>

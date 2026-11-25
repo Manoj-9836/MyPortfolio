@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, CheckCircle2, ExternalLink, Github, Play, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, ExternalLink, Github, Mail, Play, X } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { API_ENDPOINTS } from '../config/api';
 import type { Project } from '../types/project';
 import { cleanProjectText, sanitizeProjectHtml } from '../utils/projectContent';
 import { SkeletonBlock, SkeletonStatus } from '../components/PortfolioSkeleton';
+
+gsap.registerPlugin(ScrollTrigger);
 
 function RichText({ value, className = '' }: { value?: string; className?: string }) {
   if (!value?.trim()) return null;
@@ -91,6 +95,7 @@ export default function ProjectDetail() {
   const screenshotDialogRef = useRef<HTMLDialogElement>(null);
   const closeScreenshotButtonRef = useRef<HTMLButtonElement>(null);
   const screenshotTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const pageRef = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -145,6 +150,33 @@ export default function ProjectDetail() {
     setUseProjectPreview(false);
     setIsPosterUnavailable(false);
   }, [projectId]);
+
+  useEffect(() => {
+    const page = pageRef.current;
+    if (!page || !project || reduceMotion) return;
+
+    const context = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>('[data-project-reveal]').forEach((section) => {
+        gsap.fromTo(
+          section,
+          { autoAlpha: 0, y: 24 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.65,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 86%',
+              once: true,
+            },
+          },
+        );
+      });
+    }, pageRef);
+
+    return () => context.revert();
+  }, [project, reduceMotion]);
 
   useEffect(() => {
     const dialog = videoDialogRef.current;
@@ -250,7 +282,7 @@ export default function ProjectDetail() {
     : screenshots[selectedScreenshotIndex];
 
   return (
-    <main className="mx-auto max-w-[1200px] px-5 pb-16 pt-24 text-[#F3EEE3] sm:px-8 md:pt-28 lg:px-12">
+      <main ref={pageRef} className="mx-auto max-w-[1200px] px-5 pb-16 pt-24 text-[#F3EEE3] sm:px-8 md:pt-28 lg:px-12">
       <nav aria-label="Breadcrumb" className="mb-8 flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-[#F3EEE3]/55">
         <Link to="/#projects" className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-[#D9541E]">
           <ArrowLeft className="h-4 w-4" />
@@ -262,7 +294,7 @@ export default function ProjectDetail() {
         <span className="text-[#F3EEE3]/80">{project.title}</span>
       </nav>
 
-      <header className="grid gap-8 border-b border-[#F3EEE3]/20 pb-10 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-12">
+      <header data-project-reveal className="grid gap-8 border-b border-[#F3EEE3]/20 pb-10 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-12">
         <div>
           <span className="inline-flex border border-[#D9541E] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[#D9541E]">
             {project.featured ? 'Featured project' : 'Project case study'}
@@ -321,68 +353,166 @@ export default function ProjectDetail() {
       </header>
 
       {project.metrics && project.metrics.length > 0 && (
-        <section aria-label="Project results" className="grid border-b border-[#F3EEE3]/20 py-6 sm:grid-cols-2 lg:grid-cols-4">
+        <section data-project-reveal aria-label="Project results" className="grid border-b border-[#F3EEE3]/20 py-6 sm:grid-cols-2 lg:grid-cols-4">
           {project.metrics.map((metric, index) => (
-            <div
+            <motion.div
               key={`${metric.label}-${index}`}
+              initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: reduceMotion ? 0 : 0.45, delay: reduceMotion ? 0 : index * 0.08 }}
               className={`border-[#F3EEE3]/15 px-4 py-3 first:pl-0 ${index > 0 ? 'border-t sm:border-t-0 sm:border-l' : ''}`}
             >
               <p className="font-display text-2xl font-semibold text-[#D9541E] sm:text-3xl">{metric.value}</p>
               <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.08em] text-[#F3EEE3]/65">{metric.label}</p>
-            </div>
+            </motion.div>
           ))}
         </section>
       )}
 
-      {(project.caseStudy?.problem || project.features?.length) && (
-        <section className="grid gap-8 border-b border-[#F3EEE3]/20 py-8 lg:grid-cols-2 lg:gap-12">
+      {(project.caseStudy?.problem || project.caseStudy?.approach) && (
+        <section data-project-reveal className="grid gap-8 border-b border-[#F3EEE3]/20 py-8 lg:grid-cols-2 lg:gap-12">
           {project.caseStudy?.problem && (
             <div>
               <SectionHeading>Project overview</SectionHeading>
               <RichText value={project.caseStudy.problem} />
             </div>
           )}
-          {project.features && project.features.length > 0 && (
+          {project.caseStudy?.approach && (
             <div>
-              <SectionHeading>Key features</SectionHeading>
-              <ul className="divide-y divide-[#F3EEE3]/15">
-                {project.features.map((feature, index) => (
-                  <li key={`${feature.title}-${index}`} className="flex gap-3 py-3 first:pt-0">
-                    <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#D9541E]" />
-                    <div>
-                      <h3 className="font-display text-lg font-semibold">{feature.title}</h3>
-                      <p className="mt-1 text-base leading-6 text-[#F3EEE3]/65">{feature.description}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <SectionHeading>Approach</SectionHeading>
+              <RichText value={project.caseStudy.approach} />
             </div>
           )}
         </section>
       )}
 
-      {project.tech.length > 0 && (
-        <section className="border-b border-[#F3EEE3]/20 py-8">
-          <SectionHeading>Tech stack</SectionHeading>
-          <ul className="flex flex-wrap gap-2">
-            {project.tech.map((technology) => (
-              <li key={technology} className="border border-[#F3EEE3]/25 px-3 py-2 font-mono text-xs text-[#F3EEE3]/75">
-                {technology}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <section data-project-reveal className="border-b border-[#F3EEE3]/20 py-8">
+        <SectionHeading>Application screenshots</SectionHeading>
+        {screenshots.length > 0 ? (
+          <AnimatePresence initial={false} mode="wait" custom={screenshotDirection}>
+            <motion.div
+              key={screenshotPage}
+              ref={galleryRef}
+              custom={screenshotDirection}
+              variants={{
+                enter: (direction: number) => ({ opacity: 0, x: direction * 32 }),
+                center: { opacity: 1, x: 0 },
+                exit: (direction: number) => ({ opacity: 0, x: direction * -32 }),
+              }}
+              initial={reduceMotion ? false : 'enter'}
+              animate="center"
+              exit={reduceMotion ? undefined : 'exit'}
+              transition={{ duration: reduceMotion ? 0 : 0.24, ease: 'easeInOut' }}
+              className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:auto-rows-[180px]"
+              aria-label={`Project screenshots, page ${screenshotPage}`}
+            >
+              {visibleScreenshots.map((screenshot, index) => {
+                const screenshotIndex = (screenshotPage - 1) * screenshotsPerPage + index;
+                const alt = screenshot.alt || screenshot.caption || `${project.title} screenshot ${screenshotIndex + 1}`;
 
-      <section className="border-b border-[#F3EEE3]/20 py-8">
+                return (
+                  <motion.figure
+                    key={`${screenshot.src}-${screenshotIndex}`}
+                    initial={reduceMotion ? false : { opacity: 0, y: 28, scale: 0.96 }}
+                    whileInView={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.15 }}
+                    transition={{
+                      duration: reduceMotion ? 0 : 0.6,
+                      delay: reduceMotion ? 0 : index * 0.12,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className={`group relative min-h-[240px] overflow-hidden border border-[#F3EEE3]/20 bg-[#111111] sm:min-h-0 ${index === 0 ? 'sm:col-span-2 sm:row-span-2' : 'sm:col-span-1'}`}
+                  >
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        screenshotTriggerRef.current = event.currentTarget;
+                        setSelectedScreenshotIndex(screenshotIndex);
+                      }}
+                      aria-label={`Enlarge screenshot: ${alt}`}
+                      className="relative block h-full w-full overflow-hidden text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9541E]"
+                    >
+                      <img
+                        src={screenshot.src}
+                        alt={alt}
+                        loading="lazy"
+                        decoding="async"
+                        width="960"
+                        height="600"
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                      />
+                      <span className="absolute inset-0 bg-gradient-to-t from-[#080808]/90 via-[#080808]/10 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-90" aria-hidden="true" />
+                      {screenshot.caption && (
+                        <span className="absolute inset-x-4 bottom-4 font-mono text-[11px] uppercase tracking-[0.08em] text-[#F3EEE3]/85">
+                          {screenshot.caption}
+                        </span>
+                      )}
+                    </button>
+                  </motion.figure>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
+        ) : (
+          <p className="border-t border-[#F3EEE3]/15 pt-4 text-base leading-7 text-[#F3EEE3]/65">
+            Screenshots have not been added for this project yet.
+          </p>
+        )}
+        {totalScreenshotPages > 1 && (
+          <nav aria-label="Screenshot pagination" className="mt-8 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => goToScreenshotPage(screenshotPage - 1)}
+              disabled={screenshotPage === 1}
+              aria-label="Previous screenshots page"
+              className="flex h-11 w-11 items-center justify-center border border-[#F3EEE3]/25 text-[#F3EEE3] transition-colors hover:border-[#D9541E] disabled:cursor-not-allowed disabled:opacity-35"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            {Array.from({ length: totalScreenshotPages }, (_, index) => index + 1).map((page) => (
+              <button
+                type="button"
+                key={page}
+                onClick={() => goToScreenshotPage(page)}
+                aria-current={page === screenshotPage ? 'page' : undefined}
+                aria-label={`Screenshots page ${page}`}
+                className={`min-h-11 min-w-11 border px-3 font-mono text-xs transition-colors ${
+                  page === screenshotPage
+                    ? 'border-[#D9541E] text-[#D9541E]'
+                    : 'border-[#F3EEE3]/25 text-[#F3EEE3]/70 hover:border-[#D9541E]'
+                }`}
+              >
+                {String(page).padStart(2, '0')}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => goToScreenshotPage(screenshotPage + 1)}
+              disabled={screenshotPage === totalScreenshotPages}
+              aria-label="Next screenshots page"
+              className="flex h-11 w-11 items-center justify-center border border-[#F3EEE3]/25 text-[#F3EEE3] transition-colors hover:border-[#D9541E] disabled:cursor-not-allowed disabled:opacity-35"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </nav>
+        )}
+        {totalScreenshotPages > 1 && (
+          <p aria-live="polite" className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.12em] text-[#F3EEE3]/45">
+            Page {screenshotPage} of {totalScreenshotPages}
+          </p>
+        )}
+      </section>
+
+      <section data-project-reveal className="border-b border-[#F3EEE3]/20 py-8">
         <SectionHeading>Demo video</SectionHeading>
         {videoUrl ? (
-          <figure className="w-[min(82vw,360px)]">
+          <figure className="w-full max-w-3xl">
             <button
               type="button"
               onClick={() => setIsVideoOpen(true)}
               aria-label={`Play demo video for ${project.title}`}
-              className="group relative block aspect-[8/5] w-full overflow-hidden border border-[#F3EEE3]/25 bg-[#111111] text-[#F3EEE3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9541E]"
+              className="group relative block aspect-video w-full overflow-hidden border border-[#F3EEE3]/25 bg-[#111111] text-[#F3EEE3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9541E]"
             >
               {videoPoster && !isPosterUnavailable ? (
                 <img
@@ -391,7 +521,7 @@ export default function ProjectDetail() {
                   loading="lazy"
                   decoding="async"
                   width="960"
-                  height="600"
+                  height="540"
                   onError={() => {
                     if (driveThumbnail && !useProjectPreview && project.bgImage) {
                       setUseProjectPreview(true);
@@ -422,6 +552,36 @@ export default function ProjectDetail() {
           </p>
         )}
       </section>
+
+      {project.features && project.features.length > 0 && (
+        <section data-project-reveal className="border-b border-[#F3EEE3]/20 py-8">
+          <SectionHeading>Key features</SectionHeading>
+          <ul className="grid gap-x-8 divide-y divide-[#F3EEE3]/15 sm:grid-cols-2 sm:divide-y-0">
+            {project.features.map((feature, index) => (
+              <li key={`${feature.title}-${index}`} className="flex gap-3 border-b border-[#F3EEE3]/15 py-4 first:pt-0 sm:border-b-0 sm:py-3">
+                <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#D9541E]" />
+                <div>
+                  <h3 className="font-display text-lg font-semibold">{feature.title}</h3>
+                  <p className="mt-1 text-base leading-6 text-[#F3EEE3]/65">{feature.description}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {project.tech.length > 0 && (
+        <section data-project-reveal className="border-b border-[#F3EEE3]/20 py-8">
+          <SectionHeading>Tech stack</SectionHeading>
+          <ul className="flex flex-wrap gap-2">
+            {project.tech.map((technology) => (
+              <li key={technology} className="border border-[#F3EEE3]/25 px-3 py-2 font-mono text-xs text-[#F3EEE3]/75">
+                {technology}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {isVideoOpen && videoUrl && (
         <dialog
@@ -489,111 +649,6 @@ export default function ProjectDetail() {
         </dialog>
       )}
 
-      <section className="border-b border-[#F3EEE3]/20 py-8">
-        <SectionHeading>Application screenshots</SectionHeading>
-        {screenshots.length > 0 ? (
-          <AnimatePresence initial={false} mode="wait" custom={screenshotDirection}>
-            <motion.div
-              key={screenshotPage}
-              ref={galleryRef}
-              custom={screenshotDirection}
-              variants={{
-                enter: (direction: number) => ({ opacity: 0, x: direction * 32 }),
-                center: { opacity: 1, x: 0 },
-                exit: (direction: number) => ({ opacity: 0, x: direction * -32 }),
-              }}
-              initial={reduceMotion ? false : 'enter'}
-              animate="center"
-              exit={reduceMotion ? undefined : 'exit'}
-              transition={{ duration: reduceMotion ? 0 : 0.24, ease: 'easeInOut' }}
-              className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-              aria-label={`Project screenshots, page ${screenshotPage}`}
-            >
-              {visibleScreenshots.map((screenshot, index) => {
-                const screenshotIndex = (screenshotPage - 1) * screenshotsPerPage + index;
-                const alt = screenshot.alt || screenshot.caption || `${project.title} screenshot ${screenshotIndex + 1}`;
-
-                return (
-                  <figure key={`${screenshot.src}-${screenshotIndex}`} className="min-w-0">
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        screenshotTriggerRef.current = event.currentTarget;
-                        setSelectedScreenshotIndex(screenshotIndex);
-                      }}
-                      aria-label={`Enlarge screenshot: ${alt}`}
-                      className="block aspect-[8/5] w-full overflow-hidden border border-[#F3EEE3]/20 bg-[#111111] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9541E]"
-                    >
-                      <img
-                        src={screenshot.src}
-                        alt={alt}
-                        loading="lazy"
-                        decoding="async"
-                        width="960"
-                        height="600"
-                        className="h-full w-full object-contain"
-                      />
-                    </button>
-                    {screenshot.caption && (
-                      <figcaption className="mt-2 font-mono text-[11px] text-[#F3EEE3]/60">
-                        {screenshot.caption}
-                      </figcaption>
-                    )}
-                  </figure>
-                );
-              })}
-            </motion.div>
-          </AnimatePresence>
-        ) : (
-          <p className="border-t border-[#F3EEE3]/15 pt-4 text-base leading-7 text-[#F3EEE3]/65">
-            Screenshots have not been added for this project yet.
-          </p>
-        )}
-        {totalScreenshotPages > 1 && (
-          <nav aria-label="Screenshot pagination" className="mt-8 flex flex-wrap items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => goToScreenshotPage(screenshotPage - 1)}
-              disabled={screenshotPage === 1}
-              aria-label="Previous screenshots page"
-              className="flex h-11 w-11 items-center justify-center border border-[#F3EEE3]/25 text-[#F3EEE3] transition-colors hover:border-[#D9541E] disabled:cursor-not-allowed disabled:opacity-35"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-            {Array.from({ length: totalScreenshotPages }, (_, index) => index + 1).map((page) => (
-              <button
-                type="button"
-                key={page}
-                onClick={() => goToScreenshotPage(page)}
-                aria-current={page === screenshotPage ? 'page' : undefined}
-                aria-label={`Screenshots page ${page}`}
-                className={`min-h-11 min-w-11 border px-3 font-mono text-xs transition-colors ${
-                  page === screenshotPage
-                    ? 'border-[#D9541E] text-[#D9541E]'
-                    : 'border-[#F3EEE3]/25 text-[#F3EEE3]/70 hover:border-[#D9541E]'
-                }`}
-              >
-                {String(page).padStart(2, '0')}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => goToScreenshotPage(screenshotPage + 1)}
-              disabled={screenshotPage === totalScreenshotPages}
-              aria-label="Next screenshots page"
-              className="flex h-11 w-11 items-center justify-center border border-[#F3EEE3]/25 text-[#F3EEE3] transition-colors hover:border-[#D9541E] disabled:cursor-not-allowed disabled:opacity-35"
-            >
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </nav>
-        )}
-        {totalScreenshotPages > 1 && (
-          <p aria-live="polite" className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.12em] text-[#F3EEE3]/45">
-            Page {screenshotPage} of {totalScreenshotPages}
-          </p>
-        )}
-      </section>
-
       {selectedScreenshot && (
         <dialog
           ref={screenshotDialogRef}
@@ -633,7 +688,7 @@ export default function ProjectDetail() {
       )}
 
       {project.architectureImage && (
-        <section className="border-b border-[#F3EEE3]/20 py-8">
+        <section data-project-reveal className="border-b border-[#F3EEE3]/20 py-8">
           <SectionHeading>System architecture</SectionHeading>
           <img
             src={project.architectureImage}
@@ -648,7 +703,7 @@ export default function ProjectDetail() {
       )}
 
       {(project.challengesAndLearnings?.length || project.caseStudy?.impact || project.highlights.length > 0) && (
-        <section className="grid gap-8 border-b border-[#F3EEE3]/20 py-8 lg:grid-cols-2 lg:gap-12">
+        <section data-project-reveal className="grid gap-8 border-b border-[#F3EEE3]/20 py-8 lg:grid-cols-2 lg:gap-12">
           {project.challengesAndLearnings && project.challengesAndLearnings.length > 0 && (
             <div>
               <SectionHeading>Challenges and learnings</SectionHeading>
@@ -681,13 +736,6 @@ export default function ProjectDetail() {
         </section>
       )}
 
-      {project.caseStudy?.approach && (
-        <section className="border-b border-[#F3EEE3]/20 py-8">
-          <SectionHeading>Approach</SectionHeading>
-          <RichText value={project.caseStudy.approach} />
-        </section>
-      )}
-
       <nav aria-label="Project navigation" className="grid grid-cols-2 gap-4 pt-8">
         {previousProject ? (
           <Link
@@ -714,6 +762,31 @@ export default function ProjectDetail() {
           </Link>
         ) : <span />}
       </nav>
+
+      <motion.section
+        initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+        whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: reduceMotion ? 0 : 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-8 w-full border border-[#D9541E]/60 bg-[#171717] px-5 py-5 text-[#F3EEE3] sm:px-6 sm:py-6"
+      >
+        <p className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.12em] text-[#D9541E]">
+          <Mail aria-hidden="true" className="h-3.5 w-3.5" />
+          Have a project in mind?
+        </p>
+        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="max-w-lg font-sans text-xl font-semibold leading-tight tracking-[-0.02em] sm:text-2xl">
+            Let’s build something useful together.
+          </h2>
+          <Link
+            to="/#contact"
+            className="inline-flex min-h-10 shrink-0 items-center justify-center border border-[#D9541E] bg-[#D9541E] px-4 py-2 text-xs font-medium text-[#111111] transition-colors hover:bg-[#F3EEE3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9541E]"
+          >
+            Start a conversation
+            <ArrowRight aria-hidden="true" className="h-4 w-4" />
+          </Link>
+        </div>
+      </motion.section>
     </main>
   );
 }
